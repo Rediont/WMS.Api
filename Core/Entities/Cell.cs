@@ -2,6 +2,13 @@
 
 namespace Core.Entities
 {
+    public enum CellStatus
+    {
+        Full,
+        Empty,
+        SemiFull,
+    }
+
     public class Cell
     {
         private int alley_index; // індекс алеї в якій знаходиться комірка
@@ -9,6 +16,8 @@ namespace Core.Entities
         private bool is_occupied; // чи зайнята комірка
 
         private int height; // висота комірки
+
+        public CellStatus status;
 
         public int Alley_index { get { return alley_index; } }
         public string Cell_index { get { return cell_index; } } // індекс комірки

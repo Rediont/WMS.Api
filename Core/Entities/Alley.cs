@@ -10,7 +10,7 @@ namespace Core.Entities
         public readonly int width; // ширина алеї
         private int cells_per_floor { get; } // кількість комірок на поверх 
 
-        public List<Sector> sectors; // список секторів алеї
+        public List<Sector> Sectors; // список секторів алеї
 
     }
 
