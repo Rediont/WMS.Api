@@ -1,16 +1,22 @@
 ﻿
 using Core.Entities;
 using Infrastructure.DataBase;
+using Infrastructure.Interfaces;
 
 namespace Infrastructure.Repositories
 {
-    internal class ClientRepo
+    internal class ClientRepo : IClientRepository
     {
         private readonly DbContext _dbContext;
 
         public List<Client> GetAllClients()
         {
             return _dbContext.Clients.ToList();
+        }
+
+        public Client? GetClientById(Guid clientId)
+        {
+            return _dbContext.Clients.Find(clientId);
         }
 
         // add client to the database
@@ -25,7 +31,7 @@ namespace Infrastructure.Repositories
         }
 
         // remove client from the database
-        public void RemoveClient(string clientId)
+        public void RemoveClient(Guid clientId)
         {
             Client? targetClient = this._dbContext.Clients.Find(clientId);
             if (targetClient == null)
@@ -37,7 +43,7 @@ namespace Infrastructure.Repositories
         }
 
         //add contract to a specific client
-        public void AddContractToClient(string clientId, Contract contract)
+        public void AddContractToClient(Guid clientId, Contract contract)
         {
             Client? targetClient = this._dbContext.Clients.Find(clientId);
             if (targetClient == null)
@@ -49,7 +55,7 @@ namespace Infrastructure.Repositories
         }
 
         // terminate a specific contract of a specific client
-        public void TerminateClientContract(string clientId, string contractId)
+        public void TerminateClientContract(Guid clientId, string contractId)
         {
             Client? targetClient = this._dbContext.Clients.Find(clientId);
             if (targetClient == null)
@@ -66,7 +72,7 @@ namespace Infrastructure.Repositories
         }
 
         // get all contracts of a specific client
-        public List<Contract> GetClientContracts(string clientId)
+        public List<Contract> GetClientContracts(Guid clientId)
         {
             Client? client = GetAllClients().FirstOrDefault(c => c.id == clientId);
 
@@ -81,7 +87,7 @@ namespace Infrastructure.Repositories
         }
 
         // get contact person name and phone number of a specific client
-        public (string name, string phone) GetClientContacts(string clientId)
+        public (string name, string phone) GetClientContacts(Guid clientId)
         {
             Client? client = GetAllClients().FirstOrDefault(c => c.id == clientId);
             if (client == null)

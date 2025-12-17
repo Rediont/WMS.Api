@@ -1,5 +1,6 @@
 ﻿using Core.Entities;
 using Infrastructure.DataBase;
+using Infrastructure.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace Infrastructure.Repositories
 {
-    internal class ItemRepository
+    internal class ItemRepo : IItemRepository
     {
         private readonly DbContext _dbContext;
 

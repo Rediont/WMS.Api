@@ -19,6 +19,13 @@ namespace Infrastructure.DataBase
         public DbSet<Contract> Contracts { get; set; }
         public DbSet<Contract_Shipment> Shipments { get; set; }
         public DbSet<Payment> Payments { get; set; }
-        
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            // Це скаже Postgres генерувати UUID автоматично при додаванні нового запису
+            modelBuilder.Entity<Client>()
+                .Property(c => c.id)
+                .HasDefaultValueSql("gen_random_uuid()");
+        }
     }
 }

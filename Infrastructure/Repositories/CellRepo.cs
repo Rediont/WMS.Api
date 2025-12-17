@@ -1,14 +1,10 @@
 ﻿using Core.Entities;
 using Infrastructure.DataBase;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Infrastructure.Interfaces;
 
 namespace Infrastructure.Repositories
 {
-    internal class CellRepo
+    internal class CellRepo : ICellRepository
     {
         private readonly DbContext _dbContext;
 

@@ -1,12 +1,11 @@
 ﻿using Core.Entities;
 using Infrastructure.DataBase;
-
+using Infrastructure.Interfaces;
 
 namespace Infrastructure.Repositories
 {
-    internal class AlleyRepo
-    {
-        
+    internal class AlleyRepo : IAlleyRepositiory
+    { 
         private readonly DbContext _dbContext;
 
         public void AddAlley(Alley alley)
@@ -59,7 +58,5 @@ namespace Infrastructure.Repositories
         {
             return _dbContext.Alleys.ToList();
         }
-
-
     }
 }
