@@ -43,7 +43,7 @@ namespace WMS.Api.Controllers
         [HttpPost("add")]
         public IActionResult AddContract([FromQuery]Guid clientId, [FromBody]List<Item> items, [FromBody]DateTime startDate, [FromBody]DateTime endDate)
         {
-            var client = _clientRepository.GetClientById(clientId);
+            var client = _clientRepository.GetClientById(TODO);
             if (client == null)
             {
                 _logger.LogWarning("Client with ID: {ClientId} not found", clientId);
@@ -74,7 +74,7 @@ namespace WMS.Api.Controllers
         [HttpPost("terminate")]
         public IActionResult TerminateContract([FromQuery]Guid clientId, [FromQuery]string contractId)
         {
-            var client = _clientRepository.GetClientById(clientId);
+            var client = _clientRepository.GetClientById(TODO);
             if (client == null)
             {
                 _logger.LogWarning("Client with ID: {ClientId} not found", clientId);
@@ -94,7 +94,7 @@ namespace WMS.Api.Controllers
         [HttpPost("complete")]
         public IActionResult CompleteContract([FromQuery]Guid clientId, [FromQuery]string contractId)
         {
-            var client = _clientRepository.GetClientById(clientId);
+            var client = _clientRepository.GetClientById(TODO);
             if (client == null)
             {
                 _logger.LogWarning("Client with ID: {ClientId} not found", clientId);
@@ -114,7 +114,7 @@ namespace WMS.Api.Controllers
         [HttpPost("delivery")]
         public IActionResult AddDeliveryToContract([FromQuery] Guid clientId, [FromQuery]string contractId, [FromBody]List<Item> items, [FromBody]DateTime? arrivalDate)
         {
-            var client = _clientRepository.GetClientById(clientId);
+            var client = _clientRepository.GetClientById(TODO);
             if (client == null)
             {
                 _logger.LogWarning("Client with ID: {ClientId} not found", clientId);
@@ -142,7 +142,7 @@ namespace WMS.Api.Controllers
         [HttpPost("shipment")]
         public IActionResult AddShipmentToContract([FromQuery] Guid clientId, [FromQuery]string contractId, [FromBody]List<Item> items, [FromBody]DateTime? shipmentDate)
         {
-            var client = _clientRepository.GetClientById(clientId);
+            var client = _clientRepository.GetClientById(TODO);
             if (client == null)
             {
                 _logger.LogWarning("Client with ID: {ClientId} not found", clientId);

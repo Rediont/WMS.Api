@@ -4,48 +4,11 @@ using Infrastructure.Interfaces;
 
 namespace Infrastructure.Repositories
 {
-    internal class CellRepo : ICellRepository
+    internal class CellRepo : Repository<Cell>, ICellRepository
     {
         private readonly DbContext _dbContext;
 
-        public List<Cell> GetAllCells()
-        {
-            return _dbContext.Cells.ToList();
-        }
-
-        // потрібна перевірка для розмірів алеї
-        public void AddCell(Cell cell)
-        {
-            if (_dbContext.Cells.Contains(cell))
-            {
-                throw new Exception("Cell already exists");
-            }
-            this._dbContext.Cells.Add(cell);
-        }
-
-        public void RemoveCell(string cellId)
-        {
-            Cell? targetCell = this._dbContext.Cells.Find(cellId);
-            if (targetCell == null)
-            {
-                throw new Exception("Cell not found");
-            }
-            _dbContext.Cells.Remove(targetCell);
-            _dbContext.SaveChanges();
-        }
-
-        public Cell GetCell(string cellId) {
-
-            Cell? targetCell = this._dbContext.Cells.Find(cellId);
-
-            if (targetCell == null)
-            {
-                throw new Exception("Cell not found");
-            }
-            return targetCell;
-        }
-
-        public void UpdateCellStatus(string cellId, CellStatus newStatus) {
+        public void UpdateCellStatus(int cellId, CellStatus newStatus) {
 
             Cell? targetCell = this._dbContext.Cells.Find(cellId);
 

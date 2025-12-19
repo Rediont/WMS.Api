@@ -7,29 +7,19 @@ using System.Threading.Tasks;
 
 namespace Infrastructure.Interfaces
 {
-    public interface IClientRepository
+    public interface IClientRepository : IRepository<Client>
     {
-        public List<Client> GetAllClients();
-
-        public Client? GetClientById(Guid client);
-
-        // add client to the database
-        public void AddClient(Client client);
-
-        // remove client from the database
-        public void RemoveClient(Guid clientId);
-
         //add contract to a specific client
-        public void AddContractToClient(Guid clientId, Contract contract);
+        public void AddContractToClient(int clientId, Contract contract);
 
         // terminate a specific contract of a specific client
-        public void TerminateClientContract(Guid clientId, string contractId);
+        public void TerminateClientContract(int clientId, int contractId);
 
         // get all contracts of a specific client
-        public List<Contract> GetClientContracts(Guid clientId);
+        public List<Contract> GetClientContracts(int clientId);
 
         // get contact person name and phone number of a specific client
-        public (string name, string phone) GetClientContacts(Guid clientId);
+        public (string name, string phone) GetCertainClientContacts(int clientId);
 
     }
 }

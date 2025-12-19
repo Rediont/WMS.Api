@@ -7,18 +7,10 @@ using System.Threading.Tasks;
 
 namespace Infrastructure.Interfaces
 {
-    public interface IItemRepository
+    public interface IItemRepository : IRepository<Item>
     {
+        public List<Item> GetItemsByContractId(int contractId);
 
-        public List<Item> GetAllItems();
-
-        public List<Item> GetItemsByContractId(string contractId);
-
-        public List<Item> GetItemsByClientId(Guid clientId);
-
-        public void AddItem(Item item);
-
-        public void RemoveItem(int itemId);
-
+        public List<Item> GetItemsByClientId(int clientId);
     }
 }

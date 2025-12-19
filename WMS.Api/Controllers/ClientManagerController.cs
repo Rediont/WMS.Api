@@ -41,7 +41,7 @@ namespace WMS.Api.Controllers
         {
             try
             {
-                var client = _clientRepository.GetClientById(clientId);
+                var client = _clientRepository.GetClientById(TODO);
                 if (client == null)
                 {
                     _logger.LogWarning("Client with ID: {ClientId} not found", clientId);

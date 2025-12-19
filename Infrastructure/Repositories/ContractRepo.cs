@@ -9,26 +9,12 @@ using System.Threading.Tasks;
 
 namespace Infrastructure.Repositories
 {
-    internal class ContractRepo : IContractRepository
+    internal class ContractRepo : Repository<Contract>, IContractRepository
     {
         private readonly DbContext _dbContext;
 
-        public List<Contract> GetAllContracts()
-        {
-            return _dbContext.Contracts.ToList();
-        }
-
-        public void AddContract(Contract contract)
-        {
-            if (_dbContext.Contracts.Contains(contract))
-            {
-                throw new Exception("Contract already exists");
-            }
-            this._dbContext.Contracts.Add(contract);
-        }
-
         // можливо треба буде змінити статус контракту з "розірваний" на "призупинений"
-        public void SuspendContract(string contractId)
+        public void SuspendContract(int contractId)
         {
             Contract? targetContract = this._dbContext.Contracts.Find(contractId);
             if (targetContract == null)
@@ -39,7 +25,7 @@ namespace Infrastructure.Repositories
             _dbContext.SaveChanges();
         }
 
-        public void SetContractStatusToCompleted(string contractId)
+        public void SetContractStatusToCompleted(int contractId)
         {
             Contract? targetContract = this._dbContext.Contracts.Find(contractId);
             if (targetContract == null)
@@ -50,7 +36,7 @@ namespace Infrastructure.Repositories
             _dbContext.SaveChanges();
         }
 
-        public void SetContractStatusToInvalid(string contractId)
+        public void SetContractStatusToInvalid(int contractId)
         {
             Contract? targetContract = this._dbContext.Contracts.Find(contractId);
             if (targetContract == null)
@@ -61,32 +47,7 @@ namespace Infrastructure.Repositories
             _dbContext.SaveChanges();
         }
 
-        public Contract? GetContractById(string contractId, Guid clientId)
-        {
-            if (!_dbContext.Clients.Any(c => c.id == clientId))
-            {
-                throw new Exception("Client not found");
-            }
-
-            if (!_dbContext.Contracts.Any(c => c.id == contractId))
-            {
-                throw new Exception("Contract not found");
-            }
-
-            if (!_dbContext.Clients.Find(clientId)!.Contract_list.Any(c => c.id == contractId))
-            {
-                throw new Exception("Contract does not belong to the specified client");
-            }
-
-            if (clientId != null)
-            {
-                return _dbContext.Clients.Find(clientId)!.Contract_list.FirstOrDefault(c => c.id == contractId);
-            }
-
-            return this._dbContext.Contracts.Find(contractId);
-        }
-
-        public List<Contract>? GetClientContracts(Guid clientId, ContractStatus? status = null)
+        public List<Contract>? GetClientContracts(int clientId, ContractStatus? status = null)
         {
             var client = _dbContext.Clients.Find(clientId);
             if (client == null)
@@ -101,7 +62,7 @@ namespace Infrastructure.Repositories
             return contracts.ToList();
         }
 
-        public void AddDeliveryToContract(string contractId, ContractShipment shipment)
+        public void AddDeliveryToContract(int contractId, ContractShipment shipment)
         {
             var contract = _dbContext.Contracts.Find(contractId);
             if (contract == null)
@@ -112,7 +73,7 @@ namespace Infrastructure.Repositories
             _dbContext.SaveChanges();
         }
 
-        public void AddShipmentToContract(string contractId, ContractDelivery dispatch)
+        public void AddShipmentToContract(int contractId, ContractDelivery dispatch)
         {
             var contract = _dbContext.Contracts.Find(contractId);
             if (contract == null)

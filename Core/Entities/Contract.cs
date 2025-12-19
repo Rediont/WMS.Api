@@ -11,7 +11,8 @@ namespace Core.Entities
 
     public class Contract
     {
-        public string id;
+        public int id;
+        public string name;
         public DateTime start_date;
         public DateTime expiration_date;
 

@@ -10,8 +10,8 @@ namespace Core.Entities
     {
         public int alley_index; // індекс алеї в якій знаходиться сектор
         public int sector_index; // індекс сектору в алеї
-        public string starting_cell_index; // індекс початкової комірки сектора
-        public string ending_cell_index; // індекс кінцевої комірки сектора
+        public int starting_cell_index; // індекс початкової комірки сектора
+        public int ending_cell_index; // індекс кінцевої комірки сектора
 
         private int floors { get; } // кількість поверхів (рядів)
         public int Floors { get { return floors; } }

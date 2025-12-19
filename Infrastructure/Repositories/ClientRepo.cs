@@ -5,45 +5,12 @@ using Infrastructure.Interfaces;
 
 namespace Infrastructure.Repositories
 {
-    internal class ClientRepo : IClientRepository
+    internal class ClientRepo : Repository<Client> ,IClientRepository
     {
         private readonly DbContext _dbContext;
 
-        public List<Client> GetAllClients()
-        {
-            return _dbContext.Clients.ToList();
-        }
-
-        public Client? GetClientById(Guid clientId)
-        {
-            return _dbContext.Clients.Find(clientId);
-        }
-
-        // add client to the database
-        public void AddClient(Client client)
-        {
-            if (_dbContext.Clients.Contains(client))
-            {
-                throw new Exception("Client already exists");
-            }
-
-            this._dbContext.Clients.Add(client);
-        }
-
-        // remove client from the database
-        public void RemoveClient(Guid clientId)
-        {
-            Client? targetClient = this._dbContext.Clients.Find(clientId);
-            if (targetClient == null)
-            {
-                throw new Exception("Client not found");
-            }
-            _dbContext.Clients.Remove(targetClient);
-            _dbContext.SaveChanges();
-        }
-
         //add contract to a specific client
-        public void AddContractToClient(Guid clientId, Contract contract)
+        public void AddContractToClient(int clientId, Contract contract)
         {
             Client? targetClient = this._dbContext.Clients.Find(clientId);
             if (targetClient == null)
@@ -55,7 +22,7 @@ namespace Infrastructure.Repositories
         }
 
         // terminate a specific contract of a specific client
-        public void TerminateClientContract(Guid clientId, string contractId)
+        public void TerminateClientContract(int clientId, int contractId)
         {
             Client? targetClient = this._dbContext.Clients.Find(clientId);
             if (targetClient == null)
@@ -67,14 +34,14 @@ namespace Infrastructure.Repositories
             {
                 throw new Exception("Contract not found");
             }
-            targetContract.status = ContractStatus.Terminated;
+            targetContract.current_status = ContractStatus.Terminated;
             _dbContext.SaveChanges();
         }
 
         // get all contracts of a specific client
-        public List<Contract> GetClientContracts(Guid clientId)
+        public List<Contract> GetClientContracts(int clientId)
         {
-            Client? client = GetAllClients().FirstOrDefault(c => c.id == clientId);
+            Client? client = GetAll().FirstOrDefault(c => c.id == clientId);
 
             if (client != null)
             {
@@ -87,16 +54,14 @@ namespace Infrastructure.Repositories
         }
 
         // get contact person name and phone number of a specific client
-        public (string name, string phone) GetClientContacts(Guid clientId)
+        public (string name, string phone) GetCertainClientContacts(int clientId)
         {
-            Client? client = GetAllClients().FirstOrDefault(c => c.id == clientId);
+            Client? client = GetAll().FirstOrDefault(c => c.id == clientId);
             if (client == null)
             {
                 throw new Exception("Client not found");
             }
             return (client.contact_person_name, client.contact_phone);
         }
-
-
     }
 }

@@ -7,25 +7,19 @@ using System.Threading.Tasks;
 
 namespace Infrastructure.Interfaces
 {
-    public interface IContractRepository
+    public interface IContractRepository : IRepository<Contract>
     {
-        public List<Contract> GetAllContracts();
+        public void SuspendContract(int contractId);
 
-        public void AddContract(Contract contract);
+        public void SetContractStatusToCompleted(int contractId);
 
-        public void SuspendContract(string contractId);
+        public void SetContractStatusToInvalid(int contractId);
 
-        public void SetContractStatusToCompleted(string contractId);
+        public List<Contract>? GetClientContracts(int clientId, ContractStatus? status = null);
 
-        public void SetContractStatusToInvalid(string contractId);
+        public void AddDeliveryToContract(int contractId, ContractShipment shipment);
 
-        public Contract? GetContractById(string contractId, Guid clientId);
-
-        public List<Contract>? GetClientContracts(Guid clientId, ContractStatus? status = null);
-
-        public void AddDeliveryToContract(string contractId, ContractShipment shipment);
-
-        public void AddShipmentToContract(string contractId, ContractDelivery dispatch);
+        public void AddShipmentToContract(int contractId, ContractDelivery dispatch);
 
     }
 }

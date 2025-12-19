@@ -9,22 +9,13 @@ using System.Threading.Tasks;
 
 namespace Infrastructure.Repositories
 {
-    internal class ItemRepo : IItemRepository
+    internal class ItemRepo : Repository<Item>, IItemRepository
     {
         private readonly DbContext _dbContext;
 
-        public List<Item> GetAllItems()
-        {
-            return _dbContext.Items.ToList();
-        }
 
-        public List<Item> GetItemsByContractId(string contractId)
+        public List<Item> GetItemsByContractId(int contractId)
         {
-            if (string.IsNullOrEmpty(contractId))
-            {
-                throw new ArgumentException("contractId cannot be null or empty", nameof(contractId));
-            }
-
             if (!_dbContext.Contracts.Any(c => c.id == contractId))
             {
                 throw new InvalidOperationException($"Contract with ID {contractId} does not exist.");
@@ -36,7 +27,7 @@ namespace Infrastructure.Repositories
                 .ToList();
         }
 
-        public List<Item> GetItemsByClientId(Guid clientId)
+        public List<Item> GetItemsByClientId(int clientId)
         {
             if (!_dbContext.Clients.Any(cl => cl.id == clientId))
             {
@@ -49,26 +40,5 @@ namespace Infrastructure.Repositories
                 .SelectMany(c => c.item_list)
                 .ToList();
         }
-
-        public void AddItem(Item item)
-        {
-            if (_dbContext.Items.Contains(item))
-            {
-                throw new Exception("Item already exists");
-            }
-            this._dbContext.Items.Add(item);
-        }
-
-        public void RemoveItem(int itemId)
-        {
-            Item? targetItem = this._dbContext.Items.Find(itemId);
-            if (targetItem == null)
-            {
-                throw new Exception("Item not found");
-            }
-            _dbContext.Items.Remove(targetItem);
-            _dbContext.SaveChanges();
-        }
-
     }
 }
