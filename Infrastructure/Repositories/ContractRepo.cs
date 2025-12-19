@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace Infrastructure.Repositories
 {
-    internal class ContractRepo : IContactRepository
+    internal class ContractRepo : IContractRepository
     {
         private readonly DbContext _dbContext;
 
@@ -35,7 +35,7 @@ namespace Infrastructure.Repositories
             {
                 throw new Exception("Contract not found");
             }
-            targetContract.status = ContractStatus.Terminated;
+            targetContract.current_status = ContractStatus.Terminated;
             _dbContext.SaveChanges();
         }
 
@@ -46,7 +46,7 @@ namespace Infrastructure.Repositories
             {
                 throw new Exception("Contract not found");
             }
-            targetContract.status = ContractStatus.Completed;
+            targetContract.current_status = ContractStatus.Completed;
             _dbContext.SaveChanges();
         }
 
@@ -57,11 +57,11 @@ namespace Infrastructure.Repositories
             {
                 throw new Exception("Contract not found");
             }
-            targetContract.status = ContractStatus.invalid;
+            targetContract.current_status = ContractStatus.invalid;
             _dbContext.SaveChanges();
         }
 
-        public Contract? GetContractById(string contractId, string clientId)
+        public Contract? GetContractById(string contractId, Guid clientId)
         {
             if (!_dbContext.Clients.Any(c => c.id == clientId))
             {
@@ -86,7 +86,7 @@ namespace Infrastructure.Repositories
             return this._dbContext.Contracts.Find(contractId);
         }
 
-        public List<Contract>? GetClientContracts(string clientId, ContractStatus? status = null)
+        public List<Contract>? GetClientContracts(Guid clientId, ContractStatus? status = null)
         {
             var client = _dbContext.Clients.Find(clientId);
             if (client == null)
@@ -96,11 +96,32 @@ namespace Infrastructure.Repositories
             var contracts = client.Contract_list.AsQueryable();
             if (status != null)
             {
-                contracts = contracts.Where(c => c.status == status);
+                contracts = contracts.Where(c => c.current_status == status);
             }
             return contracts.ToList();
         }
 
+        public void AddDeliveryToContract(string contractId, ContractShipment shipment)
+        {
+            var contract = _dbContext.Contracts.Find(contractId);
+            if (contract == null)
+            {
+                throw new Exception("Contract not found");
+            }
+            contract.shipment_list.Add(shipment);
+            _dbContext.SaveChanges();
+        }
+
+        public void AddShipmentToContract(string contractId, ContractDelivery dispatch)
+        {
+            var contract = _dbContext.Contracts.Find(contractId);
+            if (contract == null)
+            {
+                throw new Exception("Contract not found");
+            }
+            contract.dispatch_list.Add(dispatch);
+            _dbContext.SaveChanges();
+        }
 
     }
 }

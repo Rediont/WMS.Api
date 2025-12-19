@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Infrastructure.Interfaces
 {
-    public interface IContactRepository
+    public interface IContractRepository
     {
         public List<Contract> GetAllContracts();
 
@@ -19,9 +19,13 @@ namespace Infrastructure.Interfaces
 
         public void SetContractStatusToInvalid(string contractId);
 
-        public Contract? GetContractById(string contractId, string clientId);
+        public Contract? GetContractById(string contractId, Guid clientId);
 
-        public List<Contract>? GetClientContracts(string clientId, ContractStatus? status = null);
+        public List<Contract>? GetClientContracts(Guid clientId, ContractStatus? status = null);
+
+        public void AddDeliveryToContract(string contractId, ContractShipment shipment);
+
+        public void AddShipmentToContract(string contractId, ContractDelivery dispatch);
 
     }
 }

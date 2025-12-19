@@ -14,7 +14,7 @@ namespace Infrastructure.Interfaces
 
         public List<Item> GetItemsByContractId(string contractId);
 
-        public List<Item> GetItemsByClientId(string clientId);
+        public List<Item> GetItemsByClientId(Guid clientId);
 
         public void AddItem(Item item);
 

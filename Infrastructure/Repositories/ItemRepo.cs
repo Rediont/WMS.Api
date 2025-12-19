@@ -32,17 +32,12 @@ namespace Infrastructure.Repositories
 
             return _dbContext.Contracts
                 .Where(c => c.id == contractId)
-                .SelectMany(c => c.Item_list)
+                .SelectMany(c => c.item_list)
                 .ToList();
         }
 
-        public List<Item> GetItemsByClientId(string clientId)
+        public List<Item> GetItemsByClientId(Guid clientId)
         {
-            if (string.IsNullOrEmpty(clientId))
-            {
-                throw new ArgumentException("clientId cannot be null or empty", nameof(clientId));
-            }
-
             if (!_dbContext.Clients.Any(cl => cl.id == clientId))
             {
                 throw new InvalidOperationException($"Client with ID {clientId} does not exist.");
@@ -51,7 +46,7 @@ namespace Infrastructure.Repositories
             return _dbContext.Clients
                 .Where(cl => cl.id == clientId)
                 .SelectMany(cl => cl.Contract_list)
-                .SelectMany(c => c.Item_list)
+                .SelectMany(c => c.item_list)
                 .ToList();
         }
 

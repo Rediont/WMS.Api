@@ -2,6 +2,7 @@ namespace Core.Entities
 {
     public enum ContractStatus
     {
+        Inactive,
         Active,
         Terminated,
         Completed,
@@ -10,16 +11,16 @@ namespace Core.Entities
 
     public class Contract
     {
-        public readonly string id;
-        public readonly DateTime creation_date;
-        public readonly DateTime expiration_date;
+        public string id;
+        public DateTime start_date;
+        public DateTime expiration_date;
 
-        public ContractStatus status;
+        public ContractStatus current_status;
 
-        public List<Contract_Shipment> Shipment_list; // List of shipments associated with the contract
-        public List<Contract_Arrival> Dispatch_list; // List of arrivals associated with the contract
+        public List<ContractShipment> shipment_list; // List of shipments associated with the contract
+        public List<ContractDelivery> dispatch_list; // List of arrivals associated with the contract
 
-        public List<Item> Item_list; // List of items associated with the contract
+        public List<Item> item_list; // List of items associated with the contract
 
     }
 }
