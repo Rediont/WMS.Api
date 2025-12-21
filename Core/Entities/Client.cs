@@ -1,14 +1,14 @@
 
-namespace Core.Entities
+namespace Domain.Entities
 {
     public class Client
     {
         public int id;
         public string name;
         public string email;
-        public string contact_person_name;
-        public string contact_phone;
+        public string contactPersonName;
+        public string contactPersonPhone;
 
-        public List<Contract> Contract_list;
+        public List<Contract> ContractList;
     }
 }

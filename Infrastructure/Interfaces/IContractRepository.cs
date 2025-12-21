@@ -1,4 +1,4 @@
-﻿using Core.Entities;
+﻿using Domain.Entities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -17,9 +17,9 @@ namespace Infrastructure.Interfaces
 
         public List<Contract>? GetClientContracts(int clientId, ContractStatus? status = null);
 
-        public void AddDeliveryToContract(int contractId, ContractShipment shipment);
+        public void AddDeliveryToContract(int contractId, OutboundShipment shipment);
 
-        public void AddShipmentToContract(int contractId, ContractDelivery dispatch);
+        public void AddShipmentToContract(int contractId, InboundReceipt dispatch);
 
     }
 }

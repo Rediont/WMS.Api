@@ -1,0 +1,29 @@
+﻿using Domain.Entities;
+using Microsoft.EntityFrameworkCore;
+
+
+namespace Infrastructure.EntityTypeConfigs
+{
+    internal class OutboundShpmentsEntityTypeConfig : IEntityTypeConfiguration<OutboundShipment>
+    {
+        public void Configure(Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder<OutboundShipment> builder)
+        {
+            builder.ToTable("ContractShipments");
+            builder.HasKey(os => os.id);
+            
+            builder.Property(os => os.shipmentDate)
+                .HasColumnType("timestamp with time zone")
+                .IsRequired();
+            
+            builder.HasOne<Contract>()
+                   .WithMany(c => c.Outbounds)
+                   .HasForeignKey(os => os.contractId)
+                   .OnDelete(DeleteBehavior.Cascade);
+            
+            builder.HasMany(os => os.ShippedItems)
+                   .WithOne()
+                   .HasForeignKey("ShipmentId")
+                   .OnDelete(DeleteBehavior.Cascade);
+        }
+    }
+}

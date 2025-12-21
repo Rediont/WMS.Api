@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Core.Entities;
+using Domain.Entities;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 
 namespace Infrastructure.DataBase
@@ -17,8 +17,19 @@ namespace Infrastructure.DataBase
         public DbSet<Item> Items { get; set; }
         public DbSet<Client> Clients { get; set; }
         public DbSet<Contract> Contracts { get; set; }
-        public DbSet<ContractShipment> Shipments { get; set; }
+        public DbSet<InboundReceipt> Receipts { get; set; }
+        public DbSet<OutboundShipment> Shipments { get; set; }
         public DbSet<Payment> Payments { get; set; }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            base.OnModelCreating(modelBuilder);
+
+            modelBuilder.HasPostgresEnum<ContractStatus>();
+
+            modelBuilder.ApplyConfigurationsFromAssembly(typeof(DbContext).Assembly);
+        }
+
 
         //protected override void OnModelCreating(ModelBuilder modelBuilder)
         //{

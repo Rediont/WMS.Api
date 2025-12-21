@@ -1,13 +1,13 @@
-namespace Core.Entities
+namespace Domain.Entities
 {
     public class Item
     {
-        private int id;
-        public readonly string name;
+        public int id;
+        public string name;
 
-        public DateTime? expiration_date;
-        public int box_per_cell;
-        public int? unit_per_box;
+        public DateTime? expirationDate;
+        public int boxPerCell;
+        public int? unitPerBox;
 
         public int Id { get { return id; } }
 

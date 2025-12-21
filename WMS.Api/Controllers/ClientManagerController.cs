@@ -1,7 +1,7 @@
 ﻿
 using Microsoft.AspNetCore.Mvc;
 using Infrastructure.Interfaces;
-using Core.Entities;
+using Domain.Entities;
 
 namespace WMS.Api.Controllers
 {

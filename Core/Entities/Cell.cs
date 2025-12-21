@@ -1,6 +1,6 @@
 // для уніфікації розмірів всі виміри ведуться в сантиматрах
 
-namespace Core.Entities
+namespace Domain.Entities
 {
     public enum CellStatus
     {
@@ -11,17 +11,17 @@ namespace Core.Entities
 
     public class Cell
     {
-        private int alley_index; // індекс алеї в якій знаходиться комірка
-        private int cell_index; // індекс комірки
-        private bool is_occupied; // чи зайнята комірка
+        private int alleyIndex; // індекс алеї в якій знаходиться комірка
+        private int cellIndex; // індекс комірки
+        public bool isOccupied; // чи зайнята комірка
 
-        private int height; // висота комірки
+        public int height; // висота комірки
 
         public CellStatus status;
 
-        public int Alley_index { get { return alley_index; } }
-        public int Cell_index { get { return cell_index; } } // індекс комірки
-        public bool Is_occupied { get { return is_occupied; } }
+        public int AlleyIndex { get { return alleyIndex; } }
+        public int CellIndex { get { return cellIndex; } } // індекс комірки
+        public bool IsOccupied { get { return isOccupied; } }
 
         public Item item;
 

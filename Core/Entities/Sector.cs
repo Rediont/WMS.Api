@@ -4,14 +4,14 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Core.Entities
+namespace Domain.Entities
 {
     public class Sector
     {
-        public int alley_index; // індекс алеї в якій знаходиться сектор
-        public int sector_index; // індекс сектору в алеї
-        public int starting_cell_index; // індекс початкової комірки сектора
-        public int ending_cell_index; // індекс кінцевої комірки сектора
+        public int alleyIndex; // індекс алеї в якій знаходиться сектор
+        public int sectorIndex; // індекс сектору в алеї
+        public int startingCellIndex; // індекс початкової комірки сектора
+        public int endingCellIndex; // індекс кінцевої комірки сектора
 
         private int floors { get; } // кількість поверхів (рядів)
         public int Floors { get { return floors; } }

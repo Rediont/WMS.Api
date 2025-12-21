@@ -1,4 +1,4 @@
-﻿using Core.Entities;
+﻿using Domain.Entities;
 using Infrastructure.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 
@@ -127,7 +127,7 @@ namespace WMS.Api.Controllers
                 return new NotFoundResult();
             }
 
-            ContractDelivery delivery = new ContractDelivery
+            InboundReceipt delivery = new InboundReceipt
             {
                 contract_id = contractId,
                 item_list = items,
@@ -154,7 +154,7 @@ namespace WMS.Api.Controllers
                 _logger.LogWarning("Contract with ID: {ContractId} not found for client with ID: {ClientId}", contractId, clientId);
                 return new NotFoundResult();
             }
-            ContractShipment shipment = new ContractShipment
+            OutboundShipment shipment = new OutboundShipment
             {
                 contract_id = contractId,
                 item_list = items,

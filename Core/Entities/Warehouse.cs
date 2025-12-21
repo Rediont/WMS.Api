@@ -1,8 +1,8 @@
-namespace Core.Entities
+namespace Domain.Entities
 {
     public class Warehouse
     {
-        private int number_of_alleys;
+        private int numberOfAlleys;
 
     }
 }

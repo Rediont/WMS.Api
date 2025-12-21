@@ -1,5 +1,5 @@
 ﻿
-using Core.Entities;
+using Domain.Entities;
 using Infrastructure.DataBase;
 using Infrastructure.Interfaces;
 

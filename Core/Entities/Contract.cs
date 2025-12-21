@@ -1,4 +1,4 @@
-namespace Core.Entities
+namespace Domain.Entities
 {
     public enum ContractStatus
     {
@@ -13,15 +13,15 @@ namespace Core.Entities
     {
         public int id;
         public string name;
-        public DateTime start_date;
-        public DateTime expiration_date;
+        public DateTime startDate;
+        public DateTime expirationDate;
 
-        public ContractStatus current_status;
+        public ContractStatus currentStatus;
 
-        public List<ContractShipment> shipment_list; // List of shipments associated with the contract
-        public List<ContractDelivery> dispatch_list; // List of arrivals associated with the contract
+        public List<OutboundShipment> Outbounds; // List of shipments associated with the contract
+        public List<InboundReceipt> Inbounds; // List of arrivals associated with the contract
 
-        public List<Item> item_list; // List of items associated with the contract
+        public List<Item> itemList; // List of items associated with the contract
 
     }
 }

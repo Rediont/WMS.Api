@@ -1,4 +1,4 @@
-﻿using Core.Entities;
+﻿using Domain.Entities;
 using Infrastructure.DataBase;
 using Infrastructure.Interfaces;
 using System;
@@ -62,7 +62,7 @@ namespace Infrastructure.Repositories
             return contracts.ToList();
         }
 
-        public void AddDeliveryToContract(int contractId, ContractShipment shipment)
+        public void AddDeliveryToContract(int contractId, OutboundShipment shipment)
         {
             var contract = _dbContext.Contracts.Find(contractId);
             if (contract == null)
@@ -73,7 +73,7 @@ namespace Infrastructure.Repositories
             _dbContext.SaveChanges();
         }
 
-        public void AddShipmentToContract(int contractId, ContractDelivery dispatch)
+        public void AddShipmentToContract(int contractId, InboundReceipt dispatch)
         {
             var contract = _dbContext.Contracts.Find(contractId);
             if (contract == null)
