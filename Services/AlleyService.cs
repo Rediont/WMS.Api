@@ -1,19 +1,17 @@
 ﻿using Domain.Entities;
 using Infrastructure.Interfaces;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Services.Interfaces;
 
 namespace Services
 {
-    internal class AlleyService
+    internal class AlleyService : IAlleyService
     {
         private readonly IRepository<Alley> _alleyRepository;
-        public AlleyService(IRepository<Alley> alleyRepository)
+        private readonly ISectorService _sectorService;
+        public AlleyService(IRepository<Alley> alleyRepository, ISectorService sectorService)
         {
             _alleyRepository = alleyRepository;
+            _sectorService = sectorService;
         }
 
         public async Task<IEnumerable<Alley>> GetAllAlleys()
@@ -60,7 +58,7 @@ namespace Services
             _alleyRepository.Delete(alley);
         }
 
-        public void AddSectorToAlley(int alley_index, int sectorStartingCellId, int sectorEndingCellId)
+        public void AddSectorToAlley(int alley_index, Sector sector)
         {
             Alley? targetAlley = _alleyRepository.GetByIdAsync(alley_index).Result;
 
@@ -68,13 +66,16 @@ namespace Services
             {
                 throw new Exception("Alley not found");
             }
-
-            Sector sector = new Sector
+            
+            if (sector.alleyIndex != alley_index)
             {
-                sectorIndex = targetAlley.Sectors.Count > 0 ? targetAlley.Sectors.Max(s => s.sectorIndex) + 1 : 0,
-                startingCellIndex = sectorStartingCellId,
-                endingCellIndex = sectorEndingCellId
-            };
+                throw new Exception("Sector alley index does not match the target alley index");
+            }
+
+            if (targetAlley.Sectors == null)
+            {
+                targetAlley.Sectors = new List<Sector>();
+            }
 
             targetAlley.Sectors.Add(sector);
             _alleyRepository.Update(targetAlley);

@@ -1,15 +1,12 @@
 ﻿using Domain.Entities;
 using Infrastructure.Interfaces;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Services.Interfaces;
+
 
 namespace Services
 {
-    internal class SectorService
+    internal class SectorService : ISectorService
     {
         private readonly IRepository<Sector> _sectorRepository;
         public SectorService(IRepository<Sector> sectorRepository)
@@ -49,8 +46,18 @@ namespace Services
             return !hasConflict;
         }
 
-        public async Task AddSectorAsync(Sector sector)
+        public async Task AddSectorAsync(int alleyIndex, int startingCellId, int endingCellId, int floorIndex, DateTime reserveEnd, DateTime? reserveStart = null)
         {
+            Sector sector = new Sector
+            {
+                alleyIndex = alleyIndex,
+                floorIndex = floorIndex,
+                startingCellIndex = startingCellId,
+                endingCellIndex = endingCellId,
+                reserveStartDate = reserveStart ?? DateTime.Now,
+                reserveEndDate = reserveEnd
+            };
+
             if (!await IsSectorAvailableAsync(sector))
             {
                 throw new InvalidOperationException("Sector is not available for the specified time period.");

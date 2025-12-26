@@ -1,18 +1,14 @@
 ﻿using Domain.Entities;
 using Infrastructure.Interfaces;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Services.Interfaces;
 
 namespace Services
 {
-    public class ClientService
+    public class ClientService : IClientService
     {
         private readonly IRepository<Client> _clientRepository;
         // можливо неправильно
-        private readonly ContractService _contractService;
+        private readonly IContractService _contractService;
         public ClientService(IRepository<Client> clientRepository)
         {
             _clientRepository = clientRepository;
