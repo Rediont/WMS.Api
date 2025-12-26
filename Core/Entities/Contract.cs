@@ -6,7 +6,7 @@ namespace Domain.Entities
         Active,
         Terminated,
         Completed,
-        invalid
+        Invalid
     }
 
     public class Contract
@@ -21,7 +21,7 @@ namespace Domain.Entities
         public List<OutboundShipment> Outbounds; // List of shipments associated with the contract
         public List<InboundReceipt> Inbounds; // List of arrivals associated with the contract
 
-        public List<Item> itemList; // List of items associated with the contract
+        //public List<Item> itemList; // List of items associated with the contract
 
     }
 }

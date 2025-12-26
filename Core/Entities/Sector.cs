@@ -10,10 +10,10 @@ namespace Domain.Entities
     {
         public int alleyIndex; // індекс алеї в якій знаходиться сектор
         public int sectorIndex; // індекс сектору в алеї
+        public int floorIndex; // індекс поверху на якому знаходиться сектор
         public int startingCellIndex; // індекс початкової комірки сектора
         public int endingCellIndex; // індекс кінцевої комірки сектора
-
-        private int floors { get; } // кількість поверхів (рядів)
-        public int Floors { get { return floors; } }
+        public DateTime reserveStartDate; // дата початку резервування сектора
+        public DateTime reserveEndDate;
     }
 }

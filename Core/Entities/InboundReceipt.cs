@@ -7,7 +7,10 @@ namespace Domain.Entities
         public int id;
         public int contractId;
         public DateTime receiptDate;
-        
-        public List<Item> recievedItems;
+        public int palletTypeId;
+        public int amount;
+
+        public PalletTypes palletType;
+        public List<Pallet> pallets;
     }
 }

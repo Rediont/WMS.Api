@@ -1,51 +1,51 @@
 ﻿using Infrastructure.DataBase;
 using Infrastructure.Interfaces;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
+using DbContext = Infrastructure.DataBase.DbContext;
 
 namespace Infrastructure.Repositories
 {
     public class Repository<T> : IRepository<T> where T : class
     {
-        private readonly DbContext _dbcontext;
-
-        public void Add(T entity)
+        protected readonly DbContext _context;
+        public Repository(DbContext context) 
         {
-            if (entity == null)
-            {
-                throw new ArgumentNullException(nameof(entity), "Entity cannot be null");
-            }
-
-            _dbcontext.Set<T>().Add(entity);
+            _context = context; 
         }
 
-        public void Remove(Guid id)
+        public IQueryable<T> Query() 
         {
-            T? entity = _dbcontext.Set<T>().Find(id);
-            if (entity == null)
-            {
-                throw new KeyNotFoundException($"Entity with ID {id} not found");
-            }
-            _dbcontext.Set<T>().Remove(entity);
-
+           return _context.Set<T>().AsQueryable(); 
         }
 
-        public T GetById(Guid id)
+        public async Task<T?> GetByIdAsync(int id) 
         {
-            T? entity = _dbcontext.Set<T>().Find(id);
-            if (entity == null)
-            {
-                throw new KeyNotFoundException($"Entity with ID {id} not found");
-            }
-            return entity;
+            return await _context.Set<T>().FindAsync(id); 
         }
 
-        public List<T> GetAll()
+        public async Task AddAsync(T entity) 
         {
-            return _dbcontext.Set<T>().ToList();
+            await _context.Set<T>().AddAsync(entity);
+        }
+
+        public void Update(T entity)
+        {
+            _context.Set<T>().Update(entity);
+        }
+
+        public void Delete(T entity)   
+        {
+            _context.Set<T>().Remove(entity);
+        }
+
+        public async Task SaveChangesAsync() 
+        {
+            await _context.SaveChangesAsync(); 
+        }
+
+        public async Task<IEnumerable<T>> GetAllAsync()
+        {
+            return await _context.Set<T>().ToListAsync();
         }
 
     }

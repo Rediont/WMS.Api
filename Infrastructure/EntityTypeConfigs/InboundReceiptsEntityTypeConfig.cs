@@ -16,14 +16,24 @@ namespace Infrastructure.EntityTypeConfigs
                 .IsRequired();
 
             builder.HasOne<Contract>()
-                   .WithMany(c => c.Inbounds)
-                   .HasForeignKey(cd => cd.contractId)
-                   .OnDelete(DeleteBehavior.Cascade);
+                .WithMany(c => c.Inbounds)
+                .HasForeignKey(cd => cd.contractId)
+                .OnDelete(DeleteBehavior.Cascade);
 
-            builder.HasMany(cd => cd.recievedItems)
-                   .WithOne()
-                   .HasForeignKey("DeliveryId")
-                   .OnDelete(DeleteBehavior.Cascade);
+            builder.HasOne(cd => cd.palletType)
+                .WithMany()
+                .HasForeignKey(pt => pt.palletTypeId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            builder.HasMany(cd => cd.pallets)
+                .WithOne()
+                .HasForeignKey(p => p.inboundReceiptId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            //builder.HasMany(cd => cd.recievedItems)
+            //       .WithOne()
+            //       .HasForeignKey("DeliveryId")
+            //       .OnDelete(DeleteBehavior.Cascade);
         }
     }
 }

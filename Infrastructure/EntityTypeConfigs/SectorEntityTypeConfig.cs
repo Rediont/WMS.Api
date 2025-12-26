@@ -1,10 +1,5 @@
 ﻿using Domain.Entities;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Infrastructure.EntityTypeConfigs
 {
@@ -20,7 +15,15 @@ namespace Infrastructure.EntityTypeConfigs
             builder.Property(s => s.endingCellIndex)
                 .IsRequired();
             
-            builder.Property(s => s.Floors)
+            builder.Property(s => s.floorIndex)
+                .IsRequired();
+
+            builder.Property(s => s.reserveStartDate)
+                .HasColumnType("timestamp with time zone")
+                .IsRequired();
+
+            builder.Property(s => s.reserveEndDate)
+                .HasColumnType("timestamp with time zone")
                 .IsRequired();
 
             builder.HasOne<Sector>()

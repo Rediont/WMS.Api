@@ -21,6 +21,10 @@ namespace Infrastructure.EntityTypeConfigs
                 .IsRequired()
                 .HasMaxLength(100);
             
+            builder.Property(c => c.EDRPO)
+                .IsRequired()
+                .HasMaxLength(100);
+
             builder.Property(c => c.email)
                 .IsRequired()
                 .HasMaxLength(100);

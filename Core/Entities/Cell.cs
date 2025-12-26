@@ -5,25 +5,25 @@ namespace Domain.Entities
     public enum CellStatus
     {
         Full,
-        Empty,
-        SemiFull,
+        Empty
     }
 
     public class Cell
     {
-        private int alleyIndex; // індекс алеї в якій знаходиться комірка
-        private int cellIndex; // індекс комірки
-        public bool isOccupied; // чи зайнята комірка
+        public int alleyIndex; // індекс алеї в якій знаходиться комірка
+        public int cellIndex; // індекс комірки
+        public int floorIndex; // індекс поверху на якому знаходиться комірка
 
-        public int height; // висота комірки
+        public decimal totalCapacity = 3.0m;
 
+        // =====================================================
+        // потрібно обдумати спосіб запису зберігання в комірці
+        // можливо треба окрему таблицю з датами зберігання
+        // =====================================================
         public CellStatus status;
 
-        public int AlleyIndex { get { return alleyIndex; } }
-        public int CellIndex { get { return cellIndex; } } // індекс комірки
-        public bool IsOccupied { get { return isOccupied; } }
+        public List<Pallet> StoredPallets;
 
-        public Item item;
-
+        //public Item item;
     }
 }
