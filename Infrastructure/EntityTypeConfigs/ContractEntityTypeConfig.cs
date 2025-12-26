@@ -28,13 +28,15 @@ namespace Infrastructure.EntityTypeConfigs
             builder.HasMany(c => c.Inbounds)
                    .WithOne()
                    .HasForeignKey("ContractId")
-                   .OnDelete(DeleteBehavior.Cascade);
+                   .OnDelete(DeleteBehavior.Cascade)
+                   .IsRequired(false);
             
             builder.HasMany(c => c.Outbounds)
                    .WithOne()
                    .HasForeignKey("ContractId")
-                   .OnDelete(DeleteBehavior.Cascade);
-            
+                   .OnDelete(DeleteBehavior.Cascade)
+                   .IsRequired(false);
+
             //builder.HasMany(c => c.itemList)
             //       .WithOne()
             //       .HasForeignKey("ContractId")

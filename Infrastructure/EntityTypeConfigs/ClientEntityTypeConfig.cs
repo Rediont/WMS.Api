@@ -40,7 +40,8 @@ namespace Infrastructure.EntityTypeConfigs
             builder.HasMany(c => c.ContractList)
                 .WithOne()
                 .HasForeignKey("ClientId")
-                .OnDelete(DeleteBehavior.Cascade);
+                .OnDelete(DeleteBehavior.Cascade)
+                .IsRequired(false);
         }
     }
 }

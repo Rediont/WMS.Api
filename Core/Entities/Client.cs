@@ -10,6 +10,6 @@ namespace Domain.Entities
         public string contactPersonName;
         public string contactPersonPhone;
 
-        public List<Contract> ContractList;
+        public List<Contract>? ContractList;
     }
 }

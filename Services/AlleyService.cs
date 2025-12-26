@@ -33,9 +33,33 @@ namespace Services
 
         public async void AddAlley(int height, int length, int width)
         {
+            if(length % 3 != 0)
+            {
+                throw new Exception("Alley length must be multiple of 3");
+            }
 
+            Alley newAlley = new Alley
+            {
+                height = height,
+                length = length,
+                width = width,
+                Sectors = null
+            };
+
+            await _alleyRepository.AddAsync(newAlley);
         }
- 
+
+        // потенційно непотрібно
+        private void DeleteAlley(int id)
+        {
+            Alley? alley = _alleyRepository.GetByIdAsync(id).Result;
+            if (alley == null)
+            {
+                throw new Exception("Alley not found");
+            }
+            _alleyRepository.Delete(alley);
+        }
+
         public void AddSectorToAlley(int alley_index, int sectorStartingCellId, int sectorEndingCellId)
         {
             Alley? targetAlley = _alleyRepository.GetByIdAsync(alley_index).Result;

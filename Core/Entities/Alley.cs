@@ -10,7 +10,7 @@ namespace Domain.Entities
         public int width; // ширина алеї
         public int cellsPerFloor { get; } // кількість комірок на поверх 
 
-        public List<Sector> Sectors; // список секторів алеї
+        public List<Sector>? Sectors; // список секторів алеї
 
     }
 

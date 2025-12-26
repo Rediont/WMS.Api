@@ -14,10 +14,10 @@ namespace Domain.Entities
         public int palletTypeId;
         public PalletTypes palletType;
 
-        public int alleyId;
-        public int cellId;
-        public Cell cell { get; set; } // Додано об'єкт
+        public int? alleyId;
+        public int? cellId;
+        public Cell? cell { get; set; } // Додано об'єкт
 
-        public string id;
+        public string? id;
     }
 }
