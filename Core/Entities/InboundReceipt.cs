@@ -4,13 +4,13 @@ namespace Domain.Entities
 {
     public class InboundReceipt
     {
-        public int id;
-        public int contractId;
-        public DateTime receiptDate;
-        public int palletTypeId;
-        public int amount;
+        public int Id { get; set; }
+        public int ContractId { get; set; }
+        public DateTime ReceiptDate { get; set; }
+        public int PalletTypeId { get; set; }
+        public int Amount { get; set; }
 
-        public PalletTypes palletType;
-        public List<Pallet> pallets;
+        public virtual PalletTypes palletType { get; set; }
+        public List<Pallet> pallets = new();
     }
 }

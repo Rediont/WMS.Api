@@ -2,7 +2,7 @@
 using Infrastructure.Interfaces;
 using Services.Interfaces;
 
-namespace Services
+namespace Services.Services
 {
     public class ClientService : IClientService
     {
@@ -33,29 +33,41 @@ namespace Services
         {
             Client newClient = new Client
             {
-                name = name,
+                Name = name,
                 EDRPO = clientEDRPO,
-                contactPersonName = contactPersonName,
-                contactPersonPhone = phoneNumber,
-                email = email,
+                ContactPersonName = contactPersonName,
+                ContactPersonPhone = phoneNumber,
+                Email = email,
                 ContractList = null
             };
             await _clientRepository.AddAsync(newClient);
         }
 
-        public async Task UpdateClient(int id, string name, string clientEDRPO, string contactPersonName, string phoneNumber, string email)
+        public async Task UpdateClientAsync(
+            int id,
+            string? name = null,
+            string? clientEDRPO = null,
+            string? contactPersonName = null,
+            string? phoneNumber = null,
+            string? email = null)
         {
-            Client? client = await _clientRepository.GetByIdAsync(id);
+            // 1. Пошук клієнта
+            var client = await _clientRepository.GetByIdAsync(id);
             if (client == null)
             {
                 throw new Exception("Client not found");
             }
-            client.name = name;
-            client.EDRPO = clientEDRPO;
-            client.contactPersonName = contactPersonName;
-            client.contactPersonPhone = phoneNumber;
-            client.email = email;
+
+            // 2. Параметричне оновлення (замінюємо лише якщо передано значення)
+            if (!string.IsNullOrWhiteSpace(name)) client.Name = name;
+            if (!string.IsNullOrWhiteSpace(clientEDRPO)) client.EDRPO = clientEDRPO;
+            if (!string.IsNullOrWhiteSpace(contactPersonName)) client.ContactPersonName = contactPersonName;
+            if (!string.IsNullOrWhiteSpace(phoneNumber)) client.ContactPersonPhone = phoneNumber;
+            if (!string.IsNullOrWhiteSpace(email)) client.Email = email;
+
+            // 3. Збереження змін
             _clientRepository.Update(client);
+            await _clientRepository.SaveChangesAsync();
         }
 
         // потенційно непотрібно
@@ -123,7 +135,7 @@ namespace Services
             {
                 throw new Exception("Client not found");
             }
-            return (client.contactPersonName, client.contactPersonPhone);
+            return (client.ContactPersonName, client.ContactPersonPhone);
         }
     }
 }

@@ -15,13 +15,13 @@ namespace Infrastructure.EntityTypeConfigs
         {
             builder.ToTable("Cells");
             
-            builder.HasKey(c => new { c.alleyIndex, c.cellIndex });
+            builder.HasKey(c => new { c.AlleyIndex, c.CellIndex });
 
-            builder.Property(c => c.floorIndex)
+            builder.Property(c => c.FloorIndex)
                 .IsRequired();
 
-            builder.Property(c => c.status)
-                .IsRequired();
+            builder.Property(c => c.isOccupied)
+                .HasDefaultValue(false);
 
             builder.Property(c => c.totalCapacity)
                 .IsRequired()

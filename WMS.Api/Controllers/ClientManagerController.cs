@@ -1,7 +1,8 @@
 ﻿
 using Microsoft.AspNetCore.Mvc;
-using Infrastructure.Interfaces;
 using Domain.Entities;
+using Services.Interfaces;
+using System.Threading.Tasks;
 
 namespace WMS.Api.Controllers
 {
@@ -9,23 +10,23 @@ namespace WMS.Api.Controllers
     [Route("[controller]")]
     public class ClientManagerController
     {
-        private readonly IClientRepository _clientRepository;
+        private readonly IClientService _clientService;
         private readonly ILogger<ClientManagerController> _logger;
 
         public ClientManagerController(
-            IClientRepository clientRepository, 
+            IClientService clientService, 
             ILogger<ClientManagerController> logger)
         {
-            _clientRepository = clientRepository;
+            _clientService = clientService;
             _logger = logger;
         }
 
         [HttpGet("all")]
-        public IActionResult GetAllClients()
+        public async Task<IActionResult> GetAllClients()
         {
             try
             {
-                var clients = _clientRepository.GetAllClients();
+                List<Client> clients = _clientService.GetAllClients();
                 _logger.LogInformation("Retrieved {ClientCount} clients", clients.Count());
                 return new OkObjectResult(clients);
             }
@@ -41,7 +42,7 @@ namespace WMS.Api.Controllers
         {
             try
             {
-                var client = _clientRepository.GetClientById(TODO);
+                var client = _clientService.GetClientByIdAsync(TODO);
                 if (client == null)
                 {
                     _logger.LogWarning("Client with ID: {ClientId} not found", clientId);
@@ -57,6 +58,11 @@ namespace WMS.Api.Controllers
             }
         }
 
+
+        // треба перевірити |
+        //                  v
+
+
         [HttpPost("add")]
         public IActionResult AddClient(
             [FromForm]string clientName, 
@@ -66,11 +72,11 @@ namespace WMS.Api.Controllers
         {
             Client client = new Client
             {
-                name = clientName,
-                email = emailAddress,
-                contact_person_name = contactPersonName,
-                contact_phone = contactPersonPhone,
-                Contract_list = new List<Contract>()
+                Name = clientName,
+                Email = emailAddress,
+                ContactPersonName = contactPersonName,
+                ContactPersonPhone = contactPersonPhone,
+                ContractList = new List<Contract>()
             };
 
             try

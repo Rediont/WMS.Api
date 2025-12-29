@@ -2,7 +2,7 @@
 using Infrastructure.Interfaces;
 using Services.Interfaces;
 
-namespace Services
+namespace Services.Services
 {
     internal class AlleyService : IAlleyService
     {
@@ -38,9 +38,9 @@ namespace Services
 
             Alley newAlley = new Alley
             {
-                height = height,
-                length = length,
-                width = width,
+                Height = height,
+                Length = length,
+                Width = width,
                 Sectors = null
             };
 

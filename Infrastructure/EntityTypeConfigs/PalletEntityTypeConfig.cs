@@ -17,7 +17,7 @@ namespace Infrastructure.EntityTypeConfigs
             builder.HasKey(p => p.id);
 
             // Зв'язок з типом (обов'язково, щоб знати розмір 1.0/1.5)
-            builder.HasOne(p => p.palletType)
+            builder.HasOne(p => p.PalletType)
                    .WithMany()
                    .HasForeignKey(p => p.palletTypeId);
 

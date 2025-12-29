@@ -15,7 +15,13 @@ namespace Services.Interfaces
 
         public Task AddClient(string name, string clientEDRPO, string contactPersonName, string phoneNumber, string email);
 
-        public Task UpdateClient(int id, string name, string clientEDRPO, string contactPersonName, string phoneNumber, string email);
+        public Task UpdateClientAsync(
+            int id,
+            string? name = null,
+            string? clientEDRPO = null,
+            string? contactPersonName = null,
+            string? phoneNumber = null,
+            string? email = null);
 
         public Task DeleteClient(int id);
 

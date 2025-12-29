@@ -2,7 +2,7 @@
 using Infrastructure.Interfaces;
 using Services.Interfaces;
 
-namespace Services
+namespace Services.Services
 {
     public class ContractService : IContractService
     {

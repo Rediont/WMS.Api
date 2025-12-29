@@ -8,8 +8,8 @@ namespace Domain.Entities
 {
     public class PalletTypes
     {
-        public int typeId;
-        public string name;
-        public int requiredCapacity;
+        public int TypeId { get; set; }
+        public string Name { get; set; }
+        public int RequiredCapacity { get; set; }
     }
 }

@@ -8,9 +8,9 @@ namespace Domain.Entities
 {
     public class ClientContractCost
     {
-        public int clientId;
-        public int contaractId;
-        public int palletTypeId;
-        public int cost;
+        public int ClientId { get; set; }
+        public int ContaractId { get; set; }
+        public int PalletTypeId { get; set; }
+        public int Cost { get; set; }
     }
 }

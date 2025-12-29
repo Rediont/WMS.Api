@@ -7,28 +7,28 @@ namespace Infrastructure.EntityTypeConfigs
     {
         public void Configure(Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder<Sector> builder)
         {
-            builder.HasKey(s => new { s.alleyIndex, s.sectorIndex });
+            builder.HasKey(s => new { s.AlleyIndex, s.SectorIndex });
             
-            builder.Property(s => s.startingCellIndex)
+            builder.Property(s => s.StartingCellIndex)
                 .IsRequired();
             
-            builder.Property(s => s.endingCellIndex)
+            builder.Property(s => s.EndingCellIndex)
                 .IsRequired();
             
-            builder.Property(s => s.floorIndex)
+            builder.Property(s => s.FloorIndex)
                 .IsRequired();
 
-            builder.Property(s => s.reserveStartDate)
+            builder.Property(s => s.ReserveStartDate)
                 .HasColumnType("timestamp with time zone")
                 .IsRequired();
 
-            builder.Property(s => s.reserveEndDate)
+            builder.Property(s => s.ReserveEndDate)
                 .HasColumnType("timestamp with time zone")
                 .IsRequired();
 
             builder.HasOne<Sector>()
                    .WithMany()
-                   .HasForeignKey(s => s.alleyIndex)
+                   .HasForeignKey(s => s.AlleyIndex)
                    .OnDelete(DeleteBehavior.Cascade);
         }
     }

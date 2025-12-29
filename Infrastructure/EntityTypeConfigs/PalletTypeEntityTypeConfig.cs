@@ -13,6 +13,15 @@ namespace Infrastructure.EntityTypeConfigs
     {
         public void Configure(EntityTypeBuilder<PalletTypes> builder) 
         {
+            builder.ToTable("PalletTypes");
+            builder.HasKey(pt => pt.TypeId);
+
+            builder.Property(pt => pt.Name)
+                   .IsRequired()
+                   .HasMaxLength(100);
+
+            builder.Property(pt => pt.RequiredCapacity)
+                   .IsRequired();
 
         }
     }

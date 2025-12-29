@@ -11,15 +11,15 @@ namespace Domain.Entities
 
     public class Contract
     {
-        public int id;
-        public string name;
-        public DateTime startDate;
-        public DateTime expirationDate;
+        public int Id { get; set; }
+        public string Name { get; set; }
+        public DateTime StartDate { get; set; }
+        public DateTime ExpirationDate { get; set; }
 
-        public ContractStatus currentStatus;
+        public ContractStatus CurrentStatus;
 
-        public List<OutboundShipment>? Outbounds; // List of shipments associated with the contract
-        public List<InboundReceipt>? Inbounds; // List of arrivals associated with the contract
+        public List<OutboundShipment> Outbounds = new(); // List of shipments associated with the contract
+        public List<InboundReceipt> Inbounds = new(); // List of arrivals associated with the contract
 
         //public List<Item> itemList; // List of items associated with the contract
 

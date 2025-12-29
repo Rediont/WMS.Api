@@ -4,14 +4,14 @@ namespace Domain.Entities
 {
     public class Alley
     {
-        public int alleyIndex { get; } // для визначення алеї
-        public int height; // висота алеї 
-        public int length; // довжина алеї
-        public int width; // ширина алеї
-        public int cellsPerFloor { get; } // кількість комірок на поверх 
+        public int AlleyIndex { get; set; }
+        public int Height { get; set; }
+        public int Length { get; set; }
+        public int Width { get; set; }
+        public int CellsPerFloor { get; set; }
 
-        public List<Sector>? Sectors; // список секторів алеї
-
+        // Без virtual — використовуємо Explicit/Eager Loading
+        public List<Sector> Sectors { get; set; } = new();
     }
 
 }

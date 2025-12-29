@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using Services.Interfaces;
 
 
-namespace Services
+namespace Services.Services
 {
     internal class SectorService : ISectorService
     {
@@ -29,17 +29,17 @@ namespace Services
             // Перевіряємо в базі, чи існує ХОЧ ОДИН конфліктний сектор
             bool hasConflict = await _sectorRepository.Query()
                 .AnyAsync(existing =>
-                    existing.alleyIndex == newSector.alleyIndex &&
-                    existing.sectorIndex == newSector.sectorIndex &&
-                    existing.floorIndex == newSector.floorIndex &&
+                    existing.AlleyIndex == newSector.AlleyIndex &&
+                    existing.SectorIndex == newSector.SectorIndex &&
+                    existing.FloorIndex == newSector.FloorIndex &&
 
-                    (newSector.startingCellIndex > existing.startingCellIndex
-                        ? newSector.startingCellIndex : existing.startingCellIndex)
-                    <= (newSector.endingCellIndex < existing.endingCellIndex
-                        ? newSector.endingCellIndex : existing.endingCellIndex) &&
+                    (newSector.StartingCellIndex > existing.StartingCellIndex
+                        ? newSector.StartingCellIndex : existing.StartingCellIndex)
+                    <= (newSector.EndingCellIndex < existing.EndingCellIndex
+                        ? newSector.EndingCellIndex : existing.EndingCellIndex) &&
 
-                    newSector.reserveStartDate < existing.reserveEndDate &&
-                    newSector.reserveEndDate > existing.reserveStartDate
+                    newSector.ReserveStartDate < existing.ReserveEndDate &&
+                    newSector.ReserveEndDate > existing.ReserveStartDate
                 );
 
             // Якщо конфліктів НЕМАЄ (AnyAsync повернув false), то сектор доступний
@@ -50,12 +50,12 @@ namespace Services
         {
             Sector sector = new Sector
             {
-                alleyIndex = alleyIndex,
-                floorIndex = floorIndex,
-                startingCellIndex = startingCellId,
-                endingCellIndex = endingCellId,
-                reserveStartDate = reserveStart ?? DateTime.Now,
-                reserveEndDate = reserveEnd
+                AlleyIndex = alleyIndex,
+                FloorIndex = floorIndex,
+                StartingCellIndex = startingCellId,
+                EndingCellIndex = endingCellId,
+                ReserveStartDate = reserveStart ?? DateTime.Now,
+                ReserveEndDate = reserveEnd
             };
 
             if (!await IsSectorAvailableAsync(sector))
@@ -89,9 +89,9 @@ namespace Services
             var sector = await _sectorRepository.GetByIdAsync(id);
             if (sector == null) throw new Exception("Contract not found");
 
-            if (startingCellIndex.HasValue) sector.startingCellIndex = startingCellIndex.Value;
-            if (endingCellIndex.HasValue) sector.endingCellIndex = endingCellIndex.Value;
-            if (reserveEndDate.HasValue) sector.reserveEndDate = reserveEndDate.Value;
+            if (startingCellIndex.HasValue) sector.StartingCellIndex = startingCellIndex.Value;
+            if (endingCellIndex.HasValue) sector.EndingCellIndex = endingCellIndex.Value;
+            if (reserveEndDate.HasValue) sector.ReserveEndDate = reserveEndDate.Value;
 
             _sectorRepository.Update(sector);
             await _sectorRepository.SaveChangesAsync();

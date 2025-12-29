@@ -1,7 +1,7 @@
 ﻿using Domain.Entities;
 using Infrastructure.Interfaces;
 
-namespace Services
+namespace Services.Services
 {
     internal class CellService
     {
