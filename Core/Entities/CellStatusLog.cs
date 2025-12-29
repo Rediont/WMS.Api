@@ -6,12 +6,17 @@ using System.Threading.Tasks;
 
 namespace Domain.Entities
 {
-    internal class CellStatusLog
+    public class CellStatusLog
     {
+        public long Id { get; set; } // Унікальний ID запису
+
         public int AlleyId { get; set; }
         public int CellId { get; set; }
-        public DateTime StatusChangeDate { get; set; }
-        public int PalletId { get; set; }
-        public int Amount { get; set; } // +1 / -1 в залежності від операції
+        public int ContractId { get; set; }
+        public string PalletId { get; set; }
+        public DateTime OperationDate { get; set; }
+        public int Amount { get; set; }
+        public int PalletTypeId { get; set; }
+        public virtual PalletTypes PalletType { get; set; }
     }
 }

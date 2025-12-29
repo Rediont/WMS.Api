@@ -46,7 +46,7 @@ namespace Services.Services
             return !hasConflict;
         }
 
-        public async Task AddSectorAsync(int alleyIndex, int startingCellId, int endingCellId, int floorIndex, DateTime reserveEnd, DateTime? reserveStart = null)
+        public async Task AddSectorAsync(int alleyIndex, int startingCellId, int endingCellId, int floorIndex,int contractId , DateTime reserveEnd, DateTime? reserveStart = null)
         {
             Sector sector = new Sector
             {
@@ -54,6 +54,7 @@ namespace Services.Services
                 FloorIndex = floorIndex,
                 StartingCellIndex = startingCellId,
                 EndingCellIndex = endingCellId,
+                ContractId = contractId,
                 ReserveStartDate = reserveStart ?? DateTime.Now,
                 ReserveEndDate = reserveEnd
             };

@@ -13,6 +13,7 @@ namespace Domain.Entities
         public int FloorIndex { get; set; } // індекс поверху на якому знаходиться сектор
         public int StartingCellIndex { get; set; } // індекс початкової комірки сектора
         public int EndingCellIndex { get; set; } // індекс кінцевої комірки сектора
+        public int ContractId { get; set; } // ID контракту який резервує сектор
         public DateTime ReserveStartDate { get; set; } // дата початку резервування сектора
         public DateTime ReserveEndDate { get; set; }
     }

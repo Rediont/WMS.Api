@@ -13,7 +13,7 @@ namespace Services.Interfaces
 
         public Task<Sector?> GetSectorByIdAsync(int id);
 
-        public Task AddSectorAsync(int alleyIndex, int startingCellId, int endingCellId, int floorIndex, DateTime reserveEnd, DateTime? reserveStart = null);
+        public Task AddSectorAsync(int alleyIndex, int startingCellId, int endingCellId, int floorIndex, int contractId, DateTime reserveEnd, DateTime? reserveStart = null);
 
         public Task DeleteSectorAsync(int id);
 

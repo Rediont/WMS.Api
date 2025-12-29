@@ -18,6 +18,9 @@ namespace Infrastructure.EntityTypeConfigs
             builder.Property(s => s.FloorIndex)
                 .IsRequired();
 
+            builder .Property(s => s.ContractId)
+                .IsRequired();
+
             builder.Property(s => s.ReserveStartDate)
                 .HasColumnType("timestamp with time zone")
                 .IsRequired();
