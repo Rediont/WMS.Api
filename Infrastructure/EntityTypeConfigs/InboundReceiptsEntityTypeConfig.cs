@@ -9,25 +9,25 @@ namespace Infrastructure.EntityTypeConfigs
         public void Configure(Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder<InboundReceipt> builder)
         {
             builder.ToTable("ContractReceipts");
-            builder.HasKey(cd => cd.id);
+            builder.HasKey(cd => cd.Id);
 
-            builder.Property(cd => cd.receiptDate)
+            builder.Property(cd => cd.ReceiptDate)
                 .HasColumnType("timestamp with time zone") // або "timestamp without time zone"
                 .IsRequired();
 
             builder.HasOne<Contract>()
                 .WithMany(c => c.Inbounds)
-                .HasForeignKey(cd => cd.contractId)
+                .HasForeignKey(cd => cd.ContractId)
                 .OnDelete(DeleteBehavior.Cascade);
 
-            builder.HasOne(cd => cd.palletType)
+            builder.HasOne(cd => cd.PalletType)
                 .WithMany()
-                .HasForeignKey(pt => pt.palletTypeId)
+                .HasForeignKey(pt => pt.PalletTypeId)
                 .OnDelete(DeleteBehavior.Cascade);
 
-            builder.HasMany(cd => cd.pallets)
+            builder.HasMany(cd => cd.Pallets)
                 .WithOne()
-                .HasForeignKey(p => p.inboundReceiptId)
+                .HasForeignKey(p => p.InboundReceiptId)
                 .OnDelete(DeleteBehavior.Cascade);
 
             //builder.HasMany(cd => cd.recievedItems)

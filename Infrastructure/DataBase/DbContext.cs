@@ -26,7 +26,7 @@ namespace Infrastructure.DataBase
             base.OnModelCreating(modelBuilder);
 
             modelBuilder.HasPostgresEnum<ContractStatus>();
-            modelBuilder.HasPostgresEnum<CellStatus>();
+            //modelBuilder.HasPostgresEnum<CellStatus>();
 
             modelBuilder.ApplyConfigurationsFromAssembly(typeof(DbContext).Assembly);
         }

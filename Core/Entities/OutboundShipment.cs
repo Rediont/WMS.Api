@@ -8,10 +8,10 @@ namespace Domain.Entities
 {
     public class OutboundShipment
     {
-        public int id;
-        public int contractId;
-        public DateTime shipmentDate;
-        
-        public List<Item> ShippedItems;
+        public int Id { get; set; }
+        public int ContractId { get; set; }
+        public DateTime ShipmentDate { get; set; }
+
+        public List<Item> ShippedItems = new();
     }
 }

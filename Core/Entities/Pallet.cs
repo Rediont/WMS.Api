@@ -8,16 +8,16 @@ namespace Domain.Entities
 {
     public class Pallet
     {
-        public string? id { get; set; }
+        public string? Id { get; set; }
 
         public int InboundReceiptId { get; set; }
         public virtual InboundReceipt InboundReceipt { get; set; }
 
-        public int palletTypeId { get; set; }
+        public int PalletTypeId { get; set; }
         public virtual PalletTypes PalletType { get; set; }
 
-        public int? alleyId { get; set; }
-        public int? cellId { get; set; }
-        public virtual Cell? cell { get; set; } // Додано об'єкт
+        public int? AlleyId { get; set; }
+        public int? CellId { get; set; }
+        public virtual Cell? Cell { get; set; } // Додано об'єкт
     }
 }

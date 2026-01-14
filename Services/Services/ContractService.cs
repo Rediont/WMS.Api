@@ -32,9 +32,9 @@ namespace Services.Services
             // можливі зміни структури контракту
             Contract newContract = new Contract
             {
-                startDate = startDate,
-                expirationDate = endDate,
-                currentStatus = status,
+                StartDate = startDate,
+                ExpirationDate = endDate,
+                CurrentStatus = status,
                 Inbounds = null,
                 Outbounds = null
             };
@@ -49,8 +49,8 @@ namespace Services.Services
             var contract = await _contractRepository.GetByIdAsync(id);
             if (contract == null) throw new Exception("Contract not found");
 
-            if (endDate.HasValue) contract.expirationDate = endDate.Value;
-            if (status.HasValue) contract.currentStatus = status.Value;
+            if (endDate.HasValue) contract.ExpirationDate = endDate.Value;
+            if (status.HasValue) contract.CurrentStatus = status.Value;
 
             _contractRepository.Update(contract);
             await _contractRepository.SaveChangesAsync();

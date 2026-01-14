@@ -23,7 +23,7 @@ namespace Infrastructure.EntityTypeConfigs
             builder.HasMany(a => a.Sectors)
                    .WithOne()
                    .HasForeignKey("AlleyIndex")
-                   .OnDelete(DeleteBehavior.Cascade);
+                   .OnDelete(DeleteBehavior.Restrict);
         }
     }
 }

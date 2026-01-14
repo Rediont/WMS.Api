@@ -28,8 +28,8 @@ namespace Infrastructure.EntityTypeConfigs
                 .HasDefaultValue(3.0m);
 
             builder.HasMany(c => c.StoredPallets) 
-                .WithOne(p => p.cell)         
-                .HasForeignKey(p => new { p.alleyId, p.cellId })
+                .WithOne(p => p.Cell)         
+                .HasForeignKey(p => new { p.AlleyId, p.CellId })
                 .OnDelete(DeleteBehavior.Restrict);
 
             //builder.HasOne(c => c.item)

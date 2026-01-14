@@ -107,14 +107,14 @@ namespace Services.Services
             {
                 throw new Exception("Client has no contracts");
             }
-            Contract? contract = client.ContractList.FirstOrDefault(c => c.id == contractId);
+            Contract? contract = client.ContractList.FirstOrDefault(c => c.Id == contractId);
             if (contract == null)
             {
                 throw new Exception("Contract not found");
             }
-            contract.currentStatus = status;
+            contract.CurrentStatus = status;
 
-            _contractService.UpdateContractAsync(contract.id, status: status).Wait();
+            _contractService.UpdateContractAsync(contract.Id, status: status).Wait();
             _clientRepository.Update(client);
         }
 

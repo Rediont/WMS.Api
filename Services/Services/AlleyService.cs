@@ -67,7 +67,7 @@ namespace Services.Services
                 throw new Exception("Alley not found");
             }
             
-            if (sector.alleyIndex != alley_index)
+            if (sector.AlleyIndex != alley_index)
             {
                 throw new Exception("Sector alley index does not match the target alley index");
             }
@@ -92,12 +92,12 @@ namespace Services.Services
                 throw new Exception("Alley not found");
             }
 
-            if (!targetAlley.Sectors.Any(s => s.sectorIndex == sector_index))
+            if (!targetAlley.Sectors.Any(s => s.SectorIndex == sector_index))
             {
                 throw new Exception("Sector not found in the specified alley");
             }
 
-            targetAlley.Sectors.RemoveAll(s => s.sectorIndex == sector_index);
+            targetAlley.Sectors.RemoveAll(s => s.SectorIndex == sector_index);
             _alleyRepository.Update(targetAlley);
         }
 

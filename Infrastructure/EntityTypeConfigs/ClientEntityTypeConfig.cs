@@ -36,12 +36,11 @@ namespace Infrastructure.EntityTypeConfigs
             builder.Property(c => c.ContactPersonPhone)
                 .IsRequired()
                 .HasMaxLength(15);
-            
+
             builder.HasMany(c => c.ContractList)
                 .WithOne()
                 .HasForeignKey("ClientId")
-                .OnDelete(DeleteBehavior.Cascade)
-                .IsRequired(false);
+                .OnDelete(DeleteBehavior.Restrict);
         }
     }
 }
