@@ -1,5 +1,7 @@
-﻿using Domain.Entities;
+﻿using AutoMapper;
+using Domain.Entities;
 using Infrastructure.Interfaces;
+using Services.Dtos;
 using Services.Interfaces;
 
 namespace Services.Services
@@ -7,26 +9,30 @@ namespace Services.Services
     public class ClientService : IClientService
     {
         private readonly IRepository<Client> _clientRepository;
-        // можливо неправильно
         private readonly IContractService _contractService;
-        public ClientService(IRepository<Client> clientRepository)
+        private readonly IMapper _mapper;
+
+        public ClientService(IRepository<Client> clientRepository, IContractService contractService, IMapper mapper)
         {
             _clientRepository = clientRepository;
+            _contractService = contractService;
+            _mapper = mapper;
         }
 
-        public async Task<IEnumerable<Client>> GetAllClients()
+        public async Task<IEnumerable<ClientInfoDto>> GetAllClients()
         {
-            return await _clientRepository.GetAllAsync();
+            var clients = await _clientRepository.GetAllAsync();
+            return _mapper.Map<IEnumerable<ClientInfoDto>>(clients);
         }
 
-        public async Task<Client> GetClientByIdAsync(int id)
+        public async Task<ClientInfoDto> GetClientByIdAsync(int id)
         {
             Client? client = await _clientRepository.GetByIdAsync(id);
             if (client == null)
             {
                 throw new Exception("Client not found");
             }
-            return client;
+            return _mapper.Map<ClientInfoDto>(client);
         }
 
         public async Task AddClient(string name, string clientEDRPO, string contactPersonName, string phoneNumber, string email)
@@ -118,14 +124,16 @@ namespace Services.Services
             _clientRepository.Update(client);
         }
 
-        public async Task<List<Contract>> GetClientContracts(int clientId)
+        public async Task<List<ContractDto>> GetClientContracts(int clientId)
         {
-            Client? client = await _clientRepository.GetByIdAsync(clientId);
+            var client = await _clientRepository.GetByIdAsync(clientId);
+
             if (client == null)
             {
-                throw new Exception("Client not found");
+                throw new KeyNotFoundException($"Client with ID {clientId} not found");
             }
-            return client.ContractList ?? new List<Contract>();
+
+            return _mapper.Map<List<ContractDto>>(client.ContractList);
         }
 
         public async Task<(string name, string phone)> GetCertainClientContacts(int clientId)

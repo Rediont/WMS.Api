@@ -1,4 +1,5 @@
 ﻿using Domain.Entities;
+using Services.Dtos;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,9 +10,9 @@ namespace Services.Interfaces
 {
     public interface IClientService
     {
-        public Task<IEnumerable<Client>> GetAllClients();
+        public Task<IEnumerable<ClientInfoDto>> GetAllClients();
 
-        public Task<Client> GetClientByIdAsync(int id);
+        public Task<ClientInfoDto> GetClientByIdAsync(int id);
 
         public Task AddClient(string name, string clientEDRPO, string contactPersonName, string phoneNumber, string email);
 
@@ -29,7 +30,7 @@ namespace Services.Interfaces
 
         public Task SetClientContractStatus(int clientId, int contractId, ContractStatus status);
 
-        public Task<List<Contract>> GetClientContracts(int clientId);
+        public Task<List<ContractDto>> GetClientContracts(int clientId);
 
         public Task<(string name, string phone)> GetCertainClientContacts(int clientId);
     }

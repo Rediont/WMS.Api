@@ -1,5 +1,7 @@
-﻿using Domain.Entities;
+﻿using AutoMapper;
+using Domain.Entities;
 using Infrastructure.Interfaces;
+using Services.Dtos;
 using Services.Interfaces;
 
 namespace Services.Services
@@ -7,24 +9,28 @@ namespace Services.Services
     public class ContractService : IContractService
     {
         private readonly IRepository<Contract> _contractRepository;
-        public ContractService(IRepository<Contract> contractRepository)
+        private readonly IMapper _mapper;
+
+        public ContractService(IRepository<Contract> contractRepository, IMapper mapper)
         {
             _contractRepository = contractRepository;
+            _mapper = mapper;
         }
 
-        public async Task<IEnumerable<Contract>> GetAllContracts()
+        public async Task<IEnumerable<ContractDto>> GetAllContracts()
         {
-            return await _contractRepository.GetAllAsync();
+            var contracts = await _contractRepository.GetAllAsync();
+            return _mapper.Map<IEnumerable<ContractDto>>(contracts);
         }
 
-        public async Task<Contract> GetContractByIdAsync(int id)
+        public async Task<ContractDto> GetContractByIdAsync(int id)
         {
             Contract? contract = await _contractRepository.GetByIdAsync(id);
             if (contract == null)
             {
                 throw new Exception("Contract not found");
             }
-            return contract;
+            return _mapper.Map<ContractDto>(contract);
         }
 
         public async Task AddContract(DateTime startDate, DateTime endDate, ContractStatus status = ContractStatus.Active)

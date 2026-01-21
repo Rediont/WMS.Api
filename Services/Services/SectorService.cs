@@ -1,6 +1,8 @@
-﻿using Domain.Entities;
+﻿using AutoMapper;
+using Domain.Entities;
 using Infrastructure.Interfaces;
 using Microsoft.EntityFrameworkCore;
+using Services.Dtos;
 using Services.Interfaces;
 
 
@@ -9,19 +11,23 @@ namespace Services.Services
     internal class SectorService : ISectorService
     {
         private readonly IRepository<Sector> _sectorRepository;
-        public SectorService(IRepository<Sector> sectorRepository)
+        private readonly IMapper _mapper;
+
+        public SectorService(IRepository<Sector> sectorRepository, IMapper mapper)
         {
             _sectorRepository = sectorRepository;
+            _mapper = mapper;
         }
 
-        public async Task<IEnumerable<Sector>> GetAllSectorsAsync()
+        public async Task<IEnumerable<SectorInfoDto>> GetAllSectorsAsync()
         {
-            return await _sectorRepository.GetAllAsync();
+            var sectors = await _sectorRepository.GetAllAsync();
+            return _mapper.Map<IEnumerable<SectorInfoDto>>(sectors);
         }
 
-        public async Task<Sector?> GetSectorByIdAsync(int id)
+        public async Task<SectorInfoDto?> GetSectorByIdAsync(int id)
         {
-            return await _sectorRepository.GetByIdAsync(id);
+            return _mapper.Map<SectorInfoDto?>(await _sectorRepository.GetByIdAsync(id));
         }
 
         public async Task<bool> IsSectorAvailableAsync(Sector newSector)

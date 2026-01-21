@@ -1,5 +1,7 @@
-﻿using Domain.Entities;
+﻿using AutoMapper;
+using Domain.Entities;
 using Infrastructure.Interfaces;
+using Services.Dtos;
 using Services.Interfaces;
 
 namespace Services.Services
@@ -8,25 +10,29 @@ namespace Services.Services
     {
         private readonly IRepository<Alley> _alleyRepository;
         private readonly ISectorService _sectorService;
-        public AlleyService(IRepository<Alley> alleyRepository, ISectorService sectorService)
+        private readonly IMapper _mapper;
+        public AlleyService(IRepository<Alley> alleyRepository, ISectorService sectorService, IMapper mapper)
         {
             _alleyRepository = alleyRepository;
             _sectorService = sectorService;
+            _mapper = mapper;
         }
 
-        public async Task<IEnumerable<Alley>> GetAllAlleys()
+        public async Task<IEnumerable<AlleyDto>> GetAllAlleys()
         {
-            return await _alleyRepository.GetAllAsync();
+            var alleys = await _alleyRepository.GetAllAsync();
+
+            return _mapper.Map<IEnumerable<AlleyDto>>(alleys);
         }
 
-        public async Task<Alley> GetAlleyByIdAAsync(int id)
+        public async Task<AlleyDto> GetAlleyByIdAAsync(int id)
         {
             Alley? alley = await _alleyRepository.GetByIdAsync(id);
             if(alley == null)
             {
                 throw new Exception("Alley not found");
             }
-            return alley;
+            return _mapper.Map<AlleyDto>(alley);
         }
 
         public async void AddAlley(int height, int length, int width)

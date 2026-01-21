@@ -1,5 +1,6 @@
 ﻿using Domain.Entities;
 using Infrastructure.Interfaces;
+using Services.Dtos;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,9 +11,9 @@ namespace Services.Interfaces
 {
     internal interface IAlleyService
     {
-        public Task<IEnumerable<Alley>> GetAllAlleys();
+        public Task<IEnumerable<AlleyDto>> GetAllAlleys();
 
-        public Task<Alley> GetAlleyByIdAAsync(int id);
+        public Task<AlleyDto> GetAlleyByIdAAsync(int id);
 
         public void AddAlley(int height, int length, int width);
 

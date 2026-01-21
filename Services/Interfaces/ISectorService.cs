@@ -1,4 +1,5 @@
 ﻿using Domain.Entities;
+using Services.Dtos;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,9 +10,9 @@ namespace Services.Interfaces
 {
     public interface ISectorService
     {
-        public Task<IEnumerable<Sector>> GetAllSectorsAsync();
+        public Task<IEnumerable<SectorInfoDto>> GetAllSectorsAsync();
 
-        public Task<Sector?> GetSectorByIdAsync(int id);
+        public Task<SectorInfoDto?> GetSectorByIdAsync(int id);
 
         public Task AddSectorAsync(int alleyIndex, int startingCellId, int endingCellId, int floorIndex, int contractId, DateTime reserveEnd, DateTime? reserveStart = null);
 
