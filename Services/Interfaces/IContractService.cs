@@ -14,7 +14,7 @@ namespace Services.Interfaces
 
         public Task<ContractDto> GetContractByIdAsync(int id);
 
-        public Task AddContract(DateTime startDate, DateTime endDate, ContractStatus status = ContractStatus.Active);
+        public Task<Contract> AddContract(DateTime startDate, DateTime endDate, ContractStatus status = ContractStatus.Active);
 
         public Task UpdateContractAsync(int id, DateTime? endDate = null, ContractStatus? status = null);
 

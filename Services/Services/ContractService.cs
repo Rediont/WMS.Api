@@ -33,7 +33,7 @@ namespace Services.Services
             return _mapper.Map<ContractDto>(contract);
         }
 
-        public async Task AddContract(DateTime startDate, DateTime endDate, ContractStatus status = ContractStatus.Active)
+        public async Task<Contract> AddContract(DateTime startDate, DateTime endDate, ContractStatus status = ContractStatus.Active)
         {
             // можливі зміни структури контракту
             Contract newContract = new Contract
@@ -45,6 +45,7 @@ namespace Services.Services
                 Outbounds = null
             };
             await _contractRepository.AddAsync(newContract);
+            return newContract;
         }
 
         public async Task UpdateContractAsync(

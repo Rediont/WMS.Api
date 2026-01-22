@@ -13,7 +13,9 @@ namespace Domain.Entities
         
         public int FloorIndex { get; set; }
 
-        public decimal totalCapacity = 3.0m;
+        public double totalCapacity = 3;
+
+        public double usedCapacity = 0;
 
         public bool isOccupied = false;
 

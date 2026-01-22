@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Domain.Entities;
 using Services.Interfaces;
 using System.Threading.Tasks;
+using Services.Dtos;
 
 namespace WMS.Api.Controllers
 {
@@ -14,7 +15,7 @@ namespace WMS.Api.Controllers
         private readonly ILogger<ClientManagerController> _logger;
 
         public ClientManagerController(
-            IClientService clientService, 
+            IClientService clientService,
             ILogger<ClientManagerController> logger)
         {
             _clientService = clientService;
@@ -26,7 +27,7 @@ namespace WMS.Api.Controllers
         {
             try
             {
-                List<Client> clients = _clientService.GetAllClients();
+                var clients = await _clientService.GetAllClients();
                 _logger.LogInformation("Retrieved {ClientCount} clients", clients.Count());
                 return new OkObjectResult(clients);
             }
@@ -38,11 +39,11 @@ namespace WMS.Api.Controllers
         }
 
         [HttpGet("get/{clientId}")]
-        public IActionResult GetClientById([FromRoute]Guid clientId)
+        public IActionResult GetClientById([FromRoute] int clientId)
         {
             try
             {
-                var client = _clientService.GetClientByIdAsync(TODO);
+                var client = _clientService.GetClientByIdAsync(clientId);
                 if (client == null)
                 {
                     _logger.LogWarning("Client with ID: {ClientId} not found", clientId);
@@ -58,46 +59,33 @@ namespace WMS.Api.Controllers
             }
         }
 
-
-        // треба перевірити |
-        //                  v
-
-
         [HttpPost("add")]
         public IActionResult AddClient(
-            [FromForm]string clientName, 
-            [FromForm]string emailAddress, 
-            [FromForm]string contactPersonName, 
-            [FromForm]string contactPersonPhone)
+            [FromForm] string clientName,
+            [FromForm] string emailAddress,
+            [FromForm] string EDRPO,
+            [FromForm] string contactPersonName,
+            [FromForm] string contactPersonPhone)
         {
-            Client client = new Client
-            {
-                Name = clientName,
-                Email = emailAddress,
-                ContactPersonName = contactPersonName,
-                ContactPersonPhone = contactPersonPhone,
-                ContractList = new List<Contract>()
-            };
-
             try
             {
-                _clientRepository.AddClient(client);
-                _logger.LogInformation("Added new client: {ClientName} with ID: {ClientId}", client.name, client.id);
+                _clientService.AddClient(clientName, EDRPO, contactPersonName, contactPersonPhone, emailAddress);
+                _logger.LogInformation("Added new client: {ClientName}", clientName);
                 return new OkResult();
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error adding client: {ClientName}", client.name);
+                _logger.LogError(ex, "Error adding client: {ClientName}", clientName);
                 return new StatusCodeResult(500);
             }
         }
 
-        [HttpDelete("remove")]
-        public IActionResult RemoveClient(Guid clientId)
+        [HttpDelete("delete")]
+        public IActionResult RemoveClient(int clientId)
         {
             try
             {
-                _clientRepository.RemoveClient(clientId);
+                _clientService.DeleteClient(clientId);
                 _logger.LogInformation("Removed client with ID: {ClientId}", clientId);
                 return new OkResult();
             }
@@ -108,6 +96,48 @@ namespace WMS.Api.Controllers
             }
 
         }
+
+        public Task<IActionResult> UpdateClient(
+            int clientId,
+            string? clientName = null,
+            string? emailAddress = null,
+            string? EDRPO = null,
+            string? contactPersonName = null,
+            string? contactPersonPhone = null)
+        {
+            try
+            {
+                _clientService.UpdateClientAsync(
+                    clientId,
+                    clientName,
+                    EDRPO,
+                    contactPersonName,
+                    contactPersonPhone,
+                    emailAddress);
+                _logger.LogInformation("Updated client with ID: {ClientId}", clientId);
+                return Task.FromResult<IActionResult>(new OkResult());
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error updating client with ID: {ClientId}", clientId);
+                return Task.FromResult<IActionResult>(new StatusCodeResult(500));
+            }
+
+        }
+
+        //====================================================================================
+        //================================ не готове ! ========================================
+        //================================           v =======================================
+        //====================================================================================
+
+
+        public Task<IActionResult> CalculateCostForClient()
+        {
+            throw new NotImplementedException();
+        }
+
+
+
     }
 }
 

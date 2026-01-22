@@ -25,7 +25,11 @@ namespace Infrastructure.EntityTypeConfigs
 
             builder.Property(c => c.totalCapacity)
                 .IsRequired()
-                .HasDefaultValue(3.0m);
+                .HasDefaultValue(3);
+
+            builder.Property(c => c.usedCapacity)
+                .IsRequired()
+                .HasDefaultValue(0);
 
             builder.HasMany(c => c.StoredPallets) 
                 .WithOne(p => p.Cell)         
