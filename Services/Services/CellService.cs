@@ -20,13 +20,13 @@ namespace Services.Services
             _mapper = mapper;
         }
 
-        public async Task<IEnumerable<CellDto>> GetAllCells()
+        public async Task<IEnumerable<CellDto>> GetAllCellsAsync()
         {
             var cells = await _cellRepository.GetAllAsync();
             return _mapper.Map<IEnumerable<CellDto>>(cells);
         }
 
-        public async Task<CellDto?> GetCellById(int id)
+        public async Task<CellDto?> GetCellByIdAsync(int id)
         {
             var cell = await _cellRepository.GetByIdAsync(id);
             return cell is null ? null : _mapper.Map<CellDto>(cell);
@@ -61,8 +61,13 @@ namespace Services.Services
                 return false;
             }
 
-            //доробити логіку додавання палети до комірки 
+            if (cell.usedCapacity + pallet.PalletType.RequiredCapacity > cell.totalCapacity)
+            {
+                return false;
+            }
 
+            cell.StoredPallets.Add(pallet);
+            return true;
         }
     }
 }

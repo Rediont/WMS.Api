@@ -74,15 +74,30 @@ namespace Services.Services
             await _sectorRepository.SaveChangesAsync();
         }
 
-        public async Task DeleteSectorAsync(int id)
+        public async Task AddSectorAsync(SectorInfoDto sectorDto)
+        {
+            var sector = _mapper.Map<Sector>(sectorDto);
+
+            if (!await IsSectorAvailableAsync(sector))
+            {
+                throw new InvalidOperationException("Sector is not available for the specified time period.");
+            }
+
+            await _sectorRepository.AddAsync(sector);
+            await _sectorRepository.SaveChangesAsync();
+        }
+
+        public async Task<bool> DeleteSectorAsync(int id)
         {
             var sector = await _sectorRepository.GetByIdAsync(id);
             if (sector == null)
             {
+                return false;
                 throw new InvalidOperationException("Sector not found.");
             }
             _sectorRepository.Delete(sector);
             await _sectorRepository.SaveChangesAsync();
+            return true;
         }
 
         public async Task UpdateSectorAsync(

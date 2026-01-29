@@ -97,6 +97,7 @@ namespace WMS.Api.Controllers
 
         }
 
+        [HttpPut("update")]
         public Task<IActionResult> UpdateClient(
             int clientId,
             string? clientName = null,

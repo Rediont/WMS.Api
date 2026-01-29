@@ -16,7 +16,9 @@ namespace Services.Interfaces
 
         public Task AddSectorAsync(int alleyIndex, int startingCellId, int endingCellId, int floorIndex, int contractId, DateTime reserveEnd, DateTime? reserveStart = null);
 
-        public Task DeleteSectorAsync(int id);
+        public Task AddSectorAsync(SectorInfoDto sectorDto);
+
+        public Task<bool> DeleteSectorAsync(int id);
 
         public Task UpdateSectorAsync(
             int id,
