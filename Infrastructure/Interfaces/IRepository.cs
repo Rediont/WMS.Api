@@ -10,6 +10,8 @@ namespace Infrastructure.Interfaces
     {
         Task<T?> GetByIdAsync(int id);
 
+        Task<IEnumerable<T>> GetByIdsAsync(IEnumerable<int> ids);
+
         Task<IEnumerable<T>> GetAllAsync();
 
         IQueryable<T> Query(); // Дозволяє сервісу будувати складні запити

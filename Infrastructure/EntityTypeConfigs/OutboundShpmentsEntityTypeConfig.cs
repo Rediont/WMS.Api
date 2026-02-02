@@ -20,7 +20,7 @@ namespace Infrastructure.EntityTypeConfigs
                    .HasForeignKey(os => os.ContractId)
                    .OnDelete(DeleteBehavior.Cascade);
             
-            builder.HasMany(os => os.ShippedItems)
+            builder.HasMany(os => os.ShippedPallets)
                    .WithOne()
                    .HasForeignKey("ShipmentId")
                    .OnDelete(DeleteBehavior.Cascade);

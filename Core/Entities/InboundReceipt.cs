@@ -1,8 +1,9 @@
 using Domain.Entities;
+using Domain.Interface;
 
 namespace Domain.Entities
 {
-    public class InboundReceipt
+    public class InboundReceipt : IEntity
     {
         public int Id { get; set; }
         
@@ -16,6 +17,6 @@ namespace Domain.Entities
 
         public int Amount { get; set; }
 
-        public List<Pallet> Pallets = new();
+        public ICollection<Pallet> Pallets { get; set; } = new List<Pallet>();
     }
 }

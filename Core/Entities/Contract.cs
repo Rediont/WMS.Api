@@ -1,3 +1,5 @@
+using Domain.Interface;
+
 namespace Domain.Entities
 {
     public enum ContractStatus
@@ -9,7 +11,7 @@ namespace Domain.Entities
         Invalid
     }
 
-    public class Contract
+    public class Contract : IEntity
     {
         public int Id { get; set; }
         public string Name { get; set; }
@@ -18,8 +20,8 @@ namespace Domain.Entities
 
         public ContractStatus CurrentStatus;
 
-        public List<OutboundShipment> Outbounds = new(); // List of shipments associated with the contract
-        public List<InboundReceipt> Inbounds = new(); // List of arrivals associated with the contract
+        public ICollection<OutboundShipment> Outbounds { get; set; } = new List<OutboundShipment>(); // List of shipments associated with the contract
+        public ICollection<InboundReceipt> Inbounds { get; set; } = new List<InboundReceipt>(); // List of arrivals associated with the contract
 
         //public List<Item> itemList; // List of items associated with the contract
 

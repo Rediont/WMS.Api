@@ -9,7 +9,7 @@ namespace Services.Dtos
 {
     public class PalletInfoDto
     {
-        public string? Id { get; set; }
+        public int Id { get; set; }
 
         public int InboundReceiptId { get; set; }
         public DateTime ArrivalDate { get; set; }

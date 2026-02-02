@@ -1,8 +1,10 @@
 // для уніфікації розмірів всі виміри ведуться в сантиматрах
 
+using Domain.Interface;
+
 namespace Domain.Entities
 {
-    public class Cell
+    public class Cell : IEntity
     {
         public int Id { get; set; }
 
@@ -13,13 +15,13 @@ namespace Domain.Entities
         
         public int FloorIndex { get; set; }
 
-        public double totalCapacity = 3;
+        public double totalCapacity { get; private set; } = 3;
 
-        public double usedCapacity = 0;
+        public double usedCapacity { get; set; } = 0;
 
-        public bool isOccupied = false;
+        public bool isOccupied { get; set; } = false;
 
-        public List<Pallet> StoredPallets = new();
+        public ICollection<Pallet> StoredPallets { get; set; } = new List<Pallet>();
 
         //public Item item;
     }

@@ -1,7 +1,9 @@
 
+using Domain.Interface;
+
 namespace Domain.Entities
 {
-    public class Client
+    public class Client : IEntity
     {
         public int Id { get; set; }
         public string EDRPO { get; set; }
@@ -10,6 +12,6 @@ namespace Domain.Entities
         public string ContactPersonName { get; set; }
         public string ContactPersonPhone { get; set; }
 
-        public List<Contract> ContractList = new();
+        public ICollection<Contract> ContractList { get; set; } = new List<Contract>();
     }
 }

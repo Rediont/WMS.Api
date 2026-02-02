@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Domain.Interface;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -6,9 +7,9 @@ using System.Threading.Tasks;
 
 namespace Domain.Entities
 {
-    public class Pallet
+    public class Pallet : IEntity
     {
-        public string? Id { get; set; }
+        public int Id { get; set; }
 
         public int InboundReceiptId { get; set; }
         public virtual InboundReceipt InboundReceipt { get; set; }

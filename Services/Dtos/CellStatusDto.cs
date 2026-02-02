@@ -9,7 +9,7 @@ namespace Services.Dtos
 {
     public class CellStatusDto
     {
-        public long Id { get; set; } // Унікальний ID запису
+        public int Id { get; set; } // Унікальний ID запису
 
         public int AlleyId { get; set; }
         public int CellId { get; set; }

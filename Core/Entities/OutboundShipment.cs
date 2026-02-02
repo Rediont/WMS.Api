@@ -1,4 +1,5 @@
 using Domain.Entities;
+using Domain.Interface;
 
 // треба придумати як реалізувати вивантаження товарів
 // клієнт може захотіти вивантаження різних палет
@@ -6,12 +7,15 @@ using Domain.Entities;
 
 namespace Domain.Entities
 {
-    public class OutboundShipment
+    public class OutboundShipment : IEntity
     {
         public int Id { get; set; }
+
         public int ContractId { get; set; }
+        public virtual Contract Contract { get; set; }
+
         public DateTime ShipmentDate { get; set; }
 
-        public List<Item> ShippedItems = new();
+        public ICollection<Pallet> ShippedPallets { get; set; } = new List<Pallet>();
     }
 }

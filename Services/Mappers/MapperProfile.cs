@@ -32,8 +32,16 @@ namespace Services.Mappers
             CreateMap<ClientContractCost, ClientContractCostDto>();
 
             CreateMap<InboundReceipt, InboundReceiptDto>();
-        
-            CreateMap<OutboundShipment, OutboundShipmentDto>(); // в процесі
+
+            CreateMap<OutboundShipment, OutboundShipmentDto>()
+            .ForMember(dest => dest.ShippedPalletIds,
+                       opt => opt.MapFrom(src => src.ShippedPallets.Select(p => p.Id).ToList()));
+
+            CreateMap<OutboundShipmentDto, OutboundShipment>()
+                .ForMember(dest => dest.ShippedPallets, opt => opt.Ignore());
+
+
+
         }
     }
 }

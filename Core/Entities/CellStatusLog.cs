@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Domain.Interface;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -6,9 +7,9 @@ using System.Threading.Tasks;
 
 namespace Domain.Entities
 {
-    public class CellStatusLog
+    public class CellStatusLog : IEntity
     {
-        public long Id { get; set; } // Унікальний ID запису
+        public int Id { get; set; } // Унікальний ID запису
 
         public int AlleyId { get; set; }
         public virtual Alley Alley { get; set; }
