@@ -9,7 +9,7 @@ using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 
 namespace Infrastructure.DataBase
 {
-    internal class DbContext : IdentityDbContext<User>
+    public class DbContext : IdentityDbContext<User>
     {
         public DbSet<Alley> Alleys { get; set; }
         public DbSet<Sector> Sectors { get; set; }
@@ -26,6 +26,7 @@ namespace Infrastructure.DataBase
             base.OnModelCreating(modelBuilder);
 
             modelBuilder.HasPostgresEnum<ContractStatus>();
+            //modelBuilder.HasPostgresEnum<CellStatus>();
 
             modelBuilder.ApplyConfigurationsFromAssembly(typeof(DbContext).Assembly);
         }

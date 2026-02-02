@@ -1,3 +1,5 @@
+using Domain.Interface;
+
 namespace Domain.Entities
 {
     public enum ContractStatus
@@ -6,22 +8,22 @@ namespace Domain.Entities
         Active,
         Terminated,
         Completed,
-        invalid
+        Invalid
     }
 
-    public class Contract
+    public class Contract : IEntity
     {
-        public int id;
-        public string name;
-        public DateTime startDate;
-        public DateTime expirationDate;
+        public int Id { get; set; }
+        public string Name { get; set; }
+        public DateTime StartDate { get; set; }
+        public DateTime ExpirationDate { get; set; }
 
-        public ContractStatus currentStatus;
+        public ContractStatus CurrentStatus;
 
-        public List<OutboundShipment> Outbounds; // List of shipments associated with the contract
-        public List<InboundReceipt> Inbounds; // List of arrivals associated with the contract
+        public ICollection<OutboundShipment> Outbounds { get; set; } = new List<OutboundShipment>(); // List of shipments associated with the contract
+        public ICollection<InboundReceipt> Inbounds { get; set; } = new List<InboundReceipt>(); // List of arrivals associated with the contract
 
-        public List<Item> itemList; // List of items associated with the contract
+        //public List<Item> itemList; // List of items associated with the contract
 
     }
 }

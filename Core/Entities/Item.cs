@@ -1,5 +1,6 @@
 namespace Domain.Entities
 {
+    // потрібно огланути неохідність цього класу для палетного збкрігання
     public class Item
     {
         public int id;

@@ -1,14 +1,17 @@
 
+using Domain.Interface;
+
 namespace Domain.Entities
 {
-    public class Client
+    public class Client : IEntity
     {
-        public int id;
-        public string name;
-        public string email;
-        public string contactPersonName;
-        public string contactPersonPhone;
+        public int Id { get; set; }
+        public string EDRPO { get; set; }
+        public string Name { get; set; }
+        public string Email { get; set; }
+        public string ContactPersonName { get; set; }
+        public string ContactPersonPhone { get; set; }
 
-        public List<Contract> ContractList;
+        public ICollection<Contract> ContractList { get; set; } = new List<Contract>();
     }
 }

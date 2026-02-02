@@ -16,17 +16,30 @@ namespace Infrastructure.EntityTypeConfigs
             builder.ToTable("Cells");
             
             builder.HasKey(c => new { c.AlleyIndex, c.CellIndex });
-            
-            builder.Property(c => c.status).IsRequired();
-            
-            builder.Property(c => c.height).IsRequired();
-            
-            builder.Property(c => c.isOccupied).IsRequired();
-            
-            builder.HasOne(c => c.item)
-                   .WithOne()
-                   .HasForeignKey<Item>("CellAlleyIndex", "CellIndex")
-                   .OnDelete(DeleteBehavior.SetNull);
+
+            builder.Property(c => c.FloorIndex)
+                .IsRequired();
+
+            builder.Property(c => c.isOccupied)
+                .HasDefaultValue(false);
+
+            builder.Property(c => c.totalCapacity)
+                .IsRequired()
+                .HasDefaultValue(3);
+
+            builder.Property(c => c.usedCapacity)
+                .IsRequired()
+                .HasDefaultValue(0);
+
+            builder.HasMany(c => c.StoredPallets) 
+                .WithOne(p => p.Cell)         
+                .HasForeignKey(p => new { p.AlleyId, p.CellId })
+                .OnDelete(DeleteBehavior.Restrict);
+
+            //builder.HasOne(c => c.item)
+            //       .WithOne()
+            //       .HasForeignKey<Item>("CellAlleyIndex", "CellIndex")
+            //       .OnDelete(DeleteBehavior.SetNull);
         }
     }
 }

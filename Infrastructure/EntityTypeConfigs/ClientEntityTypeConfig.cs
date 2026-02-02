@@ -15,28 +15,32 @@ namespace Infrastructure.EntityTypeConfigs
         {
             builder.ToTable("Clients");
             
-            builder.HasKey(c => c.id);
+            builder.HasKey(c => c.Id);
             
-            builder.Property(c => c.name)
+            builder.Property(c => c.Name)
                 .IsRequired()
                 .HasMaxLength(100);
             
-            builder.Property(c => c.email)
+            builder.Property(c => c.EDRPO)
+                .IsRequired()
+                .HasMaxLength(100);
+
+            builder.Property(c => c.Email)
                 .IsRequired()
                 .HasMaxLength(100);
             
-            builder.Property(c => c.contactPersonName)
+            builder.Property(c => c.ContactPersonName)
                 .IsRequired()
                 .HasMaxLength(100);
             
-            builder.Property(c => c.contactPersonPhone)
+            builder.Property(c => c.ContactPersonPhone)
                 .IsRequired()
                 .HasMaxLength(15);
-            
+
             builder.HasMany(c => c.ContractList)
                 .WithOne()
                 .HasForeignKey("ClientId")
-                .OnDelete(DeleteBehavior.Cascade);
+                .OnDelete(DeleteBehavior.Restrict);
         }
     }
 }

@@ -10,20 +10,20 @@ namespace Infrastructure.EntityTypeConfigs
         {
             builder.ToTable("Alleys");
             
-            builder.HasKey(a => a.alleyIndex);
+            builder.HasKey(a => a.AlleyIndex);
             
-            builder.Property(a => a.height).IsRequired();
+            builder.Property(a => a.Height).IsRequired();
             
-            builder.Property(a => a.length).IsRequired();
+            builder.Property(a => a.Length).IsRequired();
             
-            builder.Property(a => a.width).IsRequired();
+            builder.Property(a => a.Width).IsRequired();
             
-            builder.Property(a => a.cellsPerFloor).IsRequired();
+            builder.Property(a => a.CellsPerFloor).IsRequired();
             
             builder.HasMany(a => a.Sectors)
                    .WithOne()
                    .HasForeignKey("AlleyIndex")
-                   .OnDelete(DeleteBehavior.Cascade);
+                   .OnDelete(DeleteBehavior.Restrict);
         }
     }
 }

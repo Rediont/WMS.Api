@@ -1,29 +1,28 @@
 // для уніфікації розмірів всі виміри ведуться в сантиматрах
 
+using Domain.Interface;
+
 namespace Domain.Entities
 {
-    public enum CellStatus
+    public class Cell : IEntity
     {
-        Full,
-        Empty,
-        SemiFull,
-    }
+        public int Id { get; set; }
 
-    public class Cell
-    {
-        private int alleyIndex; // індекс алеї в якій знаходиться комірка
-        private int cellIndex; // індекс комірки
-        public bool isOccupied; // чи зайнята комірка
+        public int AlleyIndex { get; set; } // індекс алеї в якій знаходиться комірка
+        public virtual Alley Alley { get; set; }
+        
+        public int CellIndex { get; set; } // індекс комірки
+        
+        public int FloorIndex { get; set; }
 
-        public int height; // висота комірки
+        public double totalCapacity { get; private set; } = 3;
 
-        public CellStatus status;
+        public double usedCapacity { get; set; } = 0;
 
-        public int AlleyIndex { get { return alleyIndex; } }
-        public int CellIndex { get { return cellIndex; } } // індекс комірки
-        public bool IsOccupied { get { return isOccupied; } }
+        public bool isOccupied { get; set; } = false;
 
-        public Item item;
+        public ICollection<Pallet> StoredPallets { get; set; } = new List<Pallet>();
 
+        //public Item item;
     }
 }

@@ -1,52 +1,59 @@
 ﻿using Infrastructure.DataBase;
 using Infrastructure.Interfaces;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
+using DbContext = Infrastructure.DataBase.DbContext;
+using Domain.Interface;
 
 namespace Infrastructure.Repositories
 {
-    public class Repository<T> : IRepository<T> where T : class
+    public class Repository<T> : IRepository<T> where T : class, IEntity
     {
-        private readonly DbContext _dbcontext;
-
-        public void Add(T entity)
+        protected readonly DbContext _context;
+        public Repository(DbContext context) 
         {
-            if (entity == null)
-            {
-                throw new ArgumentNullException(nameof(entity), "Entity cannot be null");
-            }
-
-            _dbcontext.Set<T>().Add(entity);
+            _context = context; 
         }
 
-        public void Remove(Guid id)
+        public async Task<IEnumerable<T>> GetAllAsync()
         {
-            T? entity = _dbcontext.Set<T>().Find(id);
-            if (entity == null)
-            {
-                throw new KeyNotFoundException($"Entity with ID {id} not found");
-            }
-            _dbcontext.Set<T>().Remove(entity);
-
+            return await _context.Set<T>().ToListAsync();
         }
 
-        public T GetById(Guid id)
+        public IQueryable<T> Query() 
         {
-            T? entity = _dbcontext.Set<T>().Find(id);
-            if (entity == null)
-            {
-                throw new KeyNotFoundException($"Entity with ID {id} not found");
-            }
-            return entity;
+           return _context.Set<T>().AsQueryable(); 
         }
 
-        public List<T> GetAll()
+        public async Task<T?> GetByIdAsync(int id) 
         {
-            return _dbcontext.Set<T>().ToList();
+            return await _context.Set<T>().FindAsync(id); 
         }
 
+        public async Task<IEnumerable<T>> GetByIdsAsync(IEnumerable<int> ids)
+        {
+            return await _context.Set<T>()
+                    .Where(p => ids.Contains(p.Id))
+                    .ToListAsync();
+        }
+
+        public async Task AddAsync(T entity) 
+        {
+            await _context.Set<T>().AddAsync(entity);
+        }
+
+        public void Update(T entity)
+        {
+            _context.Set<T>().Update(entity);
+        }
+
+        public void Delete(T entity)   
+        {
+            _context.Set<T>().Remove(entity);
+        }
+
+        public async Task SaveChangesAsync() 
+        {
+            await _context.SaveChangesAsync(); 
+        }
     }
 }

@@ -1,6 +1,8 @@
 ﻿using Domain.Entities;
 using Infrastructure.Interfaces;
 using Microsoft.AspNetCore.Mvc;
+using Services.Interfaces;
+using System.Threading.Tasks;
 
 namespace WMS.Api.Controllers
 {
@@ -8,28 +10,26 @@ namespace WMS.Api.Controllers
     [Route("[controller]")]
     public class ContractController
     {
-        private readonly IContractRepository _contractRepository;
-
-        private readonly IClientRepository _clientRepository;
-
+        private readonly IContractService _contractService;
+        private readonly IClientService _clientService;
         private readonly ILogger<ContractController> _logger;
 
         public ContractController(
-            IContractRepository contractRepository,
-            IClientRepository clientRepository,
+            IContractService contractService,
+            IClientService clientService,
             ILogger<ContractController> logger)
         {
-            _contractRepository = contractRepository;
-            _clientRepository = clientRepository;
+            _contractService = contractService;
+            _clientService = clientService;
             _logger = logger;
         }
 
         [HttpGet("all")]
-        public IActionResult GetAllContracts()
+        public async Task<IActionResult> GetAllContracts()
         {
             try
             {
-                var contracts = _contractRepository.GetAllContracts();
+                var contracts = await _contractService.GetAllContracts();
                 _logger.LogInformation("Retrieved {ContractCount} contracts", contracts.Count());
                 return new OkObjectResult(contracts);
             }
@@ -41,9 +41,9 @@ namespace WMS.Api.Controllers
         }
 
         [HttpPost("add")]
-        public IActionResult AddContract([FromQuery]Guid clientId, [FromBody]List<Item> items, [FromBody]DateTime startDate, [FromBody]DateTime endDate)
+        public async Task<IActionResult> AddContract([FromQuery]int clientId, [FromBody]List<Item> items, [FromBody]DateTime startDate, [FromBody]DateTime endDate)
         {
-            var client = _clientRepository.GetClientById(TODO);
+            var client = _clientService.GetClientByIdAsync(clientId);
             if (client == null)
             {
                 _logger.LogWarning("Client with ID: {ClientId} not found", clientId);
@@ -57,113 +57,51 @@ namespace WMS.Api.Controllers
                 status = ContractStatus.Active;
             }
 
-            Contract contract = new Contract
-            {
-                item_list = items,
-                start_date = startDate,
-                expiration_date = endDate,
-                current_status = status
+            var contract = await _contractService.AddContract(startDate,endDate,status);
 
-            };
-
-            _clientRepository.AddContractToClient(clientId, contract);
-            _logger.LogInformation("Added contract with ID: {ContractId} to client with ID: {ClientId}", contract.id, clientId);
+            _clientService.AddContractToClient(clientId, contract);
+            _logger.LogInformation("Added contract with ID: {ContractId} to client with ID: {ClientId}", contract.Id, clientId);
             return new OkObjectResult(contract);
         }
 
         [HttpPost("terminate")]
-        public IActionResult TerminateContract([FromQuery]Guid clientId, [FromQuery]string contractId)
+        public async Task<IActionResult> TerminateContract([FromQuery]int clientId, [FromQuery]int contractId)
         {
-            var client = _clientRepository.GetClientById(TODO);
+            var client = _clientService.GetClientByIdAsync(clientId);
             if (client == null)
             {
                 _logger.LogWarning("Client with ID: {ClientId} not found", clientId);
                 return new NotFoundResult();
             }
-            if (_contractRepository.GetContractById(contractId, clientId) == null)
+            if (_contractService.GetContractByIdAsync(contractId) == null)
             {
                 _logger.LogWarning("Contract with ID: {ContractId} not found for client with ID: {ClientId}", contractId, clientId);
                 return new NotFoundResult();
             }
 
-            _clientRepository.TerminateClientContract(clientId, contractId);
+            _clientService.SetClientContractStatus(clientId, contractId, ContractStatus.Terminated);
             _logger.LogInformation("Terminated contract with ID: {ContractId} for client with ID: {ClientId}", contractId, clientId);
             return new OkResult();
         }
 
         [HttpPost("complete")]
-        public IActionResult CompleteContract([FromQuery]Guid clientId, [FromQuery]string contractId)
+        public IActionResult CompleteContract([FromQuery]int clientId, [FromQuery]int contractId)
         {
-            var client = _clientRepository.GetClientById(TODO);
+            var client = _clientService.GetClientByIdAsync(clientId);
             if (client == null)
             {
                 _logger.LogWarning("Client with ID: {ClientId} not found", clientId);
                 return new NotFoundResult();
             }
-            if (_contractRepository.GetContractById(contractId, clientId) == null)
+            if (_contractService.GetContractByIdAsync(contractId) == null)
             {
                 _logger.LogWarning("Contract with ID: {ContractId} not found for client with ID: {ClientId}", contractId, clientId);
                 return new NotFoundResult();
             }
 
-            _contractRepository.SetContractStatusToCompleted(contractId);
+            _clientService.SetClientContractStatus(clientId,contractId, ContractStatus.Completed);
             _logger.LogInformation("Completed contract with ID: {ContractId} for client with ID: {ClientId}", contractId, clientId);
             return new OkResult();
-        }
-
-        [HttpPost("delivery")]
-        public IActionResult AddDeliveryToContract([FromQuery] Guid clientId, [FromQuery]string contractId, [FromBody]List<Item> items, [FromBody]DateTime? arrivalDate)
-        {
-            var client = _clientRepository.GetClientById(TODO);
-            if (client == null)
-            {
-                _logger.LogWarning("Client with ID: {ClientId} not found", clientId);
-                return new NotFoundResult();
-            }
-            var contract = _contractRepository.GetContractById(contractId, clientId);
-            if (contract == null)
-            {
-                _logger.LogWarning("Contract with ID: {ContractId} not found for client with ID: {ClientId}", contractId, clientId);
-                return new NotFoundResult();
-            }
-
-            InboundReceipt delivery = new InboundReceipt
-            {
-                contract_id = contractId,
-                item_list = items,
-                arrival_date = arrivalDate ?? DateTime.Now
-            };
-
-            _contractRepository.AddShipmentToContract(contractId, delivery);
-            _logger.LogInformation("Added shipment to contract with ID: {ContractId} for client with ID: {ClientId}", contractId, clientId);
-            return new OkResult();
-        }
-
-        [HttpPost("shipment")]
-        public IActionResult AddShipmentToContract([FromQuery] Guid clientId, [FromQuery]string contractId, [FromBody]List<Item> items, [FromBody]DateTime? shipmentDate)
-        {
-            var client = _clientRepository.GetClientById(TODO);
-            if (client == null)
-            {
-                _logger.LogWarning("Client with ID: {ClientId} not found", clientId);
-                return new NotFoundResult();
-            }
-            var contract = _contractRepository.GetContractById(contractId, clientId);
-            if (contract == null)
-            {
-                _logger.LogWarning("Contract with ID: {ContractId} not found for client with ID: {ClientId}", contractId, clientId);
-                return new NotFoundResult();
-            }
-            OutboundShipment shipment = new OutboundShipment
-            {
-                contract_id = contractId,
-                item_list = items,
-                shipment_date = shipmentDate ?? DateTime.Now
-            };
-            _contractRepository.AddDeliveryToContract(contractId, shipment);
-            _logger.LogInformation("Added delivery to contract with ID: {ContractId} for client with ID: {ClientId}", contractId, clientId);
-            return new OkResult();
-
         }
     }
 }

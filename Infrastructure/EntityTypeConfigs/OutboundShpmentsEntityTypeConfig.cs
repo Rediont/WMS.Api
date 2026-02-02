@@ -9,18 +9,18 @@ namespace Infrastructure.EntityTypeConfigs
         public void Configure(Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder<OutboundShipment> builder)
         {
             builder.ToTable("ContractShipments");
-            builder.HasKey(os => os.id);
+            builder.HasKey(os => os.Id);
             
-            builder.Property(os => os.shipmentDate)
+            builder.Property(os => os.ShipmentDate)
                 .HasColumnType("timestamp with time zone")
                 .IsRequired();
             
             builder.HasOne<Contract>()
                    .WithMany(c => c.Outbounds)
-                   .HasForeignKey(os => os.contractId)
+                   .HasForeignKey(os => os.ContractId)
                    .OnDelete(DeleteBehavior.Cascade);
             
-            builder.HasMany(os => os.ShippedItems)
+            builder.HasMany(os => os.ShippedPallets)
                    .WithOne()
                    .HasForeignKey("ShipmentId")
                    .OnDelete(DeleteBehavior.Cascade);
