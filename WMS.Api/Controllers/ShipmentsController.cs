@@ -16,19 +16,29 @@ namespace WMS.Api.Controllers
             _logger = logger;
         }
 
-        // додати обмеження у вигляді сторінок
+        [HttpGet("all")]
         public async Task<ActionResult<List<OutboundShipmentDto>>> GetAllShipments()
         {
             var shipments = await _outboundShipmentService.GetAllShipmentsAsync();
             return new OkObjectResult(shipments);
         }
 
-        public async Task<ActionResult<OutboundShipmentDto>> GetShipmentById(int id)
+
+        // додати обмеження у вигляді сторінок
+        [HttpGet("show")]
+        public async Task<ActionResult<List<OutboundShipmentDto>>> GetShipmentsByIds([FromQuery]int pageId = 0)
+        {
+            throw new NotImplementedException();
+        }
+
+        [HttpGet("show/{id}")]
+        public async Task<ActionResult<OutboundShipmentDto>> GetShipmentById([FromRoute]int id)
         {
             var shipment = await _outboundShipmentService.GetShipmentByIdAAsync(id);
             return new OkObjectResult(shipment);
         }
 
+        [HttpPost("create")]
         public async Task<ActionResult> CreateShipment([FromBody] OutboundShipmentDto shipmentDto)
         {
             var result = await _outboundShipmentService.AddShipment(shipmentDto.ContractId, shipmentDto.ShippedPalletIds);
@@ -42,7 +52,8 @@ namespace WMS.Api.Controllers
             }
         }
 
-        public async Task<ActionResult> DeleteShipment(int id)
+        [HttpDelete("delete")]
+        public async Task<ActionResult> DeleteShipment([FromQuery]int id)
         {
             var result = await _outboundShipmentService.RemoveShipmentByIdAsync(id);
             return result ? new OkResult() : new BadRequestResult();

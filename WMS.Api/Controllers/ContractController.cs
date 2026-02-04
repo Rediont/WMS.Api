@@ -1,6 +1,7 @@
 ﻿using Domain.Entities;
 using Infrastructure.Interfaces;
 using Microsoft.AspNetCore.Mvc;
+using Services.Dtos;
 using Services.Interfaces;
 using System.Threading.Tasks;
 
@@ -41,65 +42,65 @@ namespace WMS.Api.Controllers
         }
 
         [HttpPost("add")]
-        public async Task<IActionResult> AddContract([FromQuery]int clientId, [FromBody]List<Item> items, [FromBody]DateTime startDate, [FromBody]DateTime endDate)
+        public async Task<IActionResult> AddContract([FromBody]NewContractDataDto contractDataDto)
         {
-            var client = _clientService.GetClientByIdAsync(clientId);
+            var client = await _clientService.GetClientByIdAsync(contractDataDto.ClientId);
             if (client == null)
             {
-                _logger.LogWarning("Client with ID: {ClientId} not found", clientId);
+                _logger.LogWarning("Client with ID: {ClientId} not found", contractDataDto.ClientId);
                 return new NotFoundResult();
             }
 
             ContractStatus status = ContractStatus.Inactive;
 
-            if (startDate == DateTime.Now)
+            if (contractDataDto.StartDate == DateTime.Now)
             {
                 status = ContractStatus.Active;
             }
 
-            var contract = await _contractService.AddContract(startDate,endDate,status);
+            var contract = await _contractService.AddContract(contractDataDto.StartDate, contractDataDto.EndDate, status);
 
-            _clientService.AddContractToClient(clientId, contract);
-            _logger.LogInformation("Added contract with ID: {ContractId} to client with ID: {ClientId}", contract.Id, clientId);
+            await _clientService.AddContractToClient(contractDataDto.ClientId, contract);
+            _logger.LogInformation("Added contract with ID: {ContractId} to client with ID: {ClientId}", contract.Id, contractDataDto.ClientId);
             return new OkObjectResult(contract);
         }
 
         [HttpPost("terminate")]
         public async Task<IActionResult> TerminateContract([FromQuery]int clientId, [FromQuery]int contractId)
         {
-            var client = _clientService.GetClientByIdAsync(clientId);
+            var client = await _clientService.GetClientByIdAsync(clientId);
             if (client == null)
             {
                 _logger.LogWarning("Client with ID: {ClientId} not found", clientId);
                 return new NotFoundResult();
             }
-            if (_contractService.GetContractByIdAsync(contractId) == null)
+            if (await _contractService.GetContractByIdAsync(contractId) == null)
             {
                 _logger.LogWarning("Contract with ID: {ContractId} not found for client with ID: {ClientId}", contractId, clientId);
                 return new NotFoundResult();
             }
 
-            _clientService.SetClientContractStatus(clientId, contractId, ContractStatus.Terminated);
+            await _clientService.SetClientContractStatus(clientId, contractId, ContractStatus.Terminated);
             _logger.LogInformation("Terminated contract with ID: {ContractId} for client with ID: {ClientId}", contractId, clientId);
             return new OkResult();
         }
 
         [HttpPost("complete")]
-        public IActionResult CompleteContract([FromQuery]int clientId, [FromQuery]int contractId)
+        public async Task<IActionResult> CompleteContract([FromQuery]int clientId, [FromQuery]int contractId)
         {
-            var client = _clientService.GetClientByIdAsync(clientId);
+            var client = await _clientService.GetClientByIdAsync(clientId);
             if (client == null)
             {
                 _logger.LogWarning("Client with ID: {ClientId} not found", clientId);
                 return new NotFoundResult();
             }
-            if (_contractService.GetContractByIdAsync(contractId) == null)
+            if (await _contractService.GetContractByIdAsync(contractId) == null)
             {
                 _logger.LogWarning("Contract with ID: {ContractId} not found for client with ID: {ClientId}", contractId, clientId);
                 return new NotFoundResult();
             }
 
-            _clientService.SetClientContractStatus(clientId,contractId, ContractStatus.Completed);
+            await _clientService.SetClientContractStatus(clientId,contractId, ContractStatus.Completed);
             _logger.LogInformation("Completed contract with ID: {ContractId} for client with ID: {ClientId}", contractId, clientId);
             return new OkResult();
         }

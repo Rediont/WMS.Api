@@ -13,10 +13,12 @@ namespace Services.Interfaces
     {
         public Task<IEnumerable<InboundReceiptDto>> GetAllReceiptsAsync();
 
-        public Task<InboundReceiptDto> GetReceiptByIdAAsync(int id);
+        public Task<InboundReceiptDto> GetReceiptByIdAsync(int id);
+
+        public Task<List<InboundReceiptDto>> GetReceiptsByIdsAsync(List<int> ids);
 
         public Task<bool> AddReceipt(int contractId, int amount, int palletType, List<int> palletIds);
 
-        public Task<bool> RemoveReceiptByIdAsync(int id);
+        public Task<bool> DeleteReceiptByIdAsync(int id);
     }
 }

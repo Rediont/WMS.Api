@@ -9,12 +9,14 @@ using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 
 namespace Infrastructure.DataBase
 {
-    public class DbContext : IdentityDbContext<User>
+    public class ApplicationDbContext : IdentityDbContext<User>
     {
+        public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
+        : base(options){ }
+
         public DbSet<Alley> Alleys { get; set; }
         public DbSet<Sector> Sectors { get; set; }
         public DbSet<Cell> Cells { get; set; }
-        public DbSet<Item> Items { get; set; }
         public DbSet<Client> Clients { get; set; }
         public DbSet<Contract> Contracts { get; set; }
         public DbSet<InboundReceipt> Receipts { get; set; }
@@ -28,7 +30,7 @@ namespace Infrastructure.DataBase
             modelBuilder.HasPostgresEnum<ContractStatus>();
             //modelBuilder.HasPostgresEnum<CellStatus>();
 
-            modelBuilder.ApplyConfigurationsFromAssembly(typeof(DbContext).Assembly);
+            modelBuilder.ApplyConfigurationsFromAssembly(typeof(ApplicationDbContext).Assembly);
         }
 
 

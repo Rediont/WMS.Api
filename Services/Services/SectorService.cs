@@ -8,7 +8,7 @@ using Services.Interfaces;
 
 namespace Services.Services
 {
-    internal class SectorService : ISectorService
+    public class SectorService : ISectorService
     {
         private readonly IRepository<Sector> _sectorRepository;
         private readonly IMapper _mapper;

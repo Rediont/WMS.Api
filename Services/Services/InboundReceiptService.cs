@@ -32,7 +32,7 @@ namespace Services.Services
             return _mapper.Map<IEnumerable<InboundReceiptDto>>(receipts);
         }
 
-        public Task<InboundReceiptDto> GetReceiptByIdAAsync(int id)
+        public Task<InboundReceiptDto> GetReceiptByIdAsync(int id)
         {
             var receipt =  _inboundReceiptRepository.GetByIdAsync(id);
             if (receipt == null)
@@ -40,6 +40,12 @@ namespace Services.Services
                 throw new KeyNotFoundException($"Receipt with ID {id} not found.");
             }
             return _mapper.Map<Task<InboundReceiptDto>>(receipt);
+        }
+
+        public Task<List<InboundReceiptDto>> GetReceiptsByIdsAsync(List<int> ids)
+        {
+            var receipts = _inboundReceiptRepository.GetByIdsAsync(ids);
+            return _mapper.Map<Task<List<InboundReceiptDto>>>(receipts);
         }
 
         public async Task<bool> AddReceipt(int contractId, int amount, int palletType, List<int> palletIds)
@@ -64,7 +70,7 @@ namespace Services.Services
             return true;
         }
 
-        public async Task<bool> RemoveReceiptByIdAsync(int id)
+        public async Task<bool> DeleteReceiptByIdAsync(int id)
         {
             var receipt = await _inboundReceiptRepository.GetByIdAsync(id);
             if (receipt == null)

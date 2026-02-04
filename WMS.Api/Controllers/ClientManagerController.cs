@@ -38,12 +38,12 @@ namespace WMS.Api.Controllers
             }
         }
 
-        [HttpGet("get/{clientId}")]
-        public IActionResult GetClientById([FromRoute] int clientId)
+        [HttpGet("{clientId}")]
+        public async Task<IActionResult> GetClientById([FromRoute] int clientId)
         {
             try
             {
-                var client = _clientService.GetClientByIdAsync(clientId);
+                var client = await _clientService.GetClientByIdAsync(clientId);
                 if (client == null)
                 {
                     _logger.LogWarning("Client with ID: {ClientId} not found", clientId);
@@ -60,7 +60,7 @@ namespace WMS.Api.Controllers
         }
 
         [HttpPost("add")]
-        public IActionResult AddClient(
+        public async Task<IActionResult> AddClient(
             [FromForm] string clientName,
             [FromForm] string emailAddress,
             [FromForm] string EDRPO,
@@ -69,7 +69,7 @@ namespace WMS.Api.Controllers
         {
             try
             {
-                _clientService.AddClient(clientName, EDRPO, contactPersonName, contactPersonPhone, emailAddress);
+                await _clientService.AddClient(clientName, EDRPO, contactPersonName, contactPersonPhone, emailAddress);
                 _logger.LogInformation("Added new client: {ClientName}", clientName);
                 return new OkResult();
             }
@@ -81,11 +81,11 @@ namespace WMS.Api.Controllers
         }
 
         [HttpDelete("delete")]
-        public IActionResult RemoveClient(int clientId)
+        public async Task<IActionResult> RemoveClient([FromQuery]int clientId)
         {
             try
             {
-                _clientService.DeleteClient(clientId);
+                await _clientService.DeleteClient(clientId);
                 _logger.LogInformation("Removed client with ID: {ClientId}", clientId);
                 return new OkResult();
             }
@@ -98,17 +98,17 @@ namespace WMS.Api.Controllers
         }
 
         [HttpPut("update")]
-        public Task<IActionResult> UpdateClient(
-            int clientId,
-            string? clientName = null,
-            string? emailAddress = null,
-            string? EDRPO = null,
-            string? contactPersonName = null,
-            string? contactPersonPhone = null)
+        public async Task<IActionResult> UpdateClient(
+            [FromForm]int clientId,
+            [FromForm] string? clientName = null,
+            [FromForm] string? emailAddress = null,
+            [FromForm] string? EDRPO = null,
+            [FromForm] string? contactPersonName = null,
+            [FromForm] string? contactPersonPhone = null)
         {
             try
             {
-                _clientService.UpdateClientAsync(
+                await _clientService.UpdateClientAsync(
                     clientId,
                     clientName,
                     EDRPO,
@@ -116,12 +116,12 @@ namespace WMS.Api.Controllers
                     contactPersonPhone,
                     emailAddress);
                 _logger.LogInformation("Updated client with ID: {ClientId}", clientId);
-                return Task.FromResult<IActionResult>(new OkResult());
+                return new OkResult();
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error updating client with ID: {ClientId}", clientId);
-                return Task.FromResult<IActionResult>(new StatusCodeResult(500));
+                return new StatusCodeResult(500);
             }
 
         }

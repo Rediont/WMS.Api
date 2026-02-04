@@ -3,10 +3,11 @@ using Domain.Entities;
 using Infrastructure.Interfaces;
 using Services.Dtos;
 using Services.Interfaces;
+using System.Threading.Tasks;
 
 namespace Services.Services
 {
-    internal class AlleyService : IAlleyService
+    public class AlleyService : IAlleyService
     {
         private readonly IRepository<Alley> _alleyRepository;
         private readonly ISectorService _sectorService;
@@ -25,7 +26,7 @@ namespace Services.Services
             return _mapper.Map<IEnumerable<AlleyDto>>(alleys);
         }
 
-        public async Task<AlleyDto> GetAlleyByIdAAsync(int id)
+        public async Task<AlleyDto> GetAlleyByIdAsync(int id)
         {
             Alley? alley = await _alleyRepository.GetByIdAsync(id);
             if(alley == null)
@@ -89,21 +90,21 @@ namespace Services.Services
 
         // видалити сектор з алеї за індексом сектору
         // потрібен тест про відсутність сектору
-        public void RemoveSectorFromAlley(int alley_index, int sector_index)
+        public async Task RemoveSectorFromAlley(int alleyIndex, int sectorIndex)
         {
-            Alley? targetAlley = _alleyRepository.GetByIdAsync(alley_index).Result;
+            Alley? targetAlley = await _alleyRepository.GetByIdAsync(alleyIndex, a => a.Sectors);
 
             if (targetAlley == null)
             {
                 throw new Exception("Alley not found");
             }
 
-            if (!targetAlley.Sectors.Any(s => s.SectorIndex == sector_index))
+            if (!targetAlley.Sectors.Any(s => s.SectorIndex == sectorIndex))
             {
                 throw new Exception("Sector not found in the specified alley");
             }
 
-            targetAlley.Sectors.RemoveAll(s => s.SectorIndex == sector_index);
+            targetAlley.Sectors.Remove(targetAlley.Sectors.First(s => s.SectorIndex == sectorIndex));
             _alleyRepository.Update(targetAlley);
         }
 

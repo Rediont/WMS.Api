@@ -14,7 +14,7 @@ namespace Infrastructure.EntityTypeConfigs
         public void Configure(EntityTypeBuilder<PalletTypes> builder) 
         {
             builder.ToTable("PalletTypes");
-            builder.HasKey(pt => pt.TypeId);
+            builder.HasKey(pt => pt.Id);
 
             builder.Property(pt => pt.Name)
                    .IsRequired()

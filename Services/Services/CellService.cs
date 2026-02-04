@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Services.Services
 {
-    internal class CellService : ICellService
+    public class CellService : ICellService
     {
         private readonly IRepository<Cell> _cellRepository;
         private readonly IRepository<Pallet> _palletRepository;

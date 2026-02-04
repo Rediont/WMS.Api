@@ -21,7 +21,7 @@ namespace WMS.Api.Controllers
             _mapper = mapper;
         }
 
-        [HttpGet("get/all")]
+        [HttpGet("all")]
         public async Task<IActionResult> GetAllSectors()
         {
             var sectors = await _sectorService.GetAllSectorsAsync();
@@ -29,7 +29,7 @@ namespace WMS.Api.Controllers
             return new OkObjectResult(sectors);
         }
 
-        [HttpGet("get/{sectorId}")]
+        [HttpGet("{sectorId}")]
         public async Task<IActionResult> GetSectorById([FromRoute] int sectorId)
         {
             var sector = await _sectorService.GetSectorByIdAsync(sectorId);
@@ -51,8 +51,8 @@ namespace WMS.Api.Controllers
             return new CreatedAtActionResult("GetSectorById", "Sector", new { sectorId = sectorDto.SectorIndex }, sectorDto);
         }
 
-        [HttpDelete("delete/{sectorId}")]
-        public async Task<IActionResult> DeleteSector([FromRoute] int sectorId)
+        [HttpDelete("delete")]
+        public async Task<IActionResult> DeleteSector([FromQuery] int sectorId)
         {
             var success = await _sectorService.DeleteSectorAsync(sectorId);
             if (!success)

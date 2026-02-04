@@ -9,16 +9,16 @@ using System.Threading.Tasks;
 
 namespace Services.Interfaces
 {
-    internal interface IAlleyService
+    public interface IAlleyService
     {
         public Task<IEnumerable<AlleyDto>> GetAllAlleys();
 
-        public Task<AlleyDto> GetAlleyByIdAAsync(int id);
+        public Task<AlleyDto> GetAlleyByIdAsync(int id);
 
         public void AddAlley(int height, int length, int width);
 
-        public void AddSectorToAlley(int alley_index, Sector sector);
+        public void AddSectorToAlley(int alleyIndex, Sector sector);
 
-        public void RemoveSectorFromAlley(int alley_index, int sector_index);
+        public Task RemoveSectorFromAlley(int alleyIndex, int sectorIndex);
     }
 }

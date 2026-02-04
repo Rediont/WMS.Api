@@ -1,15 +1,16 @@
-﻿using Infrastructure.DataBase;
+﻿using Domain.Interface;
+using Infrastructure.DataBase;
 using Infrastructure.Interfaces;
 using Microsoft.EntityFrameworkCore;
-using DbContext = Infrastructure.DataBase.DbContext;
-using Domain.Interface;
+using System.Linq.Expressions;
+using ApplicationDbContext = Infrastructure.DataBase.ApplicationDbContext;
 
 namespace Infrastructure.Repositories
 {
     public class Repository<T> : IRepository<T> where T : class, IEntity
     {
-        protected readonly DbContext _context;
-        public Repository(DbContext context) 
+        protected readonly ApplicationDbContext _context;
+        public Repository(ApplicationDbContext context) 
         {
             _context = context; 
         }
@@ -24,9 +25,11 @@ namespace Infrastructure.Repositories
            return _context.Set<T>().AsQueryable(); 
         }
 
-        public async Task<T?> GetByIdAsync(int id) 
+        public async Task<T?> GetByIdAsync(int id, params Expression<Func<T, object>>[] includes)
         {
-            return await _context.Set<T>().FindAsync(id); 
+            IQueryable<T> query = _context.Set<T>();
+            foreach (var include in includes) query = query.Include(include);
+            return await query.FirstOrDefaultAsync(e => e.Id == id);
         }
 
         public async Task<IEnumerable<T>> GetByIdsAsync(IEnumerable<int> ids)

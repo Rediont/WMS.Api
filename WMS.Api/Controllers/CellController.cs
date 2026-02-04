@@ -19,6 +19,7 @@ namespace WMS.Api.Controllers
             _mapper = mapper;
         }
 
+        [HttpGet("all")]
         public async Task<IActionResult> GetAllCellsAsync()
         {
             var cells = await _cellService.GetAllCellsAsync();
@@ -26,7 +27,8 @@ namespace WMS.Api.Controllers
             return new JsonResult(cells);
         }
 
-        public async Task<IActionResult> GetCellByIdAsync(int id)
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetCellByIdAsync([FromRoute]int id)
         {
             var cell = await _cellService.GetCellByIdAsync(id);
             if (cell == null)
@@ -38,9 +40,10 @@ namespace WMS.Api.Controllers
             return new JsonResult(cell);
         }
 
-        public async Task<IActionResult> GetPalletsInCell(int cellId)
+        [HttpGet("{cellId}/pallets")]
+        public async Task<IActionResult> GetPalletsInCell([FromRoute]int cellId)
         {
-            if(_cellService.GetCellByIdAsync(cellId) == null)
+            if(await _cellService.GetCellByIdAsync(cellId) == null)
             {
                 _logger.LogWarning("Cell with ID {CellId} not found", cellId);
                 return new NotFoundResult();
@@ -65,7 +68,8 @@ namespace WMS.Api.Controllers
             }
         }
 
-        public async Task<IActionResult> AddPalletToCell(int cellId, int palletId)
+        [HttpPost("{cellId}/addPallet")]
+        public async Task<IActionResult> AddPalletToCell([FromRoute] int cellId, [FromQuery]int palletId)
         {
             var success = await _cellService.AddPalletToCell(cellId, palletId);
             if (!success)
