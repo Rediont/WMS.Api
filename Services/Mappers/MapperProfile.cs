@@ -23,6 +23,8 @@ namespace Services.Mappers
 
             CreateMap<Client, ClientInfoDto>().ReverseMap();
 
+            CreateMap<ClientCreationDto, Client>();
+
             CreateMap<Sector, SectorInfoDto>().ReverseMap();
 
             CreateMap<Contract, ContractDto>()

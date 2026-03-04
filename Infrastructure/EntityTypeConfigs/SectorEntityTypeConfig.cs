@@ -29,9 +29,10 @@ namespace Infrastructure.EntityTypeConfigs
                 .HasColumnType("timestamp with time zone")
                 .IsRequired();
 
-            builder.HasOne<Sector>()
-                   .WithMany()
+            builder.HasOne<Alley>()
+                   .WithMany(a => a.Sectors)
                    .HasForeignKey(s => s.AlleyIndex)
+                   .IsRequired()
                    .OnDelete(DeleteBehavior.Cascade);
         }
     }

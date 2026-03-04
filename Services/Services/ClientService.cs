@@ -35,7 +35,7 @@ namespace Services.Services
             return _mapper.Map<ClientInfoDto>(client);
         }
 
-        public async Task AddClient(string name, string clientEDRPO, string contactPersonName, string phoneNumber, string email)
+        public async Task<ClientInfoDto> AddClient(string name, string clientEDRPO, string contactPersonName, string phoneNumber, string email)
         {
             Client newClient = new Client
             {
@@ -47,6 +47,8 @@ namespace Services.Services
                 ContractList = null
             };
             await _clientRepository.AddAsync(newClient);
+            await _clientRepository.SaveChangesAsync();
+            return _mapper.Map<ClientInfoDto>(newClient);
         }
 
         public async Task UpdateClientAsync(
@@ -85,6 +87,7 @@ namespace Services.Services
                 throw new Exception("Client not found");
             }
             _clientRepository.Delete(client);
+            await _clientRepository.SaveChangesAsync();
         }
 
         public async Task AddContractToClient(int clientId, Contract contract)
@@ -100,6 +103,7 @@ namespace Services.Services
             }
             client.ContractList.Add(contract);
             _clientRepository.Update(client);
+            await _clientRepository.SaveChangesAsync();
         }
 
         public async Task SetClientContractStatus(int clientId, int contractId, ContractStatus status)
@@ -122,6 +126,7 @@ namespace Services.Services
 
             _contractService.UpdateContractAsync(contract.Id, status: status).Wait();
             _clientRepository.Update(client);
+            await _clientRepository.SaveChangesAsync();
         }
 
         public async Task<List<ContractDto>> GetClientContracts(int clientId)

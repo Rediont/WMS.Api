@@ -14,7 +14,7 @@ namespace Services.Interfaces
 
         public Task<ClientInfoDto> GetClientByIdAsync(int id);
 
-        public Task AddClient(string name, string clientEDRPO, string contactPersonName, string phoneNumber, string email);
+        public Task<ClientInfoDto> AddClient(string name, string clientEDRPO, string contactPersonName, string phoneNumber, string email);
 
         public Task UpdateClientAsync(
             int id,

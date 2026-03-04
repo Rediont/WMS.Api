@@ -14,6 +14,8 @@ namespace Domain.Entities
         public int InboundReceiptId { get; set; }
         public virtual InboundReceipt InboundReceipt { get; set; }
 
+        public int weight { get; set; }
+
         public int PalletTypeId { get; set; }
         public virtual PalletTypes PalletType { get; set; }
 

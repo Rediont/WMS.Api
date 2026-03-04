@@ -9,7 +9,7 @@ namespace WMS.Api.Controllers
 {
     [ApiController]
     [Route("[controller]")]
-    public class ClientManagerController
+    public class ClientManagerController : ControllerBase
     {
         private readonly IClientService _clientService;
         private readonly ILogger<ClientManagerController> _logger;
@@ -60,22 +60,17 @@ namespace WMS.Api.Controllers
         }
 
         [HttpPost("add")]
-        public async Task<IActionResult> AddClient(
-            [FromForm] string clientName,
-            [FromForm] string emailAddress,
-            [FromForm] string EDRPO,
-            [FromForm] string contactPersonName,
-            [FromForm] string contactPersonPhone)
+        public async Task<IActionResult> AddClient([FromBody] ClientCreationDto newClient)
         {
             try
             {
-                await _clientService.AddClient(clientName, EDRPO, contactPersonName, contactPersonPhone, emailAddress);
-                _logger.LogInformation("Added new client: {ClientName}", clientName);
-                return new OkResult();
+                ClientInfoDto client = await _clientService.AddClient(newClient.Name, newClient.EDRPO, newClient.ContactPersonName, newClient.ContactPersonPhone, newClient.Email);
+                _logger.LogInformation("Added new client: {ClientName}", newClient.Name);
+                return new OkObjectResult(client);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error adding client: {ClientName}", clientName);
+                _logger.LogError(ex, "Error adding client: {ClientName}", newClient.Name);
                 return new StatusCodeResult(500);
             }
         }
@@ -132,10 +127,10 @@ namespace WMS.Api.Controllers
         //====================================================================================
 
 
-        public Task<IActionResult> CalculateCostForClient()
-        {
-            throw new NotImplementedException();
-        }
+        //public Task<IActionResult> CalculateCostForClient()
+        //{
+        //    throw new NotImplementedException();
+        //}
 
 
 
