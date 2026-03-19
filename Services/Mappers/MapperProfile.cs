@@ -6,6 +6,9 @@ using System.Threading.Tasks;
 using AutoMapper;
 using Domain.Entities;
 using global::Services.Dtos;
+using Services.Dtos.CellDtos;
+using Services.Dtos.ClientDtos;
+using Services.Dtos.ContractDtos;
 
 namespace Services.Mappers
 {

@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Services.Dtos;
+using Services.Dtos.CellDtos;
 using Services.Interfaces;
 
 namespace WMS.Api.Controllers

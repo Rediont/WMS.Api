@@ -15,9 +15,14 @@ namespace Infrastructure.Repositories
             _context = context; 
         }
 
-        public async Task<IEnumerable<T>> GetAllAsync()
+        public async Task<IEnumerable<T>> GetAllAsync(int? page = 0)
         {
-            return await _context.Set<T>().ToListAsync();
+            const int pageSize = 20;
+            int pageIndex = page ?? 0;
+            return await _context.Set<T>()
+                .Skip(pageIndex * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
         }
 
         public IQueryable<T> Query() 

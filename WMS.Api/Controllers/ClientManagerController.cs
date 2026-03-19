@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Domain.Entities;
 using Services.Interfaces;
 using System.Threading.Tasks;
-using Services.Dtos;
+using Services.Dtos.ClientDtos;
 
 namespace WMS.Api.Controllers
 {
@@ -23,11 +23,11 @@ namespace WMS.Api.Controllers
         }
 
         [HttpGet("all")]
-        public async Task<IActionResult> GetAllClients()
+        public async Task<IActionResult> GetAllClients([FromQuery]int? page)
         {
             try
             {
-                var clients = await _clientService.GetAllClients();
+                var clients = await _clientService.GetAllClients(page);
                 _logger.LogInformation("Retrieved {ClientCount} clients", clients.Count());
                 return new OkObjectResult(clients);
             }

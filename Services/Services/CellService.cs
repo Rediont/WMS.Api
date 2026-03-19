@@ -2,6 +2,7 @@
 using Domain.Entities;
 using Infrastructure.Interfaces;
 using Services.Dtos;
+using Services.Dtos.CellDtos;
 using Services.Interfaces;
 using System.Threading.Tasks;
 

@@ -2,6 +2,7 @@
 using Infrastructure.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using Services.Dtos;
+using Services.Dtos.FilterDtos;
 using Services.Interfaces;
 using System.Threading.Tasks;
 
@@ -26,13 +27,22 @@ namespace WMS.Api.Controllers
         }
 
         [HttpGet("all")]
-        public async Task<IActionResult> GetAllContracts()
+        public async Task<IActionResult> GetAllContracts([FromQuery] ContractFilterDto? filter, [FromQuery]int? page)
         {
             try
             {
-                var contracts = await _contractService.GetAllContracts();
-                _logger.LogInformation("Retrieved {ContractCount} contracts", contracts.Count());
-                return new OkObjectResult(contracts);
+                if (filter == null)
+                {
+                    var contracts = await _contractService.GetAllContractsAsync(page: page);
+                    _logger.LogInformation("Retrieved {ContractCount} contracts without filters", contracts.Count());
+                    return new OkObjectResult(contracts);
+                }
+                else
+                {
+                    var contracts = await _contractService.GetAllContractsAsync(filter, page);
+                    _logger.LogInformation("Retrieved {ContractCount} contracts", contracts.Count());
+                    return new OkObjectResult(contracts);
+                }
             }
             catch (Exception ex)
             {

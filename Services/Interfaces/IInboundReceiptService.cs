@@ -11,7 +11,7 @@ namespace Services.Interfaces
 {
     public interface IInboundReceiptService
     {
-        public Task<IEnumerable<InboundReceiptDto>> GetAllReceiptsAsync();
+        public Task<IEnumerable<InboundReceiptDto>> GetAllReceiptsAsync(int? page);
 
         public Task<InboundReceiptDto> GetReceiptByIdAsync(int id);
 

@@ -10,7 +10,7 @@ namespace Services.Interfaces
 {
     public interface IOutboundShipmentService
     {
-        public Task<IEnumerable<OutboundShipmentDto>> GetAllShipmentsAsync();
+        public Task<IEnumerable<OutboundShipmentDto>> GetAllShipmentsAsync(int? page = 0);
 
         public Task<OutboundShipmentDto> GetShipmentByIdAAsync(int id);
 

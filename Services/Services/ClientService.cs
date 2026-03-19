@@ -1,7 +1,8 @@
 ﻿using AutoMapper;
 using Domain.Entities;
 using Infrastructure.Interfaces;
-using Services.Dtos;
+using Services.Dtos.ClientDtos;
+using Services.Dtos.ContractDtos;
 using Services.Interfaces;
 
 namespace Services.Services
@@ -19,9 +20,9 @@ namespace Services.Services
             _mapper = mapper;
         }
 
-        public async Task<IEnumerable<ClientInfoDto>> GetAllClients()
+        public async Task<IEnumerable<ClientInfoDto>> GetAllClients(int? page)
         {
-            var clients = await _clientRepository.GetAllAsync();
+            var clients = await _clientRepository.GetAllAsync(page);
             return _mapper.Map<IEnumerable<ClientInfoDto>>(clients);
         }
 

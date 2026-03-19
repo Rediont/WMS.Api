@@ -1,5 +1,6 @@
 ﻿using Domain.Entities;
-using Services.Dtos;
+using Services.Dtos.ClientDtos;
+using Services.Dtos.ContractDtos;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,7 +11,7 @@ namespace Services.Interfaces
 {
     public interface IClientService
     {
-        public Task<IEnumerable<ClientInfoDto>> GetAllClients();
+        public Task<IEnumerable<ClientInfoDto>> GetAllClients(int? page);
 
         public Task<ClientInfoDto> GetClientByIdAsync(int id);
 

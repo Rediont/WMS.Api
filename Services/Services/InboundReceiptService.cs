@@ -26,9 +26,9 @@ namespace Services.Services
             _mapper = mapper;
         }
 
-        public async Task<IEnumerable<InboundReceiptDto>> GetAllReceiptsAsync()
+        public async Task<IEnumerable<InboundReceiptDto>> GetAllReceiptsAsync(int? page)
         {
-            var receipts = await _inboundReceiptRepository.GetAllAsync();
+            var receipts = await _inboundReceiptRepository.GetAllAsync(page);
             return _mapper.Map<IEnumerable<InboundReceiptDto>>(receipts);
         }
 

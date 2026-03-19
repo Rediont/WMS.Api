@@ -17,9 +17,13 @@ namespace WMS.Api.Controllers
         }
 
         [HttpGet("all")]
-        public async Task<ActionResult<List<OutboundShipmentDto>>> GetAllShipments()
+        public async Task<ActionResult<List<OutboundShipmentDto>>> GetAllShipments([FromQuery]int? page)
         {
-            var shipments = await _outboundShipmentService.GetAllShipmentsAsync();
+            if (page < 0)
+            {
+                return new BadRequestResult();
+            }
+            var shipments = await _outboundShipmentService.GetAllShipmentsAsync(page);
             return new OkObjectResult(shipments);
         }
 

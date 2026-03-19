@@ -1,5 +1,6 @@
 ﻿using Domain.Entities;
-using Services.Dtos;
+using Services.Dtos.ContractDtos;
+using Services.Dtos.FilterDtos;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,7 +11,8 @@ namespace Services.Interfaces
 {
     public interface IContractService
     {
-        public Task<IEnumerable<ContractDto>> GetAllContracts();
+        public Task<IEnumerable<ContractDto>> GetAllContractsAsync(int? page);
+        public Task<IEnumerable<ContractDto>> GetAllContractsAsync(ContractFilterDto? filter, int? page);
 
         public Task<ContractDto> GetContractByIdAsync(int id);
 

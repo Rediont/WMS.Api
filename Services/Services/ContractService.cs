@@ -1,7 +1,9 @@
 ﻿using AutoMapper;
 using Domain.Entities;
 using Infrastructure.Interfaces;
-using Services.Dtos;
+using Microsoft.EntityFrameworkCore;
+using Services.Dtos.ContractDtos;
+using Services.Dtos.FilterDtos;
 using Services.Interfaces;
 
 namespace Services.Services
@@ -17,9 +19,45 @@ namespace Services.Services
             _mapper = mapper;
         }
 
-        public async Task<IEnumerable<ContractDto>> GetAllContracts()
+        public async Task<IEnumerable<ContractDto>> GetAllContractsAsync(int? page)
         {
-            var contracts = await _contractRepository.GetAllAsync();
+            var contracts = await _contractRepository.GetAllAsync(page);
+            return _mapper.Map<IEnumerable<ContractDto>>(contracts);
+        }
+
+        public async Task<IEnumerable<ContractDto>> GetAllContractsAsync(ContractFilterDto filter, int? page)
+        {
+            var query = _contractRepository.Query();
+
+            // 1. Фільтрація за списком клієнтів (Виправлено)
+            if (filter.ClientIds != null && filter.ClientIds.Any())
+            {
+                query = query.Where(c => filter.ClientIds.Contains(c.Id));
+            }
+
+            // 2. Фільтрація за статусом
+            if (!string.IsNullOrEmpty(filter.Status.ToString()))
+            {
+                query = query.Where(c => c.CurrentStatus == filter.Status);
+            }
+
+            // 3. Фільтрація за датами
+            if (filter.DateFrom.HasValue)
+                query = query.Where(c => c.StartDate >= filter.DateFrom.Value);
+
+            if (filter.DateTo.HasValue)
+                query = query.Where(c => c.StartDate <= filter.DateTo.Value);
+
+            // --- ПАГІНАЦІЯ ---
+            int pageIndex = page ?? 0;
+            const int pageSize = 20;
+
+            var contracts = await query
+                .OrderByDescending(c => c.StartDate) // Сортування обов'язкове для стабільної пагінації
+                .Skip(pageIndex * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+
             return _mapper.Map<IEnumerable<ContractDto>>(contracts);
         }
 

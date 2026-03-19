@@ -18,9 +18,9 @@ namespace WMS.Api.Controllers
         }
 
         [HttpGet("all")]
-        public async Task<ActionResult<List<InboundReceiptDto>>> GetAllReceipts()
+        public async Task<ActionResult<List<InboundReceiptDto>>> GetAllReceipts([FromQuery]int? page)
         {
-            var receipts = await _inboundReceiptService.GetAllReceiptsAsync();
+            var receipts = await _inboundReceiptService.GetAllReceiptsAsync(page);
             return new OkObjectResult(receipts);
         }
 
