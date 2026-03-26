@@ -9,6 +9,7 @@ using global::Services.Dtos;
 using Services.Dtos.CellDtos;
 using Services.Dtos.ClientDtos;
 using Services.Dtos.ContractDtos;
+using Services.Dtos.PalletDtos;
 
 namespace Services.Mappers
 {
@@ -23,6 +24,8 @@ namespace Services.Mappers
             CreateMap<CellStatusLog, CellStatusDto>();
 
             CreateMap<Pallet, PalletInfoDto>();
+
+            CreateMap<PalletTypes, PalletTypeInfoDto>();
 
             CreateMap<Client, ClientInfoDto>().ReverseMap();
 

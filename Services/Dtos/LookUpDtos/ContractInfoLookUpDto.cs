@@ -4,12 +4,12 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Services.Dtos
+namespace Services.Dtos.LookUpDtos
 {
-    public class NewContractDataDto
+    internal class ContractInfoLookUpDto
     {
+        public int Id { get; set; }
         public int ClientId { get; set; }
-        public DateTime StartDate { get; set; }
-        public DateTime EndDate { get; set; }
+        public string ContractName { get; set; }
     }
 }

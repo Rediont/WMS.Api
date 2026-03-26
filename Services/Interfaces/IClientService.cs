@@ -1,6 +1,7 @@
 ﻿using Domain.Entities;
 using Services.Dtos.ClientDtos;
 using Services.Dtos.ContractDtos;
+using Services.Dtos.LookUpDtos;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,6 +15,8 @@ namespace Services.Interfaces
         public Task<IEnumerable<ClientInfoDto>> GetAllClients(int? page);
 
         public Task<ClientInfoDto> GetClientByIdAsync(int id);
+
+        public Task<IEnumerable<ClientLookUpDto>> GetClientsLookupAsync();
 
         public Task<ClientInfoDto> AddClient(string name, string clientEDRPO, string contactPersonName, string phoneNumber, string email);
 

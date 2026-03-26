@@ -1,10 +1,10 @@
 ﻿using AutoMapper;
 using Domain.Entities;
 using Infrastructure.Interfaces;
-using Services.Dtos;
 using Services.Dtos.FilterDtos;
 using Services.Interfaces;
 using Microsoft.EntityFrameworkCore;
+using Services.Dtos.PalletDtos;
 
 namespace Services.Services
 {

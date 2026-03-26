@@ -1,8 +1,8 @@
 ﻿using AutoMapper;
 using Domain.Entities;
 using Infrastructure.Interfaces;
-using Services.Dtos;
 using Services.Dtos.CellDtos;
+using Services.Dtos.PalletDtos;
 using Services.Interfaces;
 using System.Threading.Tasks;
 

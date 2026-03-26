@@ -1,8 +1,10 @@
 ﻿using AutoMapper;
 using Domain.Entities;
 using Infrastructure.Interfaces;
+using Microsoft.EntityFrameworkCore;
 using Services.Dtos.ClientDtos;
 using Services.Dtos.ContractDtos;
+using Services.Dtos.LookUpDtos;
 using Services.Interfaces;
 
 namespace Services.Services
@@ -34,6 +36,19 @@ namespace Services.Services
                 throw new Exception("Client not found");
             }
             return _mapper.Map<ClientInfoDto>(client);
+        }
+
+        public async Task<IEnumerable<ClientLookUpDto>> GetClientsLookupAsync()
+        {
+            var lookups = await _clientRepository.Query()
+                .Select(c => new ClientLookUpDto
+                {
+                    Id = c.Id,
+                    Name = c.Name
+                })
+                .ToListAsync();
+
+            return lookups;
         }
 
         public async Task<ClientInfoDto> AddClient(string name, string clientEDRPO, string contactPersonName, string phoneNumber, string email)

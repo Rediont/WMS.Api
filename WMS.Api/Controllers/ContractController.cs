@@ -1,7 +1,7 @@
 ﻿using Domain.Entities;
 using Infrastructure.Interfaces;
 using Microsoft.AspNetCore.Mvc;
-using Services.Dtos;
+using Services.Dtos.ContractDtos;
 using Services.Dtos.FilterDtos;
 using Services.Interfaces;
 using System.Threading.Tasks;
