@@ -1,6 +1,7 @@
 ﻿using Domain.Entities;
 using Services.Dtos.ContractDtos;
 using Services.Dtos.FilterDtos;
+using Services.Dtos.LookUpDtos;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,6 +16,8 @@ namespace Services.Interfaces
         public Task<IEnumerable<ContractDto>> GetAllContractsAsync(ContractFilterDto? filter, int? page);
 
         public Task<ContractDto> GetContractByIdAsync(int id);
+
+        public Task<IEnumerable<ContractInfoLookupDto>> LookupContractsInfo();
 
         public Task<Contract> AddContract(DateTime startDate, DateTime endDate, ContractStatus status = ContractStatus.Active);
 

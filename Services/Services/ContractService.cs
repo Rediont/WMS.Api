@@ -4,6 +4,7 @@ using Infrastructure.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using Services.Dtos.ContractDtos;
 using Services.Dtos.FilterDtos;
+using Services.Dtos.LookUpDtos;
 using Services.Interfaces;
 
 namespace Services.Services
@@ -69,6 +70,12 @@ namespace Services.Services
                 throw new Exception("Contract not found");
             }
             return _mapper.Map<ContractDto>(contract);
+        }
+
+        public async Task<IEnumerable<ContractInfoLookupDto>> LookupContractsInfo()
+        {
+            var contracts = await _contractRepository.GetAllAsync();
+            return _mapper.Map<IEnumerable<ContractInfoLookupDto>>(contracts);
         }
 
         public async Task<Contract> AddContract(DateTime startDate, DateTime endDate, ContractStatus status = ContractStatus.Active)

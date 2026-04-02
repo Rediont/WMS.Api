@@ -1,15 +1,17 @@
 ﻿
-using Microsoft.AspNetCore.Mvc;
 using Domain.Entities;
-using Services.Interfaces;
-using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Services.Dtos.ClientDtos;
 using Services.Dtos.LookUpDtos;
+using Services.Interfaces;
+using System.Threading.Tasks;
 
 namespace WMS.Api.Controllers
 {
     [ApiController]
     [Route("[controller]")]
+    [Authorize(Roles = "Admin, Manager")]
     public class ClientManagerController : ControllerBase
     {
         private readonly IClientService _clientService;
@@ -58,12 +60,6 @@ namespace WMS.Api.Controllers
                 _logger.LogError(ex, "Error retrieving client with ID: {ClientId}", clientId);
                 return new StatusCodeResult(500);
             }
-        }
-
-        [HttpGet("lookup")]
-        public async Task<IEnumerable<ClientLookUpDto>> GetClientsLookup()
-        {
-            return await _clientService.GetClientsLookupAsync();
         }
 
         [HttpPost("add")]

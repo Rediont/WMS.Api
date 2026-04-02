@@ -10,11 +10,7 @@ namespace Domain.Entities
 
         public int AlleyIndex { get; set; }
         
-        public int Height { get; set; }
-        
-        public int Length { get; set; }
-        
-        public int Width { get; set; }
+        public int NumberOfFloors { get; set; }
         
         public int CellsPerFloor { get; set; }
 

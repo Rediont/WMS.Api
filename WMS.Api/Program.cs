@@ -2,9 +2,14 @@ using Domain.Entities;
 using Infrastructure.DataBase;
 using Infrastructure.Interfaces;
 using Infrastructure.Repositories;
+using Infrastructure.Seeder;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using Services.Interfaces;
 using Services.Services;
+using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -23,7 +28,41 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"),
     o => o.MapEnum<ContractStatus>()));
 
-// Реєструємо інтерфейс і клас з порожніми дужками <>
+
+builder.Services.AddIdentity<IdentityUser, IdentityRole>(options =>
+{
+    // Тут можна налаштувати вимоги до пароля (довжина, цифри тощо)
+    options.Password.RequireDigit = false;
+    options.Password.RequiredLength = 6;
+    options.Password.RequireNonAlphanumeric = false;
+})
+.AddEntityFrameworkStores<ApplicationDbContext>() // Заміни на ім'я твого DbContext
+.AddDefaultTokenProviders();
+
+
+var jwtSettings = builder.Configuration.GetSection("Jwt"); // Дані будемо брати з appsettings.json
+var secretKey = jwtSettings["Key"]; // Це секретний ключ для підпису токенів
+
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
+})
+.AddJwtBearer(options =>
+{
+    options.SaveToken = true;
+    options.RequireHttpsMetadata = false; // В продакшені має бути true
+    options.TokenValidationParameters = new TokenValidationParameters
+    {
+        ValidateIssuer = true,
+        ValidateAudience = true,
+        ValidAudience = jwtSettings["Audience"],
+        ValidIssuer = jwtSettings["Issuer"],
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey))
+    };
+});
+
 builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
 
 builder.Services.AddScoped<IAlleyService, AlleyService>();
@@ -31,6 +70,7 @@ builder.Services.AddScoped<ICellService, CellService>();
 builder.Services.AddScoped<IClientService,ClientService>();
 builder.Services.AddScoped<IInboundReceiptService, InboundReceiptService>();
 builder.Services.AddScoped<IOutboundShipmentService,OutboundShipmentService>();
+builder.Services.AddScoped<IPalletTypeService, PalletTypeService>();
 //builder.Services.AddScoped<IPalletService, PalletService>();
 builder.Services.AddScoped<ISectorService, SectorService>();
 builder.Services.AddScoped<IContractService, ContractService>();
@@ -48,6 +88,21 @@ builder.Services.AddCors(options =>
 });
 
 var app = builder.Build();
+
+
+using (var scope = app.Services.CreateScope())
+{
+    var services = scope.ServiceProvider;
+    try
+    {
+        await RoleSeeder.SeedRolesAndAdminAsync(services);
+    }
+    catch (Exception ex)
+    {
+        var logger = services.GetRequiredService<ILogger<Program>>();
+        logger.LogError(ex, "Помилка під час створення початкових ролей.");
+    }
+}
 
 if (app.Environment.IsDevelopment())
 {

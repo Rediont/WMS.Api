@@ -1,5 +1,6 @@
 ﻿using Domain.Entities;
 using Infrastructure.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Services.Dtos.ContractDtos;
 using Services.Dtos.FilterDtos;
@@ -10,6 +11,7 @@ namespace WMS.Api.Controllers
 {
     [ApiController]
     [Route("[controller]")]
+    [Authorize(Roles = "Admin, Manager")]
     public class ContractController
     {
         private readonly IContractService _contractService;

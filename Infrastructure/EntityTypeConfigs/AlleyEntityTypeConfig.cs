@@ -12,11 +12,7 @@ namespace Infrastructure.EntityTypeConfigs
             
             builder.HasKey(a => a.AlleyIndex);
             
-            builder.Property(a => a.Height).IsRequired();
-            
-            builder.Property(a => a.Length).IsRequired();
-            
-            builder.Property(a => a.Width).IsRequired();
+            builder.Property(a => a.NumberOfFloors).IsRequired();
             
             builder.Property(a => a.CellsPerFloor).IsRequired();
             

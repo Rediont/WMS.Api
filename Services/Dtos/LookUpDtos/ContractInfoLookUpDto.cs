@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Services.Dtos.LookUpDtos
 {
-    internal class ContractInfoLookUpDto
+    public class ContractInfoLookupDto
     {
         public int Id { get; set; }
         public int ClientId { get; set; }

@@ -16,7 +16,7 @@ namespace Services.Interfaces
 
         public Task<ClientInfoDto> GetClientByIdAsync(int id);
 
-        public Task<IEnumerable<ClientLookUpDto>> GetClientsLookupAsync();
+        public Task<IEnumerable<ClientLookupDto>> LookupClientsInfoAsync();
 
         public Task<ClientInfoDto> AddClient(string name, string clientEDRPO, string contactPersonName, string phoneNumber, string email);
 

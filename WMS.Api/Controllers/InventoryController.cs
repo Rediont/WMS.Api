@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Services.Dtos.FilterDtos;
 using Services.Interfaces;
@@ -11,6 +12,8 @@ using System.Threading.Tasks;
 namespace WMS.Api.Controllers
 {
     [ApiController]
+    [Route("[controller]")]
+    [Authorize(Roles = "Admin, Manager")]
     public class InventoryController
     {
         private readonly IPalletService _inventoryService;
@@ -39,23 +42,6 @@ namespace WMS.Api.Controllers
                 return new StatusCodeResult(500);
             }
         }
-
-        [HttpGet("pallet-types/all")]
-        public async Task<IActionResult> GetAllPalletTypes()
-        {
-            try
-            {
-                var palletTypes = await _palletTypeService.GetAllPalletTypesAsync();
-                _logger.LogInformation("Retrieved {PalletTypeCount} pallet types", palletTypes.Count());
-                return new OkObjectResult(palletTypes);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error retrieving pallet types");
-                return new StatusCodeResult(500);
-            }
-        }
-
 
         [HttpGet("pallets/{palletId}")]
         public async Task<IActionResult> GetPalletById([FromRoute] int palletId)

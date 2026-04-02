@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Services.Dtos.CellDtos;
@@ -9,6 +10,7 @@ namespace WMS.Api.Controllers
 {
     [ApiController]
     [Route("[controller]")]
+    [Authorize]
     public class CellController
     {
         private readonly ILogger<CellController> _logger;

@@ -1,4 +1,5 @@
-﻿using Services.Dtos.PalletDtos;
+﻿using Services.Dtos.LookUpDtos;
+using Services.Dtos.PalletDtos;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,7 +10,7 @@ namespace Services.Interfaces
 {
     public interface IPalletTypeService
     {
-        public Task<IEnumerable<PalletTypeInfoDto>> GetAllPalletTypesAsync();
+        public Task<IEnumerable<PalletTypeLookupDto>> GetAllPalletTypesAsync();
 
     }
 }

@@ -38,10 +38,10 @@ namespace Services.Services
             return _mapper.Map<ClientInfoDto>(client);
         }
 
-        public async Task<IEnumerable<ClientLookUpDto>> GetClientsLookupAsync()
+        public async Task<IEnumerable<ClientLookupDto>> LookupClientsInfoAsync()
         {
             var lookups = await _clientRepository.Query()
-                .Select(c => new ClientLookUpDto
+                .Select(c => new ClientLookupDto
                 {
                     Id = c.Id,
                     Name = c.Name

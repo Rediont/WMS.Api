@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Services.Dtos.LookUpDtos
 {
-    public class ClientLookUpDto
+    public class ClientLookupDto
     {
         public int Id { get; set; }
         public string Name { get; set; }
