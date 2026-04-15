@@ -15,7 +15,7 @@ namespace Services.Interfaces
 
         public Task<AlleyDto> GetAlleyByIdAsync(int id);
 
-        public void AddAlley(WarehouseOptions options);
+        public void AddAlley(WarehouseSettings options);
 
         public void AddSectorToAlley(int alleyIndex, Sector sector);
 

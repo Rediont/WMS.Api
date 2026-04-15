@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using Domain.Entities;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
@@ -13,7 +14,7 @@ namespace Infrastructure.Seeder
         public static async Task SeedRolesAndAdminAsync(IServiceProvider serviceProvider)
         {
             var roleManager = serviceProvider.GetRequiredService<RoleManager<IdentityRole>>();
-            var userManager = serviceProvider.GetRequiredService<UserManager<IdentityUser>>();
+            var userManager = serviceProvider.GetRequiredService<UserManager<User>>();
 
             string[] roleNames = { "Admin", "Client", "Worker", "Accountant" };
 
@@ -32,7 +33,7 @@ namespace Infrastructure.Seeder
 
             if (adminUser == null)
             {
-                var newAdmin = new IdentityUser { UserName = adminEmail, Email = adminEmail };
+                var newAdmin = new User { UserName = adminEmail, Email = adminEmail };
                 var createPowerUser = await userManager.CreateAsync(newAdmin, "Admin123!");
                 if (createPowerUser.Succeeded)
                 {

@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Services.Dtos;
+using Services.Interfaces;
 
 namespace WMS.Api.Controllers
 {
@@ -12,12 +13,14 @@ namespace WMS.Api.Controllers
     {
         private readonly UserManager<IdentityUser> _userManager;
         private readonly RoleManager<IdentityRole> _roleManager;
+        private readonly IWarehouseSettingsService _warehouseSettingsService;
         private readonly IConfiguration _configuration;
 
-        public AdminController(UserManager<IdentityUser> userManager, RoleManager<IdentityRole> roleManager, IConfiguration configuration)
+        public AdminController(UserManager<IdentityUser> userManager, RoleManager<IdentityRole> roleManager, IWarehouseSettingsService warehouseSettingsService, IConfiguration configuration)
         {
             _userManager = userManager;
             _roleManager = roleManager;
+            _warehouseSettingsService = warehouseSettingsService;
             _configuration = configuration;
         }
 
@@ -52,6 +55,31 @@ namespace WMS.Api.Controllers
             }
 
             return BadRequest(result.Errors);
+        }
+
+        [HttpPost("update-warehouse-settings")]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> UpdateWarehouseSettings(int numberOfAlleys, int numberOfFloorsPerAlley, int cellsPerAlleyFloor)
+        {
+
+            var updatedSettings = await _warehouseSettingsService.UpdateSettingsAsync(
+                numberOfAlleys,
+                numberOfFloorsPerAlley,
+                cellsPerAlleyFloor);
+
+            return Ok(new
+            {
+                Message = "Налаштування складу успішно оновлено",
+                Settings = updatedSettings
+            });
+        }
+
+        [HttpGet("get-warehouse-settings")]
+        [Authorize]
+        public async Task<IActionResult> GetWarehouseSettings()
+        {
+            var settings = await _warehouseSettingsService.GetSettingsAsync();
+            return Ok(settings);
         }
 
     }

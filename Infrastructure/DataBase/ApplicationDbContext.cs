@@ -23,6 +23,8 @@ namespace Infrastructure.DataBase
         public DbSet<OutboundShipment> Shipments { get; set; }
         public DbSet<Payment> Payments { get; set; }
 
+        public DbSet<WarehouseSettings> WarehouseOptions { get; set; }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
@@ -31,15 +33,19 @@ namespace Infrastructure.DataBase
             //modelBuilder.HasPostgresEnum<CellStatus>();
 
             modelBuilder.ApplyConfigurationsFromAssembly(typeof(ApplicationDbContext).Assembly);
+
+            modelBuilder.Entity<WarehouseSettings>()
+                .HasData(new WarehouseSettings
+                {
+                    Id = 1, // Фіксований ID
+                    NumberOfAlleys = 10,
+                    NumberOfAlleyFloors = 5,
+                    NumberOfCellsInAlley = 100,
+                    NumberOfCellsInAlleyFloor = 20,
+                    NumberOfCells = 5000
+                });
+
         }
 
-
-        //protected override void OnModelCreating(ModelBuilder modelBuilder)
-        //{
-        //    // Це скаже Postgres генерувати UUID автоматично при додаванні нового запису
-        //    modelBuilder.Entity<Client>()
-        //        .Property(c => c.id)
-        //        .HasDefaultValueSql("gen_random_uuid()");
-        //}
     }
 }

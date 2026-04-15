@@ -29,7 +29,7 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
     o => o.MapEnum<ContractStatus>()));
 
 
-builder.Services.AddIdentity<IdentityUser, IdentityRole>(options =>
+builder.Services.AddIdentity<User, IdentityRole>(options =>
 {
     // Тут можна налаштувати вимоги до пароля (довжина, цифри тощо)
     options.Password.RequireDigit = false;
@@ -83,9 +83,12 @@ builder.Services.AddCors(options =>
     {
         policy.WithOrigins("http://localhost:4200")
               .AllowAnyMethod()
-              .AllowAnyHeader();
+              .AllowAnyHeader()
+              .AllowCredentials();
     });
 });
+
+builder.Services.AddMemoryCache();
 
 var app = builder.Build();
 
@@ -113,6 +116,10 @@ if (app.Environment.IsDevelopment())
 app.UseCors("AllowAngular");
 
 app.UseHttpsRedirection();
+
+app.UseCors("AllowAngular");
+
+app.UseAuthentication();
 
 app.UseAuthorization();
 

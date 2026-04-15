@@ -36,12 +36,8 @@ namespace Services.Services
             return _mapper.Map<AlleyDto>(alley);
         }
 
-        public async void AddAlley(WarehouseOptions options)
+        public async void AddAlley(WarehouseSettings options)
         {
-            if(options.LengthOfAlley % 3 != 0)
-            {
-                throw new Exception("Alley length must be multiple of 3");
-            }
 
             Alley newAlley = new Alley
             {
