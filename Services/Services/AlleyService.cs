@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Domain.Entities;
 using Infrastructure.Interfaces;
+using Microsoft.EntityFrameworkCore;
 using Services.Dtos;
 using Services.Interfaces;
 using System.Threading.Tasks;
@@ -10,6 +11,7 @@ namespace Services.Services
     public class AlleyService : IAlleyService
     {
         private readonly IRepository<Alley> _alleyRepository;
+        private readonly IRepository<Cell> _cellRepository;
         private readonly ISectorService _sectorService;
         private readonly IMapper _mapper;
         public AlleyService(IRepository<Alley> alleyRepository, ISectorService sectorService, IMapper mapper)
@@ -19,7 +21,7 @@ namespace Services.Services
             _mapper = mapper;
         }
 
-        public async Task<IEnumerable<AlleyDto>> GetAllAlleys()
+        public async Task<IEnumerable<AlleyDto>> GetAllAlleysAsync()
         {
             var alleys = await _alleyRepository.GetAllAsync();
 
@@ -47,6 +49,26 @@ namespace Services.Services
             };
 
             await _alleyRepository.AddAsync(newAlley);
+        }
+
+        public async Task<List<int>> GetAlleysOccupancyRateAsync()
+        {
+            var alleyStats = await _cellRepository.Query()
+                .GroupBy(c => c.AlleyIndex)
+                .Select(g => new
+                {
+                    AlleyIndex = g.Key,
+                    TotalCells = g.Count(),
+                    OccupiedCells = g.Count(c => c.IsOccupied)
+                })
+                .OrderBy(x => x.AlleyIndex) 
+                .ToListAsync();
+
+            var percentages = alleyStats
+                .Select(stat => stat.TotalCells == 0 ? 0 : (stat.OccupiedCells * 100) / stat.TotalCells)
+                .ToList();
+
+            return percentages;
         }
 
         // потенційно непотрібно

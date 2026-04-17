@@ -1,6 +1,7 @@
 ﻿using Domain.Entities;
 using Infrastructure.DataBase;
 using Infrastructure.Interfaces;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
 using Services.Interfaces;
 using System;
@@ -15,21 +16,25 @@ namespace Services.Services
     {
         // Використовуємо твій Generic Repository
         private readonly IRepository<WarehouseSettings> _repository;
+        private readonly IRepository<Alley> _alleyRepository;
+        private readonly IRepository<Cell> _cellRepository;
         private readonly IMemoryCache _cache;
         private const string CacheKey = "WarehouseSettingsKey";
 
-        public WarehouseSettingsService(IRepository<WarehouseSettings> repository, IMemoryCache cache)
+        public WarehouseSettingsService(IRepository<WarehouseSettings> repository, IRepository<Alley> alleyRepository, IRepository<Cell> cellRepository, IMemoryCache cache)
         {
             _repository = repository;
+            _alleyRepository = alleyRepository;
+            _cellRepository = cellRepository;
             _cache = cache;
         }
 
-        public async Task<WarehouseSettings> GetSettingsAsync()
+        public async Task<WarehouseSettings> GetWarehouseSettingsAsync()
         {
             if (!_cache.TryGetValue(CacheKey, out WarehouseSettings settings))
             {
                 // Шукаємо за Id = 1 через твій репозиторій
-                settings = await _repository.GetByIdAsync(1);
+                settings = await _repository.Query().FirstOrDefaultAsync();
 
                 if (settings != null)
                 {
@@ -39,14 +44,22 @@ namespace Services.Services
             return settings;
         }
 
-        public async Task<WarehouseSettings> UpdateSettingsAsync(int numberOfAlleys, int numberOfFloorsPerAlley, int cellsPerAlleyFloor)
+        public async Task<WarehouseSettings> UpdateWarehouseSettingsAsync(int numberOfAlleys, int numberOfFloorsPerAlley, int cellsPerAlleyFloor)
         {
-            var settings = await _repository.GetByIdAsync(1);
+            var settings = await _repository.Query().FirstOrDefaultAsync();
             bool isNew = false;
 
             if (settings == null)
             {
-                settings = new WarehouseSettings { Id = 1 };
+                settings = new WarehouseSettings
+                {
+                    Id = 1,
+                    NumberOfAlleys = 0,
+                    NumberOfAlleyFloors = 0,
+                    NumberOfCellsInAlleyFloor = 0,
+                    NumberOfCellsInAlley = 0,
+                    NumberOfCells = 0
+                };
                 isNew = true;
             }
 
@@ -71,10 +84,69 @@ namespace Services.Services
 
             await _repository.SaveChangesAsync();
 
+            await SyncWarehouseLayoutAsync(settings);
+
             // 4. Оновлюємо кеш, щоб усі інші сервіси одразу отримали нові розміри складу
             _cache.Set(CacheKey, settings, TimeSpan.FromHours(24));
 
             return settings;
         }
+
+        private async Task SyncWarehouseLayoutAsync(WarehouseSettings settings)
+        {
+            // Дістаємо всі існуючі алеї з БД
+            var existingAlleys = await _alleyRepository.GetAllAsync();
+
+            // Щоб не робити мільйон запитів до БД, дістаємо всі комірки одразу
+            var existingCells = await _cellRepository.GetAllAsync();
+
+            for (int a = 1; a <= settings.NumberOfAlleys; a++)
+            {
+                // 1. Перевіряємо, чи існує алея. Якщо ні - створюємо.
+                var alley = existingAlleys.FirstOrDefault(x => x.AlleyIndex == a);
+                if (alley == null)
+                {
+                    alley = new Alley
+                    {
+                        AlleyIndex = a,
+                        NumberOfFloors = settings.NumberOfAlleyFloors,
+                        CellsPerFloor = settings.NumberOfCellsInAlleyFloor
+                    };
+                    await _alleyRepository.AddAsync(alley);
+                    await _alleyRepository.SaveChangesAsync(); // Зберігаємо одразу, щоб комірки могли до неї прив'язатись
+                }
+
+                // 2. Генеруємо комірки для цієї алеї
+                int currentCellIndex = 1; // Наскрізна нумерація комірок в межах алеї
+
+                for (int f = 0; f < settings.NumberOfAlleyFloors; f++)
+                {
+                    for (int c = 1; c <= settings.NumberOfCellsInAlleyFloor; c++)
+                    {
+                        // Перевіряємо, чи існує вже така комірка
+                        bool cellExists = existingCells.Any(x => x.AlleyIndex == a && x.CellIndex == currentCellIndex);
+
+                        if (!cellExists)
+                        {
+                            var newCell = new Cell
+                            {
+                                AlleyIndex = a,
+                                FloorIndex = f,
+                                CellIndex = currentCellIndex,
+                                // totalCapacity, usedCapacity та isOccupied підтягнуться з дефолтних значень моделі
+                            };
+                            await _cellRepository.AddAsync(newCell);
+                        }
+
+                        currentCellIndex++;
+                    }
+                }
+            }
+
+            // Зберігаємо всі новостворені комірки одним махом
+            await _cellRepository.SaveChangesAsync();
+        }
+
+
     }
 }

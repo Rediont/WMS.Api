@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Services.Dtos.LookupDtos;
 using Services.Dtos.LookUpDtos;
@@ -15,13 +16,17 @@ namespace WMS.Api.Controllers
         private readonly IPalletTypeService _palletTypeService;
         private readonly IClientService _clientService;
         private readonly IContractService _contractService;
+        private readonly IWarehouseSettingsService _warehouseSettingsService;
+        private readonly IMapper _mapper;    
         private readonly ILogger<LookupController> _logger;
 
-        public LookupController(IPalletTypeService palletTypeService, IClientService clientService, IContractService contractService, ILogger<LookupController> logger)
+        public LookupController(IPalletTypeService palletTypeService, IClientService clientService, IContractService contractService, IWarehouseSettingsService warehouseSettingsService, IMapper mapper, ILogger<LookupController> logger)
         {
             _palletTypeService = palletTypeService;
             _clientService = clientService;
             _contractService = contractService;
+            _warehouseSettingsService = warehouseSettingsService;
+            _mapper = mapper;
             _logger = logger;
         }
 
@@ -31,10 +36,10 @@ namespace WMS.Api.Controllers
             try
             {
                 // 1. Виконуємо запити ПО ЧЕРЗІ. 
-                // Поки один не закінчить роботу з DbContext, інший не почнеться.
                 var clients = await _clientService.LookupClientsInfoAsync();
                 var palletTypes = await _palletTypeService.GetAllPalletTypesAsync();
                 var contracts = await _contractService.LookupContractsInfo();
+                var warehouseSettings = await _warehouseSettingsService.GetWarehouseSettingsAsync();
 
                 // 2. Робимо мапінг, як ми це обговорювали раніше
                 var mappedPalletTypes = palletTypes.Select(pt => new PalletTypeLookupDto
@@ -48,7 +53,8 @@ namespace WMS.Api.Controllers
                 {
                     Clients = clients,
                     Contracts = contracts,
-                    PalletTypes = mappedPalletTypes
+                    PalletTypes = mappedPalletTypes,
+                    WarehouseSettings = _mapper.Map<WarehouseSettingsLookupDto>(warehouseSettings)
                 };
 
                 _logger.LogInformation("Retrieved lookup data: {ClientCount} clients, {PalletTypeCount} pallet types, {ContractCount} contracts",

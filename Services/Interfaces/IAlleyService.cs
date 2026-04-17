@@ -11,9 +11,11 @@ namespace Services.Interfaces
 {
     public interface IAlleyService
     {
-        public Task<IEnumerable<AlleyDto>> GetAllAlleys();
+        public Task<IEnumerable<AlleyDto>> GetAllAlleysAsync();
 
         public Task<AlleyDto> GetAlleyByIdAsync(int id);
+
+        public Task<List<int>> GetAlleysOccupancyRateAsync();
 
         public void AddAlley(WarehouseSettings options);
 

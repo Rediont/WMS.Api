@@ -59,13 +59,13 @@ namespace WMS.Api.Controllers
 
         [HttpPost("update-warehouse-settings")]
         [Authorize(Roles = "Admin")]
-        public async Task<IActionResult> UpdateWarehouseSettings(int numberOfAlleys, int numberOfFloorsPerAlley, int cellsPerAlleyFloor)
+        public async Task<IActionResult> UpdateWarehouseSettings([FromBody] WarehouseSettingsDto settings)
         {
 
-            var updatedSettings = await _warehouseSettingsService.UpdateSettingsAsync(
-                numberOfAlleys,
-                numberOfFloorsPerAlley,
-                cellsPerAlleyFloor);
+            var updatedSettings = await _warehouseSettingsService.UpdateWarehouseSettingsAsync(
+                settings.NumberOfAlleys,
+                settings.NumberOfFloorsPerAlley,
+                settings.CellsPerAlleyFloor);
 
             return Ok(new
             {
@@ -78,7 +78,7 @@ namespace WMS.Api.Controllers
         [Authorize]
         public async Task<IActionResult> GetWarehouseSettings()
         {
-            var settings = await _warehouseSettingsService.GetSettingsAsync();
+            var settings = await _warehouseSettingsService.GetWarehouseSettingsAsync();
             return Ok(settings);
         }
 

@@ -12,5 +12,6 @@ namespace Services.Dtos.LookupDtos
         public IEnumerable<ClientLookupDto> Clients { get; set; }
         public IEnumerable<ContractInfoLookupDto> Contracts { get; set; }
         public IEnumerable<PalletTypeLookupDto> PalletTypes { get; set; }
+        public WarehouseSettingsLookupDto WarehouseSettings { get; set; }
     }
 }

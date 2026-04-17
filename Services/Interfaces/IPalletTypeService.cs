@@ -1,4 +1,5 @@
-﻿using Services.Dtos.LookUpDtos;
+﻿using Domain.Entities;
+using Services.Dtos.LookUpDtos;
 using Services.Dtos.PalletDtos;
 using System;
 using System.Collections.Generic;
@@ -12,5 +13,8 @@ namespace Services.Interfaces
     {
         public Task<IEnumerable<PalletTypeLookupDto>> GetAllPalletTypesAsync();
 
+        public Task<PalletTypeLookupDto> GetPalletTypeByIdAsync(int id);
+
+        public Task<PalletTypes> GetRealPalletTypeById(int id);
     }
 }

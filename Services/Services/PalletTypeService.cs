@@ -27,5 +27,24 @@ namespace Services.Services
             return _mapper.Map<IEnumerable<PalletTypeLookupDto>>(await _palletTypeRepository.GetAllAsync());
         }
 
+        public async Task<PalletTypeLookupDto> GetPalletTypeByIdAsync(int id)
+        {
+            var palletType = await _palletTypeRepository.GetByIdAsync(id);
+            if (palletType == null)
+            {
+                throw new Exception("Pallet type not found");
+            }
+            return _mapper.Map<PalletTypeLookupDto>(palletType);
+        }
+
+        public async Task<PalletTypes> GetRealPalletTypeById(int id)
+        {
+            var palletType = await _palletTypeRepository.GetByIdAsync(id);
+            if (palletType == null)
+            {
+                throw new Exception("Pallet type not found");
+            }
+            return palletType;
+        }
     }
 }

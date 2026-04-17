@@ -9,6 +9,7 @@ using global::Services.Dtos;
 using Services.Dtos.CellDtos;
 using Services.Dtos.ClientDtos;
 using Services.Dtos.ContractDtos;
+using Services.Dtos.LookupDtos;
 using Services.Dtos.PalletDtos;
 
 namespace Services.Mappers
@@ -42,13 +43,13 @@ namespace Services.Mappers
             CreateMap<InboundReceipt, InboundReceiptDto>();
 
             CreateMap<OutboundShipment, OutboundShipmentDto>()
-            .ForMember(dest => dest.ShippedPalletIds,
+                .ForMember(dest => dest.ShippedPalletIds,
                        opt => opt.MapFrom(src => src.ShippedPallets.Select(p => p.Id).ToList()));
 
             CreateMap<OutboundShipmentDto, OutboundShipment>()
                 .ForMember(dest => dest.ShippedPallets, opt => opt.Ignore());
 
-
+            CreateMap<WarehouseSettings, WarehouseSettingsLookupDto>();
 
         }
     }

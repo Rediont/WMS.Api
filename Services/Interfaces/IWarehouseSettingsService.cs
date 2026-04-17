@@ -9,8 +9,8 @@ namespace Services.Interfaces
 {
     public interface IWarehouseSettingsService
     {
-        Task<WarehouseSettings> GetSettingsAsync();
-        Task<WarehouseSettings> UpdateSettingsAsync(int numberOfAlleys, int numberOfFloorsPerAlley, int cellsPerAlleyFloor);
+        Task<WarehouseSettings> GetWarehouseSettingsAsync();
+        Task<WarehouseSettings> UpdateWarehouseSettingsAsync(int numberOfAlleys, int numberOfFloorsPerAlley, int cellsPerAlleyFloor);
     }
 }
 

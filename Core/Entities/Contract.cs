@@ -18,7 +18,7 @@ namespace Domain.Entities
         public DateTime StartDate { get; set; }
         public DateTime ExpirationDate { get; set; }
 
-        public ContractStatus CurrentStatus;
+        public ContractStatus CurrentStatus { get; set; }
 
         public ICollection<OutboundShipment> Outbounds { get; set; } = new List<OutboundShipment>(); // List of shipments associated with the contract
         public ICollection<InboundReceipt> Inbounds { get; set; } = new List<InboundReceipt>(); // List of arrivals associated with the contract

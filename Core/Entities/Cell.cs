@@ -15,14 +15,12 @@ namespace Domain.Entities
         
         public int FloorIndex { get; set; }
 
-        public double totalCapacity { get; private set; } = 3;
+        public double TotalCapacity { get; private set; } = 3;
 
-        public double usedCapacity { get; set; } = 0;
+        public double UsedCapacity { get; set; } = 0;
 
-        public bool isOccupied { get; set; } = false;
+        public bool IsOccupied { get; set; } = false;
 
         public ICollection<Pallet> StoredPallets { get; set; } = new List<Pallet>();
-
-        //public Item item;
     }
 }

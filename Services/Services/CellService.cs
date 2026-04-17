@@ -12,9 +12,9 @@ namespace Services.Services
     {
         private readonly IRepository<Cell> _cellRepository;
         private readonly IRepository<Pallet> _palletRepository;
-        private readonly IMapper _mapper;   
+        private readonly IMapper _mapper;
 
-        public CellService(IRepository<Cell> cellRepository, IRepository<Pallet> palletRepository , IMapper mapper)
+        public CellService(IRepository<Cell> cellRepository, IRepository<Pallet> palletRepository, IMapper mapper)
         {
             _cellRepository = cellRepository;
             _palletRepository = palletRepository;
@@ -44,11 +44,11 @@ namespace Services.Services
         public async Task<double> CalculateCellOccupancy(int cellId)
         {
             var cell = await _cellRepository.GetByIdAsync(cellId);
-            if (cell is null || cell.totalCapacity == 0)
+            if (cell is null || cell.TotalCapacity == 0)
             {
                 throw new ArgumentException("Cell not found or has zero capacity.");
             }
-            double freeCapacity = cell.totalCapacity - cell.usedCapacity;
+            double freeCapacity = cell.TotalCapacity - cell.UsedCapacity;
             return freeCapacity;
         }
 
@@ -62,12 +62,37 @@ namespace Services.Services
                 return false;
             }
 
-            if (cell.usedCapacity + pallet.PalletType.RequiredCapacity > cell.totalCapacity)
+            var palletCapacity = pallet.PalletType.RequiredCapacity;
+
+            if (cell.UsedCapacity + palletCapacity > cell.TotalCapacity)
             {
                 return false;
             }
 
+            cell.UsedCapacity += palletCapacity;
+
+            cell.IsOccupied = cell.UsedCapacity > 0;
+
             cell.StoredPallets.Add(pallet);
+            return true;
+        }
+
+        public async Task<bool> RemovePalletFromCell(int cellId, int palletId)
+        {
+            var cell = await _cellRepository.GetByIdAsync(cellId);
+            var pallet = await _palletRepository.GetByIdAsync(palletId);
+            if (cell is null || pallet is null)
+            {
+                return false;
+            }
+            var palletCapacity = pallet.PalletType.RequiredCapacity;
+            if (!cell.StoredPallets.Contains(pallet))
+            {
+                return false;
+            }
+            cell.UsedCapacity -= palletCapacity;
+            cell.IsOccupied = cell.UsedCapacity > 0;
+            cell.StoredPallets.Remove(pallet);
             return true;
         }
     }

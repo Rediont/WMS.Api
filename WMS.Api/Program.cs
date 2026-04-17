@@ -74,6 +74,8 @@ builder.Services.AddScoped<IPalletTypeService, PalletTypeService>();
 //builder.Services.AddScoped<IPalletService, PalletService>();
 builder.Services.AddScoped<ISectorService, SectorService>();
 builder.Services.AddScoped<IContractService, ContractService>();
+builder.Services.AddScoped<IWarehouseSettingsService, WarehouseSettingsService>();
+builder.Services.AddScoped<IWarehouseSlottingService, WarehouseSlottingService>();
 
 builder.Services.AddControllers();
 

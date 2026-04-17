@@ -19,5 +19,7 @@ namespace Services.Interfaces
         public Task<double> CalculateCellOccupancy(int cellId);
 
         public Task<bool> AddPalletToCell(int cellId, int palletId);
+
+        public Task<bool> RemovePalletFromCell(int cellId, int palletId);
     }
 }

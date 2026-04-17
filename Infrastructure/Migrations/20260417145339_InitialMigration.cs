@@ -1,5 +1,4 @@
 ﻿using System;
-using Domain.Entities;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -8,7 +7,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Infrastructure.Migrations
 {
     /// <inheritdoc />
-    public partial class InitialCreate : Migration
+    public partial class InitialMigration : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -23,9 +22,7 @@ namespace Infrastructure.Migrations
                     AlleyIndex = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     Id = table.Column<int>(type: "integer", nullable: false),
-                    Height = table.Column<int>(type: "integer", nullable: false),
-                    Length = table.Column<int>(type: "integer", nullable: false),
-                    Width = table.Column<int>(type: "integer", nullable: false),
+                    NumberOfFloors = table.Column<int>(type: "integer", nullable: false),
                     CellsPerFloor = table.Column<int>(type: "integer", nullable: false)
                 },
                 constraints: table =>
@@ -101,6 +98,23 @@ namespace Infrastructure.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_PalletTypes", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "WarehouseOptions",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    NumberOfAlleys = table.Column<int>(type: "integer", nullable: false),
+                    NumberOfAlleyFloors = table.Column<int>(type: "integer", nullable: false),
+                    NumberOfCellsInAlley = table.Column<int>(type: "integer", nullable: false),
+                    NumberOfCellsInAlleyFloor = table.Column<int>(type: "integer", nullable: false),
+                    NumberOfCells = table.Column<int>(type: "integer", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_WarehouseOptions", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -241,8 +255,8 @@ namespace Infrastructure.Migrations
                     Name = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: false),
                     StartDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     ExpirationDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    ClientId = table.Column<int>(type: "integer", nullable: true),
-                    CurrentStatus = table.Column<ContractStatus>(type: "contract_status", nullable: false)
+                    CurrentStatus = table.Column<int>(type: "integer", nullable: false),
+                    ClientId = table.Column<int>(type: "integer", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -402,6 +416,7 @@ namespace Infrastructure.Migrations
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     InboundReceiptId = table.Column<int>(type: "integer", nullable: false),
                     InboundReceiptId1 = table.Column<int>(type: "integer", nullable: false),
+                    weight = table.Column<int>(type: "integer", nullable: false),
                     PalletTypeId = table.Column<int>(type: "integer", nullable: false),
                     AlleyId = table.Column<int>(type: "integer", nullable: true),
                     CellId = table.Column<int>(type: "integer", nullable: true),
@@ -493,6 +508,11 @@ namespace Infrastructure.Migrations
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
+
+            migrationBuilder.InsertData(
+                table: "WarehouseOptions",
+                columns: new[] { "Id", "NumberOfAlleyFloors", "NumberOfAlleys", "NumberOfCells", "NumberOfCellsInAlley", "NumberOfCellsInAlleyFloor" },
+                values: new object[] { 1, 5, 10, 5000, 100, 20 });
 
             migrationBuilder.CreateIndex(
                 name: "IX_AspNetRoleClaims_RoleId",
@@ -668,6 +688,9 @@ namespace Infrastructure.Migrations
 
             migrationBuilder.DropTable(
                 name: "Sectors");
+
+            migrationBuilder.DropTable(
+                name: "WarehouseOptions");
 
             migrationBuilder.DropTable(
                 name: "AspNetRoles");
