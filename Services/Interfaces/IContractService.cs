@@ -19,7 +19,7 @@ namespace Services.Interfaces
 
         public Task<IEnumerable<ContractInfoLookupDto>> LookupContractsInfo();
 
-        public Task<Contract> AddContract(DateTime startDate, DateTime endDate, ContractStatus status = ContractStatus.Active);
+        public Task<Contract> AddContractAsync(string name, DateTime startDate, DateTime endDate, ContractStatus status = ContractStatus.Active);
 
         public Task UpdateContractAsync(int id, DateTime? endDate = null, ContractStatus? status = null);
 

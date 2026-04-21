@@ -25,6 +25,9 @@ namespace Infrastructure.EntityTypeConfigs
             builder.Property(c => c.CurrentStatus)
                 .IsRequired();
             
+            builder.Property(c=> c.ClientId)
+                .IsRequired();
+
             builder.HasMany(c => c.Inbounds)
                    .WithOne()
                    .HasForeignKey("ContractId")

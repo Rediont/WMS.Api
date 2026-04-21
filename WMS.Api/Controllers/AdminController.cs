@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using Domain.Entities;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Services.Dtos;
@@ -11,12 +12,12 @@ namespace WMS.Api.Controllers
     [Authorize()]
     public class AdminController : ControllerBase
     {
-        private readonly UserManager<IdentityUser> _userManager;
+        private readonly UserManager<User> _userManager;
         private readonly RoleManager<IdentityRole> _roleManager;
         private readonly IWarehouseSettingsService _warehouseSettingsService;
         private readonly IConfiguration _configuration;
 
-        public AdminController(UserManager<IdentityUser> userManager, RoleManager<IdentityRole> roleManager, IWarehouseSettingsService warehouseSettingsService, IConfiguration configuration)
+        public AdminController(UserManager<User> userManager, RoleManager<IdentityRole> roleManager, IWarehouseSettingsService warehouseSettingsService, IConfiguration configuration)
         {
             _userManager = userManager;
             _roleManager = roleManager;
@@ -39,7 +40,7 @@ namespace WMS.Api.Controllers
                 return BadRequest("Користувач з таким Email вже існує.");
             }
 
-            var user = new IdentityUser
+            var user = new User
             {
                 UserName = model.Email,
                 Email = model.Email

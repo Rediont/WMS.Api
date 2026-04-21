@@ -10,6 +10,8 @@ namespace Services.Dtos.LookUpDtos
     {
         public int Id { get; set; }
         public int ClientId { get; set; }
+        public string ClientName { get; set; }
         public string ContractName { get; set; }
+        public int Status { get; set; }
     }
 }

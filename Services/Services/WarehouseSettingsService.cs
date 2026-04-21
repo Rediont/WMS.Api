@@ -100,51 +100,62 @@ namespace Services.Services
             // Щоб не робити мільйон запитів до БД, дістаємо всі комірки одразу
             var existingCells = await _cellRepository.GetAllAsync();
 
+            var alleysToAdd = new List<Alley>();
+            var cellsToAdd = new List<Cell>();
+
             for (int a = 1; a <= settings.NumberOfAlleys; a++)
             {
-                // 1. Перевіряємо, чи існує алея. Якщо ні - створюємо.
-                var alley = existingAlleys.FirstOrDefault(x => x.AlleyIndex == a);
-                if (alley == null)
+                // 1. Працюємо з алеями
+                bool alleyExists = existingAlleys.Any(x => x.AlleyIndex == a);
+                if (!alleyExists)
                 {
-                    alley = new Alley
+                    alleysToAdd.Add(new Alley
                     {
                         AlleyIndex = a,
                         NumberOfFloors = settings.NumberOfAlleyFloors,
                         CellsPerFloor = settings.NumberOfCellsInAlleyFloor
-                    };
-                    await _alleyRepository.AddAsync(alley);
-                    await _alleyRepository.SaveChangesAsync(); // Зберігаємо одразу, щоб комірки могли до неї прив'язатись
+                    });
                 }
 
-                // 2. Генеруємо комірки для цієї алеї
-                int currentCellIndex = 1; // Наскрізна нумерація комірок в межах алеї
+                // 2. Збираємо комірки в пам'яті
+                int currentCellIndex = 1;
 
                 for (int f = 0; f < settings.NumberOfAlleyFloors; f++)
                 {
                     for (int c = 1; c <= settings.NumberOfCellsInAlleyFloor; c++)
                     {
-                        // Перевіряємо, чи існує вже така комірка
                         bool cellExists = existingCells.Any(x => x.AlleyIndex == a && x.CellIndex == currentCellIndex);
 
                         if (!cellExists)
                         {
-                            var newCell = new Cell
+                            cellsToAdd.Add(new Cell
                             {
                                 AlleyIndex = a,
                                 FloorIndex = f,
                                 CellIndex = currentCellIndex,
-                                // totalCapacity, usedCapacity та isOccupied підтягнуться з дефолтних значень моделі
-                            };
-                            await _cellRepository.AddAsync(newCell);
+                                // Інші поля (TotalCapacity тощо) підтягнуться автоматично
+                            });
                         }
-
                         currentCellIndex++;
                     }
                 }
             }
 
-            // Зберігаємо всі новостворені комірки одним махом
-            await _cellRepository.SaveChangesAsync();
+            // 3. МАСОВЕ ЗБЕРЕЖЕННЯ (Bulk Insert)
+
+            // Спочатку зберігаємо всі нові алеї (за 1 запит)
+            if (alleysToAdd.Any())
+            {
+                await _alleyRepository.AddRangeAsync(alleysToAdd);
+                await _alleyRepository.SaveChangesAsync(); // Зберігаємо, щоб згенерувалися їхні Id
+            }
+
+            // Потім зберігаємо всі нові комірки (теж за 1 запит)
+            if (cellsToAdd.Any())
+            {
+                await _cellRepository.AddRangeAsync(cellsToAdd);
+                await _cellRepository.SaveChangesAsync();
+            }
         }
 
 

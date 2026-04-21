@@ -12,7 +12,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20260417145339_InitialMigration")]
+    [Migration("20260420144357_InitialMigration")]
     partial class InitialMigration
     {
         /// <inheritdoc />
@@ -23,7 +23,6 @@ namespace Infrastructure.Migrations
                 .HasAnnotation("ProductVersion", "9.0.12")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
-            NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "contract_status", new[] { "inactive", "active", "terminated", "completed", "invalid" });
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
             modelBuilder.Entity("Domain.Entities.Alley", b =>
@@ -65,9 +64,10 @@ namespace Infrastructure.Migrations
                     b.Property<bool>("IsOccupied")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("boolean")
-                        .HasDefaultValue(false);
+                        .HasDefaultValue(false)
+                        .HasColumnName("isOccupied");
 
-                    b.Property<double>("totalCapacity")
+                    b.Property<double>("TotalCapacity")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("double precision")
                         .HasDefaultValue(3.0);
@@ -75,7 +75,8 @@ namespace Infrastructure.Migrations
                     b.Property<double>("UsedCapacity")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("double precision")
-                        .HasDefaultValue(0.0);
+                        .HasDefaultValue(0.0)
+                        .HasColumnName("usedCapacity");
 
                     b.HasKey("AlleyIndex", "CellIndex");
 

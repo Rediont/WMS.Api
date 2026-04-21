@@ -1,16 +1,17 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using AutoMapper;
+﻿using AutoMapper;
 using Domain.Entities;
 using global::Services.Dtos;
 using Services.Dtos.CellDtos;
 using Services.Dtos.ClientDtos;
 using Services.Dtos.ContractDtos;
 using Services.Dtos.LookupDtos;
+using Services.Dtos.LookUpDtos;
 using Services.Dtos.PalletDtos;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
 namespace Services.Mappers
 {
@@ -37,6 +38,11 @@ namespace Services.Mappers
             CreateMap<Contract, ContractDto>()
                 .ForMember(dest => dest.ContractId, opt => opt.MapFrom(src => src.Id))
                 .ForMember(dest => dest.ContractName, opt => opt.MapFrom(src => src.Name));
+            
+            CreateMap<Contract, ContractInfoLookupDto>()
+            .ForMember(dest => dest.ContractName, opt => opt.MapFrom(src => src.Name))
+            .ForMember(dest => dest.ClientName, opt => opt.MapFrom(src => src.Client != null ? src.Client.Name : "Невідомий клієнт"))
+            .ForMember(dest => dest.Status, opt => opt.MapFrom(src => (int)src.CurrentStatus));
 
             CreateMap<ClientContractCost, ClientContractCostDto>();
 

@@ -54,7 +54,7 @@ namespace WMS.Api.Controllers
         }
 
         [HttpPost("add")]
-        public async Task<IActionResult> AddContract([FromBody]NewContractDataDto contractDataDto)
+        public async Task<IActionResult> AddContract([FromBody] NewContractDataDto contractDataDto)
         {
             var client = await _clientService.GetClientByIdAsync(contractDataDto.ClientId);
             if (client == null)
@@ -64,15 +64,25 @@ namespace WMS.Api.Controllers
             }
 
             ContractStatus status = ContractStatus.Inactive;
-
-            if (contractDataDto.StartDate == DateTime.Now)
+    
+            if (contractDataDto.StartDate.Date == DateTime.Today)
             {
                 status = ContractStatus.Active;
             }
 
-            var contract = await _contractService.AddContract(contractDataDto.StartDate, contractDataDto.EndDate, status);
+            // АБО ще краще: оскільки у твоєму DTO вже є поле currentStatus, 
+            // ти можеш просто брати його звідти: status = contractDataDto.currentStatus;
+
+            // ✅ Передаємо Name першим аргументом
+            var contract = await _contractService.AddContractAsync(
+                contractDataDto.Name,
+                contractDataDto.StartDate,
+                contractDataDto.EndDate,
+                status
+            );
 
             await _clientService.AddContractToClient(contractDataDto.ClientId, contract);
+
             _logger.LogInformation("Added contract with ID: {ContractId} to client with ID: {ClientId}", contract.Id, contractDataDto.ClientId);
             return new OkObjectResult(contract);
         }

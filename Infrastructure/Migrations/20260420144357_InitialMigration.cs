@@ -12,9 +12,6 @@ namespace Infrastructure.Migrations
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.AlterDatabase()
-                .Annotation("Npgsql:Enum:contract_status", "inactive,active,terminated,completed,invalid");
-
             migrationBuilder.CreateTable(
                 name: "Alleys",
                 columns: table => new
@@ -125,7 +122,7 @@ namespace Infrastructure.Migrations
                     CellIndex = table.Column<int>(type: "integer", nullable: false),
                     Id = table.Column<int>(type: "integer", nullable: false),
                     FloorIndex = table.Column<int>(type: "integer", nullable: false),
-                    totalCapacity = table.Column<double>(type: "double precision", nullable: false, defaultValue: 3.0),
+                    TotalCapacity = table.Column<double>(type: "double precision", nullable: false, defaultValue: 3.0),
                     usedCapacity = table.Column<double>(type: "double precision", nullable: false, defaultValue: 0.0),
                     isOccupied = table.Column<bool>(type: "boolean", nullable: false, defaultValue: false)
                 },

@@ -25,8 +25,8 @@ builder.Services.AddAutoMapper(cfg =>
 });
 
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"),
-    o => o.MapEnum<ContractStatus>()));
+    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+    //o => o.MapEnum<ContractStatus>()));
 
 
 builder.Services.AddIdentity<User, IdentityRole>(options =>
