@@ -17,15 +17,24 @@ namespace WMS.Api.Controllers
         private readonly IClientService _clientService;
         private readonly IContractService _contractService;
         private readonly IWarehouseSettingsService _warehouseSettingsService;
-        private readonly IMapper _mapper;    
+        private readonly IWmsDocumentService _wmsDocumentService;
+        private readonly IMapper _mapper;
         private readonly ILogger<LookupController> _logger;
 
-        public LookupController(IPalletTypeService palletTypeService, IClientService clientService, IContractService contractService, IWarehouseSettingsService warehouseSettingsService, IMapper mapper, ILogger<LookupController> logger)
+        public LookupController(
+            IPalletTypeService palletTypeService, 
+            IClientService clientService, 
+            IContractService contractService, 
+            IWarehouseSettingsService warehouseSettingsService, 
+            IWmsDocumentService wmsDocumentService, 
+            IMapper mapper, 
+            ILogger<LookupController> logger)
         {
             _palletTypeService = palletTypeService;
             _clientService = clientService;
             _contractService = contractService;
             _warehouseSettingsService = warehouseSettingsService;
+            _wmsDocumentService = wmsDocumentService;
             _mapper = mapper;
             _logger = logger;
         }
@@ -40,6 +49,7 @@ namespace WMS.Api.Controllers
                 var palletTypes = await _palletTypeService.GetAllPalletTypesAsync();
                 var contracts = await _contractService.LookupContractsInfo();
                 var warehouseSettings = await _warehouseSettingsService.GetWarehouseSettingsAsync();
+                var documentTypes = await _wmsDocumentService.GetDocumentTypesAsync();
 
                 // 2. Робимо мапінг, як ми це обговорювали раніше
                 var mappedPalletTypes = palletTypes.Select(pt => new PalletTypeLookupDto
@@ -54,7 +64,8 @@ namespace WMS.Api.Controllers
                     Clients = clients,
                     Contracts = contracts,
                     PalletTypes = mappedPalletTypes,
-                    WarehouseSettings = _mapper.Map<WarehouseSettingsLookupDto>(warehouseSettings)
+                    WarehouseSettings = _mapper.Map<WarehouseSettingsLookupDto>(warehouseSettings),
+                    DocumentTypes = documentTypes
                 };
 
                 _logger.LogInformation("Retrieved lookup data: {ClientCount} clients, {PalletTypeCount} pallet types, {ContractCount} contracts",
@@ -117,5 +128,14 @@ namespace WMS.Api.Controllers
             }
         }
 
+        //public Task<IActionResult> GetClientTotalPages()
+        //{
+        //    throw new NotImplementedException();
+        //}
+
+        //public Task<IActionResult> GetPalletTotalPages()
+        //{
+        //    throw new NotImplementedException();
+        //}
     }
 }

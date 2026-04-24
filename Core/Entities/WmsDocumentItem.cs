@@ -7,20 +7,17 @@ using System.Threading.Tasks;
 
 namespace Domain.Entities
 {
-    public class Pallet : IEntity
+    public class WmsDocumentItem : IEntity
     {
         public int Id { get; set; }
 
         public int WmsDocumentId { get; set; }
-        public virtual WmsDocument WmsDocument { get; set; }
-
-        public int Weight { get; set; }
+        public virtual WmsDocument Document { get; set; }
 
         public int PalletTypeId { get; set; }
         public virtual PalletType PalletType { get; set; }
 
-        public int? AlleyId { get; set; }
-        public int? CellId { get; set; }
-        public virtual Cell? Cell { get; set; } // Додано об'єкт
+        public int ExpectedAmount { get; set; }
+
     }
 }

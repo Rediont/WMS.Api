@@ -17,14 +17,15 @@ namespace Services.Interfaces
 
         public Task<ContractDto> GetContractByIdAsync(int id);
 
+        public Task<int> LookupTotalPageCount();
+
         public Task<IEnumerable<ContractInfoLookupDto>> LookupContractsInfo();
 
         public Task<Contract> AddContractAsync(string name, DateTime startDate, DateTime endDate, ContractStatus status = ContractStatus.Active);
 
         public Task UpdateContractAsync(int id, DateTime? endDate = null, ContractStatus? status = null);
 
-        public Task AddInboundToContract(int id, InboundReceipt inbound);
+        public Task AddDocumentToContract(int id, WmsDocument document);
 
-        public Task AddOutboundToContract(int id, OutboundShipment outbound);
     }
 }

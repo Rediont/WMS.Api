@@ -74,8 +74,13 @@ namespace Services.Services
 
         public async Task<IEnumerable<ContractInfoLookupDto>> LookupContractsInfo()
         {
-            var contracts = await _contractRepository.Query().Include(c => c.Client).ToListAsync();
+            var contracts = await _contractRepository.Query().Include(c => c.Client).Take(20).ToListAsync();
             return _mapper.Map<IEnumerable<ContractInfoLookupDto>>(contracts);
+        }
+
+        public async Task<int> LookupTotalPageCount()
+        {
+            return await _contractRepository.CountTotalPagesAsync();
         }
 
         public async Task<Contract> AddContractAsync(string name, DateTime startDate, DateTime endDate, ContractStatus status = ContractStatus.Active)
@@ -86,8 +91,7 @@ namespace Services.Services
                 StartDate = startDate,
                 ExpirationDate = endDate,
                 CurrentStatus = status,
-                Inbounds = null,
-                Outbounds = null
+                Documents = null,
             };
             await _contractRepository.AddAsync(newContract);
             return newContract;
@@ -108,28 +112,15 @@ namespace Services.Services
             await _contractRepository.SaveChangesAsync();
         }
 
-        public async Task AddInboundToContract(int id, InboundReceipt inbound)
+        public async Task AddDocumentToContract(int id, WmsDocument document)
         {
             var contract = await _contractRepository.GetByIdAsync(id);
             if (contract == null) throw new Exception("Contract not found");
-            if (contract.Inbounds == null)
+            if (contract.Documents == null)
             {
-                contract.Inbounds = new List<InboundReceipt>();
+                contract.Documents = new List<WmsDocument>();
             }
-            contract.Inbounds.Add(inbound);
-            _contractRepository.Update(contract);
-            await _contractRepository.SaveChangesAsync();
-        }
-
-        public async Task AddOutboundToContract(int id, OutboundShipment outbound)
-        {
-            var contract = await _contractRepository.GetByIdAsync(id);
-            if (contract == null) throw new Exception("Contract not found");
-            if (contract.Outbounds == null)
-            {
-                contract.Outbounds = new List<OutboundShipment>();
-            }
-            contract.Outbounds.Add(outbound);
+            contract.Documents.Add(document);
             _contractRepository.Update(contract);
             await _contractRepository.SaveChangesAsync();
         }

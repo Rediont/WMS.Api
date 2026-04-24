@@ -3,11 +3,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Services.Dtos.FilterDtos;
 using Services.Interfaces;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace WMS.Api.Controllers
 {
@@ -63,9 +58,6 @@ namespace WMS.Api.Controllers
                 return new StatusCodeResult(500);
             }
         }
-
-
-
 
     }
 }

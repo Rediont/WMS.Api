@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Services.Dtos.WmsDocumentDtos;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -10,6 +11,6 @@ namespace Services.Dtos.ContractDtos
     {
         public int ContractId { get; set; }
         public List<OutboundShipmentDto> OutboundShipments { get; set; }
-        public List<InboundReceiptDto> InboundReceipts { get; set; }
+        public List<WmsDocumentInfoDto> InboundReceipts { get; set; }
     }
 }

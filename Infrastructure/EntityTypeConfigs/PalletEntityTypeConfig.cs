@@ -16,7 +16,7 @@ namespace Infrastructure.EntityTypeConfigs
             builder.ToTable("pallets");
             builder.HasKey(p => p.Id);
 
-            builder.Property(p => p.weight) 
+            builder.Property(p => p.Weight) 
                    .IsRequired();
 
             // Зв'язок з типом (обов'язково, щоб знати розмір 1.0/1.5)

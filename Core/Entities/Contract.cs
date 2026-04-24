@@ -23,10 +23,7 @@ namespace Domain.Entities
         public int ClientId { get; set; }
         public virtual Client Client { get; set; }
 
-        public ICollection<OutboundShipment> Outbounds { get; set; } = new List<OutboundShipment>(); // List of shipments associated with the contract
-        public ICollection<InboundReceipt> Inbounds { get; set; } = new List<InboundReceipt>(); // List of arrivals associated with the contract
-
-        //public List<Item> itemList; // List of items associated with the contract
+        public ICollection<WmsDocument> Documents { get; set; } = new List<WmsDocument>();
 
     }
 }

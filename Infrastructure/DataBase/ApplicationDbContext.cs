@@ -19,8 +19,9 @@ namespace Infrastructure.DataBase
         public DbSet<Cell> Cells { get; set; }
         public DbSet<Client> Clients { get; set; }
         public DbSet<Contract> Contracts { get; set; }
-        public DbSet<InboundReceipt> Receipts { get; set; }
-        public DbSet<OutboundShipment> Shipments { get; set; }
+        public DbSet<WmsDocument> Documents { get; set; }
+        public DbSet<WmsDocumentItem> WmsDocumentItems { get; set; }
+        public DbSet<Pallet> Pallets { get; set; }
         public DbSet<Payment> Payments { get; set; }
 
         public DbSet<WarehouseSettings> WarehouseOptions { get; set; }

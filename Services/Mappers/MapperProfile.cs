@@ -7,6 +7,7 @@ using Services.Dtos.ContractDtos;
 using Services.Dtos.LookupDtos;
 using Services.Dtos.LookUpDtos;
 using Services.Dtos.PalletDtos;
+using Services.Dtos.WmsDocumentDtos;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -27,7 +28,7 @@ namespace Services.Mappers
 
             CreateMap<Pallet, PalletInfoDto>();
 
-            CreateMap<PalletTypes, PalletTypeInfoDto>();
+            CreateMap<PalletType, PalletTypeInfoDto>();
 
             CreateMap<Client, ClientInfoDto>().ReverseMap();
 
@@ -46,14 +47,20 @@ namespace Services.Mappers
 
             CreateMap<ClientContractCost, ClientContractCostDto>();
 
-            CreateMap<InboundReceipt, InboundReceiptDto>();
+            CreateMap<WmsDocument, WmsDocumentInfoDto>()
+                // Я припускаю, що у сутності поле називається CreatedDate, а в DTO - CreationDate
+                .ForMember(dest => dest.CreationDate, opt => opt.MapFrom(src => src.CreationDate))
 
-            CreateMap<OutboundShipment, OutboundShipmentDto>()
-                .ForMember(dest => dest.ShippedPalletIds,
-                       opt => opt.MapFrom(src => src.ShippedPallets.Select(p => p.Id).ToList()));
+                .ForMember(dest => dest.DocumentTypeId, opt => opt.MapFrom(src => (int)src.DocumentType))
 
-            CreateMap<OutboundShipmentDto, OutboundShipment>()
-                .ForMember(dest => dest.ShippedPallets, opt => opt.Ignore());
+                .ForMember(dest => dest.DocumentName, opt => opt.MapFrom(src =>
+                    $"{(src.DocumentType == DocumentType.InboundReceipt ? "Прихід" : "Відправлення")} №{src.Id}"))
+
+                .ForMember(dest => dest.Items, opt => opt.MapFrom(src => src.Items));
+
+            CreateMap<WmsDocumentItem, WmsDocumentItemDto>()
+                .ForMember(dest => dest.DocumentId, opt => opt.MapFrom(src => src.WmsDocumentId));
+
 
             CreateMap<WarehouseSettings, WarehouseSettingsLookupDto>();
 

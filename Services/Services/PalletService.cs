@@ -31,7 +31,7 @@ namespace Services.Services
 
             if (filter.ContractId.HasValue)
             {
-                query = query.Where(p => p.InboundReceipt.ContractId == filter.ContractId.Value);
+                query = query.Where(p => p.WmsDocument.ContractId == filter.ContractId.Value);
             }
 
             if (filter.PalletType.HasValue)
@@ -56,13 +56,13 @@ namespace Services.Services
             return _mapper.Map<Task<PalletInfoDto>>(pallet);
         }
 
-        public Task<bool> AddPallet(int contractId, int palletType, int weight)
+        public Task<bool> AddPallet(int documentId, int palletType, int weight)
         {
             this._palletRepository.AddAsync(new Pallet
             {
-                InboundReceiptId = contractId,
+                WmsDocumentId = documentId,
                 PalletTypeId = palletType,
-                weight = weight
+                Weight = weight
             });
             return Task.FromResult(true);
         }

@@ -48,7 +48,7 @@ namespace Services.Services
             return matrix;
         }
 
-        public async Task<List<AvailableCellDto>> GetAvailableCellsAsyncInAlley(int alleyIndex, PalletTypes palletType)
+        public async Task<List<AvailableCellDto>> GetAvailableCellsAsyncInAlley(int alleyIndex, PalletType palletType)
         {
             var capacityMatrix = await BuildAlleyCapacityMatrixAsync(alleyIndex);
             var availableSpots = new List<AvailableCellDto>();

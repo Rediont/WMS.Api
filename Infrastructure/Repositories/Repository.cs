@@ -25,6 +25,13 @@ namespace Infrastructure.Repositories
                 .ToListAsync();
         }
 
+        public async Task<int> CountTotalPagesAsync()
+        {
+            const int pageSize = 20;
+            int totalCount = await _context.Set<T>().CountAsync();
+            return (int)Math.Ceiling((double)totalCount / pageSize);
+        }
+
         public IQueryable<T> Query() 
         {
            return _context.Set<T>().AsQueryable(); 

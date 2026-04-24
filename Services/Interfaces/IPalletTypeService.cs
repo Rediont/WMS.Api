@@ -15,6 +15,6 @@ namespace Services.Interfaces
 
         public Task<PalletTypeLookupDto> GetPalletTypeByIdAsync(int id);
 
-        public Task<PalletTypes> GetRealPalletTypeById(int id);
+        public Task<PalletType> GetRealPalletTypeById(int id);
     }
 }

@@ -13,10 +13,10 @@ namespace Services.Services
 {
     public class PalletTypeService : IPalletTypeService
     {
-        private readonly IRepository<PalletTypes> _palletTypeRepository;
+        private readonly IRepository<PalletType> _palletTypeRepository;
         private readonly IMapper _mapper;
 
-        public PalletTypeService(IRepository<PalletTypes> palletTypeRepository, IMapper mapper)
+        public PalletTypeService(IRepository<PalletType> palletTypeRepository, IMapper mapper)
         {
             _palletTypeRepository = palletTypeRepository;
             _mapper = mapper;
@@ -37,7 +37,7 @@ namespace Services.Services
             return _mapper.Map<PalletTypeLookupDto>(palletType);
         }
 
-        public async Task<PalletTypes> GetRealPalletTypeById(int id)
+        public async Task<PalletType> GetRealPalletTypeById(int id)
         {
             var palletType = await _palletTypeRepository.GetByIdAsync(id);
             if (palletType == null)

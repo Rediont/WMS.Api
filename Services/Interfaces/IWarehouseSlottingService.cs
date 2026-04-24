@@ -11,7 +11,7 @@ namespace Services.Interfaces
     public interface IWarehouseSlottingService
     {
         public Task<double[,]> BuildAlleyCapacityMatrixAsync(int alleyIndex);
-        public Task<List<AvailableCellDto>> GetAvailableCellsAsyncInAlley(int alleyId, PalletTypes palletType);
+        public Task<List<AvailableCellDto>> GetAvailableCellsAsyncInAlley(int alleyId, PalletType palletType);
 
     }
 }
