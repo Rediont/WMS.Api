@@ -13,8 +13,16 @@ namespace Services.Interfaces
     {
         public Task<IEnumerable<PalletTypeLookupDto>> GetAllPalletTypesAsync();
 
-        public Task<PalletTypeLookupDto> GetPalletTypeByIdAsync(int id);
+        public Task<PalletTypeLookupDto> GetPalletTypeLookupByIdAsync(int id);
 
-        public Task<PalletType> GetRealPalletTypeById(int id);
+        public Task<PalletType> GetPalletTypeByIdAsync(int id);
+
+        public Task<PalletType> AddPalletTypeAsync(PalletType palletType);
+
+        public Task UpdatePalletTypeAsync(PalletType palletType);
+
+        public Task DeletePalletTypeAsync(int id);
+
+        public Task<bool> AreAllPalletTypesValidAsync(List<int> ids);
     }
 }

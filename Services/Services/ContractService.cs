@@ -26,7 +26,7 @@ namespace Services.Services
             return _mapper.Map<IEnumerable<ContractDto>>(contracts);
         }
 
-        public async Task<IEnumerable<ContractDto>> GetAllContractsAsync(ContractFilterDto filter, int? page)
+        public async Task<IEnumerable<ContractDto>> GetAllContractsAsync(ContractFilterDto filter, int? page = 1)
         {
             var query = _contractRepository.Query();
 

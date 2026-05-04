@@ -49,6 +49,7 @@ namespace Services.Services
             };
 
             await _alleyRepository.AddAsync(newAlley);
+            await _alleyRepository.SaveChangesAsync();
         }
 
         public async Task<List<int>> GetAlleysOccupancyRateAsync()
@@ -82,7 +83,7 @@ namespace Services.Services
             _alleyRepository.Delete(alley);
         }
 
-        public void AddSectorToAlley(int alley_index, Sector sector)
+        public async void AddSectorToAlley(int alley_index, Sector sector)
         {
             Alley? targetAlley = _alleyRepository.GetByIdAsync(alley_index).Result;
 
@@ -103,6 +104,7 @@ namespace Services.Services
 
             targetAlley.Sectors.Add(sector);
             _alleyRepository.Update(targetAlley);
+            await _alleyRepository.SaveChangesAsync();
         }
 
         // видалити сектор з алеї за індексом сектору
@@ -123,6 +125,7 @@ namespace Services.Services
 
             targetAlley.Sectors.Remove(targetAlley.Sectors.First(s => s.SectorIndex == sectorIndex));
             _alleyRepository.Update(targetAlley);
+            await _alleyRepository.SaveChangesAsync();
         }
 
     }

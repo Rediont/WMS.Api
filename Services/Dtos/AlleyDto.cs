@@ -9,7 +9,6 @@ namespace Services.Dtos
 {
     public class AlleyDto
     {
-        public int Id { get; set; }
         public int AlleyIndex { get; set; } // індекс алеї в якій знаходиться комірка
 
         // можливо треба буде переробити на SectorDto

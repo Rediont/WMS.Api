@@ -10,7 +10,7 @@ namespace Services.Interfaces
 {
     public interface ICellService
     {
-        public Task<IEnumerable<CellDto>> GetAllCellsAsync();
+        public Task<IEnumerable<CellDto>> GetAllCellsAsync(int? page);
 
         public Task<CellDto?> GetCellByIdAsync(int id);
 

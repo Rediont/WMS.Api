@@ -21,9 +21,9 @@ namespace Services.Services
             _mapper = mapper;
         }
 
-        public async Task<IEnumerable<CellDto>> GetAllCellsAsync()
+        public async Task<IEnumerable<CellDto>> GetAllCellsAsync(int? page)
         {
-            var cells = await _cellRepository.GetAllAsync();
+            var cells = await _cellRepository.GetAllAsync(page);
             return _mapper.Map<IEnumerable<CellDto>>(cells);
         }
 

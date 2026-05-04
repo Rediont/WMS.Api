@@ -15,10 +15,10 @@ namespace Infrastructure.EntityTypeConfigs
                 .HasColumnType("timestamp with time zone")
                 .IsRequired();
 
-            builder.HasOne<Contract>()
-                .WithMany(c => c.Documents)
-                .HasForeignKey(cd => cd.ContractId)
-                .OnDelete(DeleteBehavior.Restrict);
+            builder.HasOne(cd => cd.Contract)
+                 .WithMany(c => c.Documents)
+                 .HasForeignKey(cd => cd.ContractId)
+                 .OnDelete(DeleteBehavior.Restrict);
 
             builder.HasMany(cd => cd.Items)
                 .WithOne(id => id.Document)
@@ -26,7 +26,7 @@ namespace Infrastructure.EntityTypeConfigs
                 .OnDelete(DeleteBehavior.Restrict);
 
             builder.HasMany(cd => cd.Pallets)
-                .WithOne()
+                .WithOne(p => p.WmsDocument)
                 .HasForeignKey(p => p.WmsDocumentId)
                 .OnDelete(DeleteBehavior.Restrict);
 

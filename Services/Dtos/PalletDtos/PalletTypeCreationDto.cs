@@ -6,9 +6,9 @@ using System.Threading.Tasks;
 
 namespace Services.Dtos.PalletDtos
 {
-    public class PalletTypeInfoDto
+    public class PalletTypeCreationDto
     {
-        public int Id { get; set; }
+        int Id { get; set; }
         public string Name { get; set; }
         public double Size { get; set; }
     }

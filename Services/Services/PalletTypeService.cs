@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Domain.Entities;
 using Infrastructure.Interfaces;
+using Microsoft.EntityFrameworkCore;
 using Services.Dtos.LookUpDtos;
 using Services.Interfaces;
 using System;
@@ -27,7 +28,7 @@ namespace Services.Services
             return _mapper.Map<IEnumerable<PalletTypeLookupDto>>(await _palletTypeRepository.GetAllAsync());
         }
 
-        public async Task<PalletTypeLookupDto> GetPalletTypeByIdAsync(int id)
+        public async Task<PalletTypeLookupDto> GetPalletTypeLookupByIdAsync(int id)
         {
             var palletType = await _palletTypeRepository.GetByIdAsync(id);
             if (palletType == null)
@@ -37,7 +38,7 @@ namespace Services.Services
             return _mapper.Map<PalletTypeLookupDto>(palletType);
         }
 
-        public async Task<PalletType> GetRealPalletTypeById(int id)
+        public async Task<PalletType> GetPalletTypeByIdAsync(int id)
         {
             var palletType = await _palletTypeRepository.GetByIdAsync(id);
             if (palletType == null)
@@ -45,6 +46,39 @@ namespace Services.Services
                 throw new Exception("Pallet type not found");
             }
             return palletType;
+        }
+
+        public async Task<PalletType> AddPalletTypeAsync(PalletType palletType)
+        {
+            await _palletTypeRepository.AddAsync(palletType);
+            await _palletTypeRepository.SaveChangesAsync();
+            return palletType;
+        }
+
+        public async Task UpdatePalletTypeAsync(PalletType palletType)
+        {
+            _palletTypeRepository.Update(palletType);
+            await _palletTypeRepository.SaveChangesAsync();
+        }
+
+        public async Task DeletePalletTypeAsync(int id)
+            {
+                var palletType = await _palletTypeRepository.GetByIdAsync(id);
+                if (palletType == null)
+                {
+                    throw new Exception("Pallet type not found");
+                }
+                _palletTypeRepository.Delete(palletType);
+        }
+
+
+        public async Task<bool> AreAllPalletTypesValidAsync(List<int> ids)
+        {
+            var existingCount = await _palletTypeRepository.Query()
+                                              .Where(p => ids.Contains(p.Id))
+                                              .CountAsync();
+
+            return existingCount == ids.Count;
         }
     }
 }

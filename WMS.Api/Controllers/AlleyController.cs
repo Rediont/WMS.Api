@@ -52,7 +52,7 @@ namespace WMS.Api.Controllers
         [ProducesResponseType(StatusCodes.Status200OK, Type= typeof(List<AvailableCellDto>))]
         public async Task<IActionResult> GetFreeCellsInAlley([FromRoute] int alleyId, [FromRoute] int palletTypeId)
         {
-            var palletType = await _palletTypeService.GetRealPalletTypeById(palletTypeId);
+            var palletType = await _palletTypeService.GetPalletTypeByIdAsync(palletTypeId);
             if (palletType == null)
             {
                 _logger.LogWarning("Pallet type with ID: {PalletTypeId} not found", palletTypeId);

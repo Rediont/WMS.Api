@@ -17,13 +17,9 @@ namespace Services.Interfaces
 
         public Task<List<WmsDocumentInfoDto>> GetDocumentsByIdsAsync(List<int> ids);
 
-        public Task<bool> AddInboundReceipt(int contractId, int amount, int palletType, List<int> palletIds);
+        public Task<WmsDocument> AddDocument(int documentType, int contractId, NewDocumentItemsDto newItems);
 
-        public Task<bool> UpdateInboundReceipt(int id, int contractId, int amount, int palletType, List<int> palletIds);
-
-        public Task<bool> AddOutboundShipment(int contractId, int amount, int palletType, List<int> palletIds);
-
-        public Task<bool> UpdateOutboundShipment(int id, int contractId, int amount, int palletType, List<int> palletIds);
+        public Task<WmsDocument> UpdateDocument(int id, NewDocumentItemsDto newItems);
 
         public Task<IEnumerable<DocumentTypeLookupDto>> GetDocumentTypesAsync();
     }

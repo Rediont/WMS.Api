@@ -3,6 +3,7 @@ using System;
 using Infrastructure.DataBase;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260504145420_DocumentEntityFix")]
+    partial class DocumentEntityFix
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -262,11 +265,16 @@ namespace Infrastructure.Migrations
                     b.Property<int>("WmsDocumentId")
                         .HasColumnType("integer");
 
+                    b.Property<int>("WmsDocumentId1")
+                        .HasColumnType("integer");
+
                     b.HasKey("Id");
 
                     b.HasIndex("PalletTypeId");
 
                     b.HasIndex("WmsDocumentId");
+
+                    b.HasIndex("WmsDocumentId1");
 
                     b.HasIndex("AlleyId", "CellId");
 
@@ -768,10 +776,16 @@ namespace Infrastructure.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Domain.Entities.WmsDocument", "WmsDocument")
+                    b.HasOne("Domain.Entities.WmsDocument", null)
                         .WithMany("Pallets")
                         .HasForeignKey("WmsDocumentId")
                         .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Domain.Entities.WmsDocument", "WmsDocument")
+                        .WithMany()
+                        .HasForeignKey("WmsDocumentId1")
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("Domain.Entities.Cell", "Cell")

@@ -1,20 +1,26 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using AutoMapper;
+using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.AspNetCore.Mvc;
 using Services.Dtos.WmsDocumentDtos;
 using Services.Interfaces;
 
 namespace WMS.Api.Controllers
 {
     [ApiController]
-    [Route("[controller]")]
-    public class DocumentController
+    [Route("Documents")]
+    public class DocumentController : ControllerBase
     {
         private readonly IWmsDocumentService _wmsDocumentService;
         private readonly IContractService _contractService;
+        private readonly IPalletTypeService _palletTypeService;
+        private readonly IMapper _mapper;
         private readonly ILogger<DocumentController> _logger;
 
-        public DocumentController(IWmsDocumentService wmsDocumentService, IContractService contractService, ILogger<DocumentController> logger)
+        public DocumentController(IWmsDocumentService wmsDocumentService, IContractService contractService, IPalletTypeService palletTypeService, IMapper mapper , ILogger<DocumentController> logger)
         {
             _wmsDocumentService = wmsDocumentService;
+            _palletTypeService = palletTypeService;
+            _mapper = mapper;
             _logger = logger;
             _contractService = contractService;
         }
@@ -45,14 +51,35 @@ namespace WMS.Api.Controllers
         }
 
         [HttpPost("create")]
-        public async Task<ActionResult> CreateDocument([FromForm]int contractId, [FromForm]int amount, [FromForm]int palletTypeId, [FromForm]List<int> palletIds)
+        public async Task<ActionResult> CreateDocument(NewDocumentDto newDocument)
         {
-            var result = await _wmsDocumentService.AddInboundReceipt(contractId, amount, palletTypeId, palletIds);
-            if (!result)
+            var requestedPalletIds = newDocument.items.Items.Keys.ToList();
+
+            bool allValid = await _palletTypeService.AreAllPalletTypesValidAsync(requestedPalletIds);
+
+            if (!allValid)
             {
-                return new BadRequestResult();
+                return BadRequest("One or more pallet types are invalid.");
             }
-            return new OkResult();
+
+            var result = await _wmsDocumentService.AddDocument(newDocument.documentTypeId, newDocument.contractId, newDocument.items);
+
+            return Ok(_mapper.Map<WmsDocumentInfoDto>(result));
         }
+
+        [HttpPut("update/{documentId}")]
+        public async Task<IActionResult> UpdateDocument([FromRoute]int documentId,NewDocumentItemsDto updatedDocumentItems)
+        {
+            var document = _wmsDocumentService.GetDocumentByIdAsync(documentId);
+
+            if (document == null) {
+                return BadRequest("No such document were found");
+            }
+
+            var result = await _wmsDocumentService.UpdateDocument(documentId, updatedDocumentItems);
+
+            return Ok(result);
+        }
+
     }
 }

@@ -28,7 +28,16 @@ namespace Services.Mappers
 
             CreateMap<Pallet, PalletInfoDto>();
 
-            CreateMap<PalletType, PalletTypeInfoDto>();
+            CreateMap<PalletType, PalletTypeInfoDto>()
+                .ForMember(dest => dest.Size, opt => opt.MapFrom(src => src.RequiredCapacity));
+
+            CreateMap<PalletType, PalletTypeLookupDto>();
+
+            CreateMap<PalletTypeCreationDto, PalletType>()
+                .ForMember(dest => dest.RequiredCapacity, opt => opt.MapFrom(src => src.Size))
+                .ForMember(dest => dest.Id, opt => opt.Ignore());
+
+            CreateMap<PalletTypeUpdateDto, PalletType>();
 
             CreateMap<Client, ClientInfoDto>().ReverseMap();
 

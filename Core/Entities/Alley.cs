@@ -6,6 +6,7 @@ namespace Domain.Entities
 {
     public class Alley : IEntity
     {
+        
         public int Id { get; set; }
 
         public int AlleyIndex { get; set; }

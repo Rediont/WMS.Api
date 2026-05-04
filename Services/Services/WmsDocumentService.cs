@@ -38,10 +38,6 @@ namespace Services.Services
         public Task<WmsDocumentInfoDto> GetDocumentByIdAsync(int id)
         {
             var document = _wmsDocumentRepository.GetByIdAsync(id);
-            if (document == null)
-            {
-                throw new KeyNotFoundException($"Document with ID {id} not found.");
-            }
             return _mapper.Map<Task<WmsDocumentInfoDto>>(document);
         }
 
@@ -51,138 +47,134 @@ namespace Services.Services
             return _mapper.Map<Task<List<WmsDocumentInfoDto>>>(documents);
         }
 
-        public async Task<bool> AddInboundReceipt(int contractId, int amount, int palletType, List<int> palletIds)
+        public async Task<WmsDocument> AddDocument(int documentType ,int contractId, NewDocumentItemsDto newItems)
         {
-            var palletTypeEntity = await _palletTypeRepository.GetByIdAsync(palletType);
-            var pallets = await _palletRepository.GetByIdsAsync(palletIds);
-
-            if (palletTypeEntity == null)
+            WmsDocument newDocument = new WmsDocument
             {
-                throw new ArgumentException("Invalid pallet type ID.");
-            }
-
-            WmsDocument newReceipt = new WmsDocument
-            {
+                DocumentType = (DocumentType)documentType,
                 ContractId = contractId,
-                CreationDate = DateTime.Now.Date,
-                Pallets = pallets.ToList()
+                CreationDate = DateTime.UtcNow
             };
 
-            WmsDocumentItem newItem = new WmsDocumentItem
+            foreach (var item in newItems.Items)
             {
-                ExpectedAmount = amount,
-                PalletTypeId = palletType
-            };
+                var palletTypeId = item.Key;
+                var amount = item.Value;
 
-            await _wmsDocumentItemRepository.AddAsync(newItem);
-            await _wmsDocumentRepository.AddAsync(newReceipt);
-            await _wmsDocumentItemRepository.SaveChangesAsync();
+                newDocument.Items.Add( 
+                    new WmsDocumentItem
+                    {
+                        ExpectedAmount = amount,
+                        PalletTypeId = palletTypeId
+                    });
+
+                for (int i = 0; i < amount; i++)
+                {
+                    newDocument.Pallets.Add(new Pallet
+                    {
+                        PalletTypeId = palletTypeId
+                    });
+                }
+            }
+
+            await _wmsDocumentRepository.AddAsync(newDocument);
             await _wmsDocumentRepository.SaveChangesAsync();
 
-            return true;
+            return newDocument;
         }
 
-        public async Task<bool> UpdateInboundReceipt(int id, int contractId, int amount, int palletType, List<int> palletIds)
+        public async Task<WmsDocument> UpdateDocument(int id, NewDocumentItemsDto newItems)
         {
-            var receipt = await _wmsDocumentRepository.GetByIdAsync(id);
-            if (receipt == null)
+            var document = await _wmsDocumentRepository.GetByIdAsync(
+                id,
+                d => d.Items,
+                d => d.Pallets
+                );
+
+            // --- КРОК 1: ОНОВЛЕННЯ ТА ДОДАВАННЯ ---
+            foreach (var incomingItem in newItems.Items)
             {
-                throw new KeyNotFoundException($"Receipt with ID {id} not found.");
+                var palletTypeId = incomingItem.Key;
+                var desiredAmount = incomingItem.Value;
+
+                var existingItem = document.Items.FirstOrDefault(i => i.PalletTypeId == palletTypeId);
+
+                if (existingItem != null)
+                {
+                    int currentAmount = existingItem.ExpectedAmount;
+                    int difference = desiredAmount - currentAmount;
+
+                    if (difference > 0)
+                    {
+                        // Треба ДОДАТИ нові (позитивна різниця)
+                        for (int i = 0; i < difference; i++)
+                        {
+                            document.Pallets.Add(new Pallet { PalletTypeId = palletTypeId });
+                        }
+                    }
+                    else if (difference < 0)
+                    {
+                        // Треба ВИДАЛИТИ зайві (негативна різниця)
+                        int amountToRemove = Math.Abs(difference);
+
+                        var palletsToRemove = document.Pallets
+                            .Where(p => p.PalletTypeId == palletTypeId)
+                            .Take(amountToRemove)
+                            .ToList();
+
+                        foreach (var p in palletsToRemove)
+                        {
+                            document.Pallets.Remove(p);
+                        }
+                    }
+
+                    // Фіксуємо нову кількість у рядку документа
+                    existingItem.ExpectedAmount = desiredAmount;
+                }
+                else
+                {
+                    // Такого типу палет ще не було — додаємо як новий рядок
+                    document.Items.Add(new WmsDocumentItem
+                    {
+                        ExpectedAmount = desiredAmount,
+                        PalletTypeId = palletTypeId
+                    });
+
+                    for (int i = 0; i < desiredAmount; i++)
+                    {
+                        document.Pallets.Add(new Pallet { PalletTypeId = palletTypeId });
+                    }
+                }
             }
 
-            var palletTypeEntity = await _palletTypeRepository.GetByIdAsync(palletType);
-            var pallets = await _palletRepository.GetByIdsAsync(palletIds);
+            // --- КРОК 2: ПОВНЕ ВИДАЛЕННЯ ---
+            // Якщо користувач видалив рядок у формі (його немає в newItems), 
+            // нам треба видалити цей WmsDocumentItem і всі його палети з бази
+            var incomingPalletTypeIds = newItems.Items.Keys.ToList();
+            var itemsToRemove = document.Items
+                .Where(i => !incomingPalletTypeIds.Contains(i.PalletTypeId))
+                .ToList();
 
-            if (palletTypeEntity == null)
+            foreach (var itemToRemove in itemsToRemove)
             {
-                throw new ArgumentException("Invalid pallet type ID.");
+                // Видаляємо сам рядок
+                document.Items.Remove(itemToRemove);
+
+                // Видаляємо всі палети цього типу, що належали документу
+                var palletsToRemove = document.Pallets
+                    .Where(p => p.PalletTypeId == itemToRemove.PalletTypeId)
+                    .ToList();
+
+                foreach (var p in palletsToRemove)
+                {
+                    document.Pallets.Remove(p);
+                }
             }
 
-            receipt.ContractId = contractId;
-            receipt.Pallets = pallets.ToList();
-
-            var item = await _wmsDocumentItemRepository.GetByIdAsync(receipt.Id);
-
-            if (item != null)
-            {
-                item.ExpectedAmount = amount;
-                item.PalletTypeId = palletType;
-                _wmsDocumentItemRepository.Update(item);
-                await _wmsDocumentItemRepository.SaveChangesAsync();
-            }
-
-            _wmsDocumentRepository.Update(receipt);
+            _wmsDocumentRepository.Update(document);
             await _wmsDocumentRepository.SaveChangesAsync();
 
-            return true;
-        }
-
-        public async Task<bool> AddOutboundShipment(int contractId, int amount, int palletType, List<int> palletIds)
-        {
-            var palletTypeEntity = await _palletTypeRepository.GetByIdAsync(palletType);
-            var pallets = await _palletRepository.GetByIdsAsync(palletIds);
-
-            if (palletTypeEntity == null)
-            {
-                throw new ArgumentException("Invalid pallet type ID.");
-            }
-
-            WmsDocument newShipment = new WmsDocument
-            {
-                ContractId = contractId,
-                CreationDate = DateTime.Now.Date,
-                Pallets = pallets.ToList()
-            };
-
-            WmsDocumentItem newItem = new WmsDocumentItem
-            {
-                ExpectedAmount = amount,
-                PalletTypeId = palletType
-            };
-
-            await _wmsDocumentItemRepository.AddAsync(newItem);
-            await _wmsDocumentRepository.AddAsync(newShipment);
-            await _wmsDocumentItemRepository.SaveChangesAsync();
-            await _wmsDocumentRepository.SaveChangesAsync();
-
-            return true;
-
-        }
-
-        public async Task<bool> UpdateOutboundShipment(int id, int contractId, int amount, int palletType, List<int> palletIds)
-        {
-            var shipment = await _wmsDocumentRepository.GetByIdAsync(id);
-
-            if (shipment == null)
-            {
-                throw new KeyNotFoundException($"Shipment with ID {id} not found.");
-            }
-
-            var palletTypeEntity = await _palletTypeRepository.GetByIdAsync(palletType);
-            var pallets = await _palletRepository.GetByIdsAsync(palletIds);
-
-            if (palletTypeEntity == null)
-            {
-                throw new ArgumentException("Invalid pallet type ID.");
-            }
-
-            shipment.ContractId = contractId;
-            shipment.Pallets = pallets.ToList();
-
-            var item = await _wmsDocumentItemRepository.GetByIdAsync(shipment.Id);
-            if (item != null)
-            {
-                item.ExpectedAmount = amount;
-                item.PalletTypeId = palletType;
-                _wmsDocumentItemRepository.Update(item);
-                await _wmsDocumentItemRepository.SaveChangesAsync();
-            }
-
-            _wmsDocumentRepository.Update(shipment);
-            await _wmsDocumentRepository.SaveChangesAsync();
-
-            return true;
-
+            return document;
         }
 
         public async Task<IEnumerable<DocumentTypeLookupDto>> GetDocumentTypesAsync()

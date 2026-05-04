@@ -26,9 +26,9 @@ namespace WMS.Api.Controllers
 
         [HttpGet("all")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<CellDto>))]
-        public async Task<ActionResult<List<CellDto>>> GetAllCellsAsync()
+        public async Task<ActionResult<List<CellDto>>> GetAllCellsAsync([FromQuery]int? page)
         {
-            var cells = await _cellService.GetAllCellsAsync();
+            var cells = await _cellService.GetAllCellsAsync(page);
             _logger.LogInformation("Retrieved {Count} cells", cells.Count());
             return new OkObjectResult(cells);
         }
