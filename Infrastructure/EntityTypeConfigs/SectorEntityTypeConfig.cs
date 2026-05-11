@@ -7,7 +7,9 @@ namespace Infrastructure.EntityTypeConfigs
     {
         public void Configure(Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder<Sector> builder)
         {
-            builder.HasKey(s => new { s.AlleyIndex, s.SectorIndex });
+            builder.HasKey(s => s.Id);
+
+            builder.HasIndex(s => new { s.AlleyIndex, s.SectorIndex });
             
             builder.Property(s => s.StartingCellIndex)
                 .IsRequired();

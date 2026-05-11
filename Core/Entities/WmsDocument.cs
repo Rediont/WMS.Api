@@ -5,8 +5,8 @@ namespace Domain.Entities
 
     public enum DocumentType
     {
-        OutboundShipment,
         InboundReceipt,
+        OutboundShipment,
         InventoryAdjustment,
         TransferOrder,
         Other
@@ -20,7 +20,7 @@ namespace Domain.Entities
         public DateTime CreationDate { get; set; }
 
         public  DocumentType DocumentType { get; set; }
-
+        
         public int ContractId { get; set; }
         public virtual Contract Contract { get; set; }
 

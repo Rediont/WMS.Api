@@ -8,7 +8,7 @@ using Services.Dtos.PalletDtos;
 
 namespace Services.Services
 {
-    internal class PalletService : IPalletService
+    public class PalletService : IPalletService
     {
         private readonly IRepository<Pallet> _palletRepository;
         private readonly IMapper _mapper;
@@ -31,7 +31,7 @@ namespace Services.Services
 
             if (filter.ContractId.HasValue)
             {
-                query = query.Where(p => p.WmsDocument.ContractId == filter.ContractId.Value);
+                query = query.Where(p => p.ArrivalDocument.ContractId == filter.ContractId.Value);
             }
 
             if (filter.PalletType.HasValue)
@@ -60,9 +60,8 @@ namespace Services.Services
         {
             this._palletRepository.AddAsync(new Pallet
             {
-                WmsDocumentId = documentId,
+                ArrivalDocumentId = documentId,
                 PalletTypeId = palletType,
-                Weight = weight
             });
             return Task.FromResult(true);
         }

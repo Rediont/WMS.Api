@@ -26,8 +26,13 @@ namespace Infrastructure.EntityTypeConfigs
                 .OnDelete(DeleteBehavior.Restrict);
 
             builder.HasMany(cd => cd.Pallets)
-                .WithOne(p => p.WmsDocument)
-                .HasForeignKey(p => p.WmsDocumentId)
+                .WithOne(p => p.ArrivalDocument)
+                .HasForeignKey(p => p.ArrivalDocumentId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            builder.HasMany(cd => cd.Items)
+                .WithOne(di => di.Document)
+                .HasForeignKey(di => di.WmsDocumentId)
                 .OnDelete(DeleteBehavior.Restrict);
 
         }

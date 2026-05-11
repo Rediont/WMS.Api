@@ -4,7 +4,6 @@ using Microsoft.AspNetCore.Mvc;
 using Services.Dtos.LookupDtos;
 using Services.Dtos.LookUpDtos;
 using Services.Interfaces;
-using Services.Services;
 
 namespace WMS.Api.Controllers
 {
@@ -55,7 +54,9 @@ namespace WMS.Api.Controllers
                 var mappedPalletTypes = palletTypes.Select(pt => new PalletTypeLookupDto
                 {
                     Id = pt.Id,
-                    Name = pt.Name
+                    Name = pt.Name,
+                    Size = pt.Size,
+                    Cost = pt.Cost
                 }).ToList();
 
                 // 3. Збираємо фінальний об'єкт
@@ -103,7 +104,7 @@ namespace WMS.Api.Controllers
             {
                 var palletTypes = await _palletTypeService.GetAllPalletTypesAsync();
                 _logger.LogInformation("Retrieved {PalletTypeCount} pallet types", palletTypes.Count());
-                return new OkObjectResult(palletTypes);
+                return new OkObjectResult(_mapper.Map<PalletTypeLookupDto>(palletTypes));
             }
             catch (Exception ex)
             {

@@ -17,10 +17,16 @@ namespace Services.Interfaces
 
         public Task<List<WmsDocumentInfoDto>> GetDocumentsByIdsAsync(List<int> ids);
 
-        public Task<WmsDocument> AddDocument(int documentType, int contractId, NewDocumentItemsDto newItems);
+        public Task<WmsDocument> CreateReceiptAsync(int contractId, int clientId, DateTime date, NewDocumentItemsDto newItems);
+
+        public Task<WmsDocument> CreateShipmentAsync(int clientId, int contractId, DateTime date, List<Pallet> pallets);
+
+        public Task<WmsDocument> CreateShipmentAsync(int clientId, int contractId, DateTime date, NewDocumentItemsDto newItems);
 
         public Task<WmsDocument> UpdateDocument(int id, NewDocumentItemsDto newItems);
 
         public Task<IEnumerable<DocumentTypeLookupDto>> GetDocumentTypesAsync();
+
+
     }
 }

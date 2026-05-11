@@ -1,6 +1,8 @@
 ﻿using AutoMapper;
 using Domain.Entities;
 using Infrastructure.Interfaces;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using Services.Dtos.LookupDtos;
 using Services.Dtos.WmsDocumentDtos;
 using Services.Interfaces;
@@ -15,23 +17,31 @@ namespace Services.Services
     public class WmsDocumentService : IWmsDocumentService
     {
         private readonly IRepository<WmsDocument> _wmsDocumentRepository;
-        private readonly IRepository<WmsDocumentItem> _wmsDocumentItemRepository;
+        private readonly IRepository<InventoryBalance> _balanceRepository;
         private readonly IRepository<Pallet> _palletRepository;
-        private readonly IRepository<PalletType> _palletTypeRepository;
+        private readonly ILogger<WmsDocumentService> _logger;
         private readonly IMapper _mapper;
 
-        public WmsDocumentService(IRepository<WmsDocument> wmsDocumentRepository, IRepository<WmsDocumentItem> wmsDocumentItemRepository, IRepository<Pallet> palletRepo, IRepository<PalletType> palletTypeRepo, IMapper mapper)
+        public WmsDocumentService(
+            IRepository<WmsDocument> wmsDocumentRepository,
+            IRepository<InventoryBalance> balanceRepository,
+            IRepository<Pallet> palletRepository,
+            ILogger<WmsDocumentService> logger,
+            IMapper mapper)
         {
             _wmsDocumentRepository = wmsDocumentRepository;
-            _wmsDocumentItemRepository = wmsDocumentItemRepository;
-            _palletRepository = palletRepo;
-            _palletTypeRepository = palletTypeRepo;
+            _balanceRepository = balanceRepository;
+            _palletRepository = palletRepository;
+            _logger = logger;
             _mapper = mapper;
         }
 
         public async Task<IEnumerable<WmsDocumentInfoDto>> GetAllDocumentsAsync(int? page)
         {
-            var documents = await _wmsDocumentRepository.GetAllAsync(page);
+            var documents = await _wmsDocumentRepository.GetAllAsync(page,
+                d => d.Contract,
+                d => d.Contract.Client
+            );
             return _mapper.Map<IEnumerable<WmsDocumentInfoDto>>(documents);
         }
 
@@ -47,41 +57,263 @@ namespace Services.Services
             return _mapper.Map<Task<List<WmsDocumentInfoDto>>>(documents);
         }
 
-        public async Task<WmsDocument> AddDocument(int documentType ,int contractId, NewDocumentItemsDto newItems)
+        public async Task<WmsDocument> CreateReceiptAsync(int contractId, int clientId, DateTime date, NewDocumentItemsDto newItems)
         {
-            WmsDocument newDocument = new WmsDocument
+            var newDocument = new WmsDocument
             {
-                DocumentType = (DocumentType)documentType,
+                DocumentType = DocumentType.InboundReceipt,
                 ContractId = contractId,
-                CreationDate = DateTime.UtcNow
+                CreationDate = date
             };
 
             foreach (var item in newItems.Items)
             {
-                var palletTypeId = item.Key;
-                var amount = item.Value;
+                newDocument.Items.Add(new WmsDocumentItem { PalletTypeId = item.Key, ExpectedAmount = item.Value });
 
-                newDocument.Items.Add( 
-                    new WmsDocumentItem
-                    {
-                        ExpectedAmount = amount,
-                        PalletTypeId = palletTypeId
-                    });
-
-                for (int i = 0; i < amount; i++)
+                for (int i = 0; i < item.Value; i++)
                 {
-                    newDocument.Pallets.Add(new Pallet
-                    {
-                        PalletTypeId = palletTypeId
-                    });
+                    newDocument.Pallets.Add(new Pallet { PalletTypeId = item.Key });
                 }
             }
 
             await _wmsDocumentRepository.AddAsync(newDocument);
             await _wmsDocumentRepository.SaveChangesAsync();
 
+            foreach (var item in newItems.Items)
+            {
+                await _balanceRepository.AddAsync(new InventoryBalance
+                {
+                    DocumentId = newDocument.Id,
+                    ClientId = clientId,
+                    ContractId = contractId,
+                    PalletTypeId = item.Key,
+                    TransactionDate = newDocument.CreationDate,
+                    Amount = item.Value,
+                    BatchDocumentId = newDocument.Id
+                });
+            }
+            await _balanceRepository.SaveChangesAsync();
+
             return newDocument;
         }
+
+        // версія з відправлянням конкретних палет (відправляє вибрані палети)
+        public async Task<WmsDocument> CreateShipmentAsync(int clientId, int contractId,DateTime date , List<Pallet> pallets)
+        {
+            var groupedPallets = pallets
+                .GroupBy(p => p.PalletTypeId)
+                .ToDictionary(g => g.Key, g => g.Count());
+
+            var shipmentDocument = new WmsDocument
+            {
+                DocumentType = DocumentType.OutboundShipment,
+                ContractId = contractId,
+                CreationDate = date,
+                Items = new List<WmsDocumentItem>(),
+                Pallets = new List<Pallet>()
+            };
+
+            var plannedBalanceRecords = new List<InventoryBalance>();
+
+            foreach (var item in groupedPallets)
+            {
+                int palletTypeId = item.Key;
+                int amountRequired = item.Value;
+
+                shipmentDocument.Items.Add(new WmsDocumentItem
+                {
+                    PalletTypeId = palletTypeId,
+                    ExpectedAmount = amountRequired
+                });
+
+                //Шукаємо партії, де є залишки, і сортуємо від найстарішої
+                var availableBatches = await _balanceRepository.Query()
+                    .Where(b => b.ClientId == clientId
+                             && b.ContractId == contractId
+                             && b.PalletTypeId == palletTypeId)
+                    .GroupBy(b => b.BatchDocumentId) // Групуємо по ID приходу (партії)
+                    .Select(g => new
+                    {
+                        BatchDocumentId = g.Key,
+                        RemainingAmount = g.Sum(x => x.Amount), // Вираховуємо залишок партії (прихід - попередні відправки)
+                        ReceiptDate = g.Min(x => x.TransactionDate) // Беремо дату створення цієї партії
+                    })
+                    .Where(b => b.RemainingAmount > 0) // Відкидаємо пусті партії
+                    .OrderBy(b => b.ReceiptDate) // Сортуємо: від найстарішого (FIFO)
+                    .ToListAsync();
+
+                // Перевіряємо, чи взагалі вистачає палет на складі
+                int totalAvailable = availableBatches.Sum(b => b.RemainingAmount);
+                if (totalAvailable < amountRequired)
+                {
+                    throw new InvalidOperationException($"Недостатньо палет типу {palletTypeId}. На складі є: {totalAvailable}, потрібно: {amountRequired}.");
+                }
+
+                int amountToFulfill = amountRequired;
+
+                foreach (var batch in availableBatches)
+                {
+                    if (amountToFulfill <= 0) break; // Якщо зібрали потрібну кількість - зупиняємо цикл
+
+                    // Беремо рівно стільки, скільки нам треба, АБО скільки залишилося в цій партії (що менше)
+                    int amountToTake = Math.Min(batch.RemainingAmount, amountToFulfill);
+
+                    // Створюємо запис балансу (але поки без DocumentId, бо він ще не згенерований)
+                    plannedBalanceRecords.Add(new InventoryBalance
+                    {
+                        ClientId = clientId,
+                        ContractId = contractId,
+                        PalletTypeId = palletTypeId,
+                        TransactionDate = shipmentDocument.CreationDate,
+                        Amount = -amountToTake,
+                        BatchDocumentId = batch.BatchDocumentId // Вказуємо, з якої партії ми це забрали
+                    });
+
+                    // Зменшуємо кількість, яку ще залишилося знайти
+                    amountToFulfill -= amountToTake;
+                }
+            }
+
+            // зберігаємо сам документ, щоб БД згенерувала йому ID
+            await _wmsDocumentRepository.AddAsync(shipmentDocument);
+            await _wmsDocumentRepository.SaveChangesAsync();
+
+            // Проставляємо згенерований DocumentId нашим записам у баланс і зберігаємо їх
+            foreach (var record in plannedBalanceRecords)
+            {
+                record.DocumentId = shipmentDocument.Id; // Тепер ми знаємо ID
+                await _balanceRepository.AddAsync(record);
+            }
+
+            await _balanceRepository.SaveChangesAsync();
+
+            // зміна статусу палет на відправлені
+            var palletIds = pallets.Select(p => p.Id).ToList();
+
+            var physicalPallets = await _palletRepository.Query()
+                .Where(p => palletIds.Contains(p.Id))
+                .ToListAsync();
+
+            var alreadyShippedPallets = physicalPallets
+                .Where(p => p.PalletStatus == PalletStatus.Shipped)
+                .ToList();
+
+            if (alreadyShippedPallets.Any())
+            {
+                // Збираємо ID проблемних палет, щоб фронтенд/користувач знав, у чому біда
+                var shippedIds = string.Join(", ", alreadyShippedPallets.Select(p => p.Id));
+                throw new InvalidOperationException($"Неможливо створити відправлення. Наступні палети вже були відправлені раніше: {shippedIds}");
+            }
+
+            foreach (var pallet in physicalPallets)
+            {
+                pallet.PalletStatus = PalletStatus.Shipped;
+                _palletRepository.Update(pallet);
+            }
+
+            await _palletRepository.SaveChangesAsync();
+
+            return shipmentDocument;
+        }
+
+        // версія з відправлянням найстаріших палет (головне щоб кількість співпала)
+        public async Task<WmsDocument> CreateShipmentAsync(int clientId, int contractId, DateTime date, NewDocumentItemsDto newItems)
+        {
+            var shipmentDocument = new WmsDocument
+            {
+                DocumentType = DocumentType.OutboundShipment,
+                ContractId = contractId,
+                CreationDate = date,
+                Items = new List<WmsDocumentItem>(),
+                Pallets = new List<Pallet>()
+            };
+
+            var plannedBalanceRecords = new List<InventoryBalance>();
+
+            foreach (var item in newItems.Items)
+            {
+                int palletTypeId = item.Key;
+                int amountRequired = item.Value;
+
+                shipmentDocument.Items.Add(new WmsDocumentItem
+                {
+                    PalletTypeId = palletTypeId,
+                    ExpectedAmount = amountRequired
+                });
+
+                // Шукаємо партії (приходи), де є залишки, і сортуємо від найстарішої (FIFO)
+                var availableBatches = await _balanceRepository.Query()
+                    .Where(b => b.ClientId == clientId
+                             && b.ContractId == contractId
+                             && b.PalletTypeId == palletTypeId)
+                    .GroupBy(b => b.BatchDocumentId) // Групуємо по ID приходу (партії)
+                    .Select(g => new
+                    {
+                        BatchDocumentId = g.Key,
+                        RemainingAmount = g.Sum(x => x.Amount), // Залишок партії
+                        ReceiptDate = g.Min(x => x.TransactionDate) // Дата партії
+                    })
+                    .Where(b => b.RemainingAmount > 0) // Відкидаємо пусті
+                    .OrderBy(b => b.ReceiptDate)
+                    .ToListAsync();
+
+                int totalAvailable = availableBatches.Sum(b => b.RemainingAmount);
+                if (totalAvailable < amountRequired)
+                {
+                    throw new InvalidOperationException($"Недостатньо палет типу {palletTypeId}. На складі є: {totalAvailable}, потрібно: {amountRequired}.");
+                }
+
+                int amountToFulfill = amountRequired;
+
+                foreach (var batch in availableBatches)
+                {
+                    if (amountToFulfill <= 0) break;
+
+                    int amountToTake = Math.Min(batch.RemainingAmount, amountToFulfill);
+
+                    plannedBalanceRecords.Add(new InventoryBalance
+                    {
+                        ClientId = clientId,
+                        ContractId = contractId,
+                        PalletTypeId = palletTypeId,
+                        TransactionDate = shipmentDocument.CreationDate,
+                        Amount = -amountToTake, // Списуємо баланс
+                        BatchDocumentId = batch.BatchDocumentId
+                    });
+
+                    var physicalPallets = await _palletRepository.Query()
+                        .Where(p => p.ArrivalDocumentId == batch.BatchDocumentId // Палети саме з цього приходу
+                                 && p.PalletTypeId == palletTypeId
+                                 && p.PalletStatus != PalletStatus.Shipped)
+                        .Take(amountToTake) // Беремо рівно стільки, скільки списуємо зараз
+                        .ToListAsync();
+
+                    foreach (var pallet in physicalPallets)
+                    {
+                        pallet.PalletStatus = PalletStatus.Shipped;
+                        shipmentDocument.Pallets.Add(pallet);
+                        this._palletRepository.Update(pallet);
+                    }
+
+                    amountToFulfill -= amountToTake;
+                }
+            }
+
+            await _wmsDocumentRepository.AddAsync(shipmentDocument);
+            await _wmsDocumentRepository.SaveChangesAsync();
+
+            foreach (var record in plannedBalanceRecords)
+            {
+                record.DocumentId = shipmentDocument.Id;
+                await _balanceRepository.AddAsync(record);
+            }
+
+            await _balanceRepository.SaveChangesAsync();
+            await _palletRepository.SaveChangesAsync();
+
+            return shipmentDocument;
+        }
+
 
         public async Task<WmsDocument> UpdateDocument(int id, NewDocumentItemsDto newItems)
         {
@@ -91,7 +323,6 @@ namespace Services.Services
                 d => d.Pallets
                 );
 
-            // --- КРОК 1: ОНОВЛЕННЯ ТА ДОДАВАННЯ ---
             foreach (var incomingItem in newItems.Items)
             {
                 var palletTypeId = incomingItem.Key;
@@ -148,8 +379,7 @@ namespace Services.Services
             }
 
             // --- КРОК 2: ПОВНЕ ВИДАЛЕННЯ ---
-            // Якщо користувач видалив рядок у формі (його немає в newItems), 
-            // нам треба видалити цей WmsDocumentItem і всі його палети з бази
+            // Якщо користувач видалив рядок у формі (його немає в newItems)
             var incomingPalletTypeIds = newItems.Items.Keys.ToList();
             var itemsToRemove = document.Items
                 .Where(i => !incomingPalletTypeIds.Contains(i.PalletTypeId))

@@ -15,7 +15,7 @@ namespace Infrastructure.Interfaces
 
         Task<int> CountTotalPagesAsync();
 
-        Task<IEnumerable<T>> GetAllAsync(int? page = 0);
+        Task<IEnumerable<T>> GetAllAsync(int? page = 0, params Expression<Func<T, object>>[] includes);
 
         IQueryable<T> Query(); // Дозволяє сервісу будувати складні запити
 

@@ -12,5 +12,7 @@ namespace Domain.Entities
         public int Id { get; set; }
         public string Name { get; set; }
         public double RequiredCapacity { get; set; }
+
+        public int Cost { get; set; } //ціна за день зберігання одної палети цього типу
     }
 }

@@ -15,14 +15,18 @@ namespace Infrastructure.Repositories
             _context = context; 
         }
 
-        public async Task<IEnumerable<T>> GetAllAsync(int? page = 0)
+        public async Task<IEnumerable<T>> GetAllAsync(int? page = 0, params Expression<Func<T, object>>[] includes)
         {
             const int pageSize = 20;
             int pageIndex = page ?? 0;
-            return await _context.Set<T>()
-                .Skip(pageIndex * pageSize)
-                .Take(pageSize)
-                .ToListAsync();
+
+            IQueryable<T> query = _context.Set<T>();
+            foreach (var include in includes) query = query.Include(include);
+
+            return await query
+             .Skip(pageIndex * pageSize)
+             .Take(pageSize)
+             .ToListAsync();
         }
 
         public async Task<int> CountTotalPagesAsync()

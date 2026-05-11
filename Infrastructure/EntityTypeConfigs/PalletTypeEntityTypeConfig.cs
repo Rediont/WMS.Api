@@ -23,6 +23,8 @@ namespace Infrastructure.EntityTypeConfigs
             builder.Property(pt => pt.RequiredCapacity)
                    .IsRequired();
 
+            builder.Property(pt => pt.Cost)
+                .IsRequired();
         }
     }
 }

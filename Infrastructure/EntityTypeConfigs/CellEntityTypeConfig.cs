@@ -33,7 +33,7 @@ namespace Infrastructure.EntityTypeConfigs
 
             builder.HasMany(c => c.StoredPallets) 
                 .WithOne(p => p.Cell)         
-                .HasForeignKey(p => new { p.AlleyId, p.CellId })
+                .HasForeignKey(p => new { p.AlleyIndex, p.CellIndex })
                 .OnDelete(DeleteBehavior.Restrict);
 
             //builder.HasOne(c => c.item)

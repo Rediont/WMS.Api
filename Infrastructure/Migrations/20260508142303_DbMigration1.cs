@@ -7,7 +7,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Infrastructure.Migrations
 {
     /// <inheritdoc />
-    public partial class InitialMigration : Migration
+    public partial class DbMigration1 : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -90,7 +90,8 @@ namespace Infrastructure.Migrations
                     Id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     Name = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
-                    RequiredCapacity = table.Column<int>(type: "integer", nullable: false)
+                    RequiredCapacity = table.Column<double>(type: "double precision", nullable: false),
+                    Cost = table.Column<int>(type: "integer", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -253,7 +254,7 @@ namespace Infrastructure.Migrations
                     StartDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     ExpirationDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     CurrentStatus = table.Column<int>(type: "integer", nullable: false),
-                    ClientId = table.Column<int>(type: "integer", nullable: true)
+                    ClientId = table.Column<int>(type: "integer", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -264,68 +265,6 @@ namespace Infrastructure.Migrations
                         principalTable: "Clients",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "ContractReceipts",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "integer", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    ContractId = table.Column<int>(type: "integer", nullable: false),
-                    ContractId1 = table.Column<int>(type: "integer", nullable: false),
-                    ReceiptDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    PalletTypeId = table.Column<int>(type: "integer", nullable: false),
-                    Amount = table.Column<int>(type: "integer", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_ContractReceipts", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_ContractReceipts_Contracts_ContractId",
-                        column: x => x.ContractId,
-                        principalTable: "Contracts",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_ContractReceipts_Contracts_ContractId1",
-                        column: x => x.ContractId1,
-                        principalTable: "Contracts",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_ContractReceipts_PalletTypes_PalletTypeId",
-                        column: x => x.PalletTypeId,
-                        principalTable: "PalletTypes",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "ContractShipments",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "integer", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    ContractId = table.Column<int>(type: "integer", nullable: false),
-                    ContractId1 = table.Column<int>(type: "integer", nullable: false),
-                    ShipmentDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_ContractShipments", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_ContractShipments_Contracts_ContractId",
-                        column: x => x.ContractId,
-                        principalTable: "Contracts",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_ContractShipments_Contracts_ContractId1",
-                        column: x => x.ContractId1,
-                        principalTable: "Contracts",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -355,10 +294,11 @@ namespace Infrastructure.Migrations
                 name: "Sectors",
                 columns: table => new
                 {
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     AlleyIndex = table.Column<int>(type: "integer", nullable: false),
-                    SectorIndex = table.Column<int>(type: "integer", nullable: false),
-                    Id = table.Column<int>(type: "integer", nullable: false),
                     AlleyIndex1 = table.Column<int>(type: "integer", nullable: false),
+                    SectorIndex = table.Column<int>(type: "integer", nullable: false),
                     FloorIndex = table.Column<int>(type: "integer", nullable: false),
                     StartingCellIndex = table.Column<int>(type: "integer", nullable: false),
                     StartingCellAlleyIndex = table.Column<int>(type: "integer", nullable: false),
@@ -372,7 +312,7 @@ namespace Infrastructure.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Sectors", x => new { x.AlleyIndex, x.SectorIndex });
+                    table.PrimaryKey("PK_Sectors", x => x.Id);
                     table.ForeignKey(
                         name: "FK_Sectors_Alleys_AlleyIndex",
                         column: x => x.AlleyIndex,
@@ -406,52 +346,134 @@ namespace Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "WmsDocument",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    CreationDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    DocumentType = table.Column<int>(type: "integer", nullable: false),
+                    ContractId = table.Column<int>(type: "integer", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_WmsDocument", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_WmsDocument_Contracts_ContractId",
+                        column: x => x.ContractId,
+                        principalTable: "Contracts",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "InventoryBalances",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    DocumentId = table.Column<int>(type: "integer", nullable: false),
+                    ClientId = table.Column<int>(type: "integer", nullable: false),
+                    ContractId = table.Column<int>(type: "integer", nullable: false),
+                    PalletTypeId = table.Column<int>(type: "integer", nullable: false),
+                    Amount = table.Column<int>(type: "integer", nullable: false),
+                    TransactionDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    BatchDocumentId = table.Column<int>(type: "integer", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_InventoryBalances", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_InventoryBalances_Clients_ClientId",
+                        column: x => x.ClientId,
+                        principalTable: "Clients",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_InventoryBalances_Contracts_ContractId",
+                        column: x => x.ContractId,
+                        principalTable: "Contracts",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_InventoryBalances_PalletTypes_PalletTypeId",
+                        column: x => x.PalletTypeId,
+                        principalTable: "PalletTypes",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_InventoryBalances_WmsDocument_BatchDocumentId",
+                        column: x => x.BatchDocumentId,
+                        principalTable: "WmsDocument",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_InventoryBalances_WmsDocument_DocumentId",
+                        column: x => x.DocumentId,
+                        principalTable: "WmsDocument",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "pallets",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    InboundReceiptId = table.Column<int>(type: "integer", nullable: false),
-                    InboundReceiptId1 = table.Column<int>(type: "integer", nullable: false),
-                    weight = table.Column<int>(type: "integer", nullable: false),
+                    ArrivalDocumentId = table.Column<int>(type: "integer", nullable: false),
                     PalletTypeId = table.Column<int>(type: "integer", nullable: false),
-                    AlleyId = table.Column<int>(type: "integer", nullable: true),
-                    CellId = table.Column<int>(type: "integer", nullable: true),
-                    ShipmentId = table.Column<int>(type: "integer", nullable: true)
+                    AlleyIndex = table.Column<int>(type: "integer", nullable: true),
+                    CellIndex = table.Column<int>(type: "integer", nullable: true)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_pallets", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_pallets_Cells_AlleyId_CellId",
-                        columns: x => new { x.AlleyId, x.CellId },
+                        name: "FK_pallets_Cells_AlleyIndex_CellIndex",
+                        columns: x => new { x.AlleyIndex, x.CellIndex },
                         principalTable: "Cells",
                         principalColumns: new[] { "AlleyIndex", "CellIndex" },
                         onDelete: ReferentialAction.Restrict);
-                    table.ForeignKey(
-                        name: "FK_pallets_ContractReceipts_InboundReceiptId",
-                        column: x => x.InboundReceiptId,
-                        principalTable: "ContractReceipts",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_pallets_ContractReceipts_InboundReceiptId1",
-                        column: x => x.InboundReceiptId1,
-                        principalTable: "ContractReceipts",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_pallets_ContractShipments_ShipmentId",
-                        column: x => x.ShipmentId,
-                        principalTable: "ContractShipments",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_pallets_PalletTypes_PalletTypeId",
                         column: x => x.PalletTypeId,
                         principalTable: "PalletTypes",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_pallets_WmsDocument_ArrivalDocumentId",
+                        column: x => x.ArrivalDocumentId,
+                        principalTable: "WmsDocument",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "WmsDocumentItems",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    WmsDocumentId = table.Column<int>(type: "integer", nullable: false),
+                    PalletTypeId = table.Column<int>(type: "integer", nullable: false),
+                    ExpectedAmount = table.Column<int>(type: "integer", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_WmsDocumentItems", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_WmsDocumentItems_PalletTypes_PalletTypeId",
+                        column: x => x.PalletTypeId,
+                        principalTable: "PalletTypes",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_WmsDocumentItems_WmsDocument_WmsDocumentId",
+                        column: x => x.WmsDocumentId,
+                        principalTable: "WmsDocument",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
@@ -579,49 +601,44 @@ namespace Infrastructure.Migrations
                 column: "PalletTypeId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_ContractReceipts_ContractId",
-                table: "ContractReceipts",
-                column: "ContractId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_ContractReceipts_ContractId1",
-                table: "ContractReceipts",
-                column: "ContractId1");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_ContractReceipts_PalletTypeId",
-                table: "ContractReceipts",
-                column: "PalletTypeId");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_Contracts_ClientId",
                 table: "Contracts",
                 column: "ClientId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_ContractShipments_ContractId",
-                table: "ContractShipments",
+                name: "IX_InventoryBalances_BatchDocumentId",
+                table: "InventoryBalances",
+                column: "BatchDocumentId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_InventoryBalances_ClientId",
+                table: "InventoryBalances",
+                column: "ClientId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_InventoryBalances_ContractId",
+                table: "InventoryBalances",
                 column: "ContractId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_ContractShipments_ContractId1",
-                table: "ContractShipments",
-                column: "ContractId1");
+                name: "IX_InventoryBalances_DocumentId",
+                table: "InventoryBalances",
+                column: "DocumentId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_pallets_AlleyId_CellId",
-                table: "pallets",
-                columns: new[] { "AlleyId", "CellId" });
+                name: "IX_InventoryBalances_PalletTypeId",
+                table: "InventoryBalances",
+                column: "PalletTypeId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_pallets_InboundReceiptId",
+                name: "IX_pallets_AlleyIndex_CellIndex",
                 table: "pallets",
-                column: "InboundReceiptId");
+                columns: new[] { "AlleyIndex", "CellIndex" });
 
             migrationBuilder.CreateIndex(
-                name: "IX_pallets_InboundReceiptId1",
+                name: "IX_pallets_ArrivalDocumentId",
                 table: "pallets",
-                column: "InboundReceiptId1");
+                column: "ArrivalDocumentId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_pallets_PalletTypeId",
@@ -629,14 +646,14 @@ namespace Infrastructure.Migrations
                 column: "PalletTypeId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_pallets_ShipmentId",
-                table: "pallets",
-                column: "ShipmentId");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_Payments_ContractId",
                 table: "Payments",
                 column: "ContractId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Sectors_AlleyIndex_SectorIndex",
+                table: "Sectors",
+                columns: new[] { "AlleyIndex", "SectorIndex" });
 
             migrationBuilder.CreateIndex(
                 name: "IX_Sectors_AlleyIndex1",
@@ -657,6 +674,21 @@ namespace Infrastructure.Migrations
                 name: "IX_Sectors_StartingCellAlleyIndex_StartingCellCellIndex",
                 table: "Sectors",
                 columns: new[] { "StartingCellAlleyIndex", "StartingCellCellIndex" });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_WmsDocument_ContractId",
+                table: "WmsDocument",
+                column: "ContractId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_WmsDocumentItems_PalletTypeId",
+                table: "WmsDocumentItems",
+                column: "PalletTypeId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_WmsDocumentItems_WmsDocumentId",
+                table: "WmsDocumentItems",
+                column: "WmsDocumentId");
         }
 
         /// <inheritdoc />
@@ -681,6 +713,9 @@ namespace Infrastructure.Migrations
                 name: "CellStatusLog");
 
             migrationBuilder.DropTable(
+                name: "InventoryBalances");
+
+            migrationBuilder.DropTable(
                 name: "Payments");
 
             migrationBuilder.DropTable(
@@ -688,6 +723,9 @@ namespace Infrastructure.Migrations
 
             migrationBuilder.DropTable(
                 name: "WarehouseOptions");
+
+            migrationBuilder.DropTable(
+                name: "WmsDocumentItems");
 
             migrationBuilder.DropTable(
                 name: "AspNetRoles");
@@ -702,16 +740,13 @@ namespace Infrastructure.Migrations
                 name: "Cells");
 
             migrationBuilder.DropTable(
-                name: "ContractReceipts");
+                name: "PalletTypes");
 
             migrationBuilder.DropTable(
-                name: "ContractShipments");
+                name: "WmsDocument");
 
             migrationBuilder.DropTable(
                 name: "Alleys");
-
-            migrationBuilder.DropTable(
-                name: "PalletTypes");
 
             migrationBuilder.DropTable(
                 name: "Contracts");

@@ -55,11 +55,11 @@ namespace WMS.Api.Controllers
         {
             if(await _cellService.GetCellByIdAsync(cellId) == null)
             {
-                _logger.LogWarning("Cell with ID {CellId} not found", cellId);
+                _logger.LogWarning("Cell with ID {CellIndex} not found", cellId);
                 return new NotFoundResult();
             }
             var pallets = await _cellService.GetPalletsInCell(cellId);
-            _logger.LogInformation("Retrieved {Count} pallets in cell ID {CellId}", pallets.Count, cellId);
+            _logger.LogInformation("Retrieved {Count} pallets in cell ID {CellIndex}", pallets.Count, cellId);
             return new OkObjectResult(pallets);
         }
 
@@ -71,12 +71,12 @@ namespace WMS.Api.Controllers
             try
             {
                 var freeCapacity = await _cellService.CalculateCellOccupancy(cellId);
-                _logger.LogInformation("Calculated free capacity for cell ID {CellId}: {FreeCapacity}", cellId, freeCapacity);
+                _logger.LogInformation("Calculated free capacity for cell ID {CellIndex}: {FreeCapacity}", cellId, freeCapacity);
                 return new OkObjectResult(freeCapacity);
             }
             catch (ArgumentException ex)
             {
-                _logger.LogWarning(ex, "Error calculating occupancy for cell ID {CellId}", cellId);
+                _logger.LogWarning(ex, "Error calculating occupancy for cell ID {CellIndex}", cellId);
                 return new NotFoundResult();
             }
         }
@@ -89,10 +89,10 @@ namespace WMS.Api.Controllers
             var success = await _cellService.AddPalletToCell(cellId, palletId);
             if (!success)
             {
-                _logger.LogWarning("Failed to add pallet ID {PalletId} to cell ID {CellId}", palletId, cellId);
+                _logger.LogWarning("Failed to add pallet ID {PalletId} to cell ID {CellIndex}", palletId, cellId);
                 return new NotFoundResult();
             }
-            _logger.LogInformation("Added pallet ID {PalletId} to cell ID {CellId}", palletId, cellId);
+            _logger.LogInformation("Added pallet ID {PalletId} to cell ID {CellIndex}", palletId, cellId);
             return new OkResult();
         }
     }

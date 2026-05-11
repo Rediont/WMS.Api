@@ -7,6 +7,7 @@ using Services.Dtos.ContractDtos;
 using Services.Dtos.LookupDtos;
 using Services.Dtos.LookUpDtos;
 using Services.Dtos.PalletDtos;
+using Services.Dtos.WarehouseRemains;
 using Services.Dtos.WmsDocumentDtos;
 using System;
 using System.Collections.Generic;
@@ -26,12 +27,22 @@ namespace Services.Mappers
 
             CreateMap<CellStatusLog, CellStatusDto>();
 
-            CreateMap<Pallet, PalletInfoDto>();
+            CreateMap<Pallet, PalletInfoDto>()
+                .ForMember(dest => dest.PalletTypeId, opt => opt.MapFrom(src => src.PalletTypeId))
+                .ForMember(dest => dest.PalletTypeName, opt => opt.MapFrom(src => src.PalletType.Name))
+                .ForMember(dest => dest.ArrivalDocumentId, opt => opt.MapFrom(src => src.ArrivalDocumentId))
+                .ForMember(dest => dest.ArrivalDate, opt => opt.MapFrom(src => src.ArrivalDocument.CreationDate))
+                .ForMember(dest => dest.CellIndex, opt => opt.MapFrom(src => src.CellIndex))
+                .ForMember(dest => dest.AlleyIndex, opt => opt.MapFrom(src => src.AlleyIndex));
+
+            CreateMap<PalletInfoDto, Pallet>();
 
             CreateMap<PalletType, PalletTypeInfoDto>()
                 .ForMember(dest => dest.Size, opt => opt.MapFrom(src => src.RequiredCapacity));
 
-            CreateMap<PalletType, PalletTypeLookupDto>();
+            CreateMap<PalletType, PalletTypeLookupDto>()
+                .ForMember(dest => dest.Size, opt => opt.MapFrom(src => src.RequiredCapacity))
+                .ForMember(dest => dest.Cost, opt => opt.MapFrom(src => src.Cost));
 
             CreateMap<PalletTypeCreationDto, PalletType>()
                 .ForMember(dest => dest.RequiredCapacity, opt => opt.MapFrom(src => src.Size))
@@ -57,15 +68,13 @@ namespace Services.Mappers
             CreateMap<ClientContractCost, ClientContractCostDto>();
 
             CreateMap<WmsDocument, WmsDocumentInfoDto>()
-                // Я припускаю, що у сутності поле називається CreatedDate, а в DTO - CreationDate
                 .ForMember(dest => dest.CreationDate, opt => opt.MapFrom(src => src.CreationDate))
-
                 .ForMember(dest => dest.DocumentTypeId, opt => opt.MapFrom(src => (int)src.DocumentType))
-
                 .ForMember(dest => dest.DocumentName, opt => opt.MapFrom(src =>
                     $"{(src.DocumentType == DocumentType.InboundReceipt ? "Прихід" : "Відправлення")} №{src.Id}"))
-
-                .ForMember(dest => dest.Items, opt => opt.MapFrom(src => src.Items));
+                .ForMember(dest => dest.Items, opt => opt.MapFrom(src => src.Items))
+                .ForMember(dest => dest.ClientName, opt => opt.MapFrom(src => src.Contract.Client.Name))
+                .ForMember(dest => dest.ContractName, opt => opt.MapFrom(src => src.Contract.Name));
 
             CreateMap<WmsDocumentItem, WmsDocumentItemDto>()
                 .ForMember(dest => dest.DocumentId, opt => opt.MapFrom(src => src.WmsDocumentId));
@@ -73,6 +82,21 @@ namespace Services.Mappers
 
             CreateMap<WarehouseSettings, WarehouseSettingsLookupDto>();
 
+            CreateMap<InventoryBalance, WarehouseRemainsDto>()
+                .ForMember(dest => dest.ClientId, opt => opt.MapFrom(src => src.ClientId))
+                .ForMember(dest => dest.ClientName, opt => opt.MapFrom(src => src.Client.Name))
+                .ForMember(dest => dest.ContractId, opt => opt.MapFrom(src => src.ContractId))
+                .ForMember(dest => dest.ContractName, opt => opt.MapFrom(src => src.Contract.Name))
+                .ForMember(dest => dest.PalletTypeId, opt => opt.MapFrom(src => src.PalletTypeId))
+                .ForMember(dest => dest.PalletTypeName, opt => opt.MapFrom(src => src.PalletType.Name))
+                .ForMember(dest => dest.TransactionDate, opt => opt.MapFrom(src => src.TransactionDate))
+                .ForMember(dest => dest.Amount, opt => opt.MapFrom(src => src.Amount))
+                .ForMember(dest => dest.DocumentId, opt => opt.MapFrom(src => src.DocumentId))
+                .ForMember(dest => dest.DocumentName, opt => opt.MapFrom(src =>
+                        $"{(src.Document.DocumentType == DocumentType.InboundReceipt ? "Прихід" : "Відправлення")} №{src.Document.Id}"))
+                .ForMember(dest => dest.BatchDocumentId, opt => opt.MapFrom(src => src.BatchDocumentId))
+                .ForMember(dest => dest.BatchDocumentName, opt => opt.MapFrom(src =>
+                        $"{(src.BatchDocument.DocumentType == DocumentType.InboundReceipt ? "Прихід" : "Відправлення")} №{src.BatchDocument.Id}"));
         }
     }
 }

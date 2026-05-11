@@ -215,28 +215,40 @@ namespace Infrastructure.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
+                    b.Property<int>("Amount")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("BatchDocumentId")
+                        .HasColumnType("integer");
+
                     b.Property<int>("ClientId")
                         .HasColumnType("integer");
 
                     b.Property<int>("ContractId")
                         .HasColumnType("integer");
 
+                    b.Property<int>("DocumentId")
+                        .HasColumnType("integer");
+
                     b.Property<int>("PalletTypeId")
                         .HasColumnType("integer");
 
-                    b.Property<int>("Quantity")
-                        .HasColumnType("integer");
+                    b.Property<DateTime>("TransactionDate")
+                        .HasColumnType("timestamp with time zone");
 
                     b.HasKey("Id");
 
+                    b.HasIndex("BatchDocumentId");
+
+                    b.HasIndex("ClientId");
+
                     b.HasIndex("ContractId");
+
+                    b.HasIndex("DocumentId");
 
                     b.HasIndex("PalletTypeId");
 
-                    b.HasIndex("ClientId", "ContractId", "PalletTypeId")
-                        .IsUnique();
-
-                    b.ToTable("InventoryBalance", (string)null);
+                    b.ToTable("InventoryBalances", (string)null);
                 });
 
             modelBuilder.Entity("Domain.Entities.Pallet", b =>
@@ -247,28 +259,28 @@ namespace Infrastructure.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<int?>("AlleyId")
+                    b.Property<int?>("AlleyIndex")
                         .HasColumnType("integer");
 
-                    b.Property<int?>("CellId")
+                    b.Property<int>("ArrivalDocumentId")
+                        .HasColumnType("integer");
+
+                    b.Property<int?>("CellIndex")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("PalletStatus")
                         .HasColumnType("integer");
 
                     b.Property<int>("PalletTypeId")
                         .HasColumnType("integer");
 
-                    b.Property<int>("Weight")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("WmsDocumentId")
-                        .HasColumnType("integer");
-
                     b.HasKey("Id");
+
+                    b.HasIndex("ArrivalDocumentId");
 
                     b.HasIndex("PalletTypeId");
 
-                    b.HasIndex("WmsDocumentId");
-
-                    b.HasIndex("AlleyId", "CellId");
+                    b.HasIndex("AlleyIndex", "CellIndex");
 
                     b.ToTable("pallets", (string)null);
                 });
@@ -280,6 +292,9 @@ namespace Infrastructure.Migrations
                         .HasColumnType("integer");
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("Cost")
+                        .HasColumnType("integer");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -328,10 +343,13 @@ namespace Infrastructure.Migrations
 
             modelBuilder.Entity("Domain.Entities.Sector", b =>
                 {
-                    b.Property<int>("AlleyIndex")
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("integer");
 
-                    b.Property<int>("SectorIndex")
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("AlleyIndex")
                         .HasColumnType("integer");
 
                     b.Property<int>("AlleyIndex1")
@@ -352,14 +370,14 @@ namespace Infrastructure.Migrations
                     b.Property<int>("FloorIndex")
                         .HasColumnType("integer");
 
-                    b.Property<int>("Id")
-                        .HasColumnType("integer");
-
                     b.Property<DateTime>("ReserveEndDate")
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<DateTime>("ReserveStartDate")
                         .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("SectorIndex")
+                        .HasColumnType("integer");
 
                     b.Property<int>("StartingCellAlleyIndex")
                         .HasColumnType("integer");
@@ -370,11 +388,13 @@ namespace Infrastructure.Migrations
                     b.Property<int>("StartingCellIndex")
                         .HasColumnType("integer");
 
-                    b.HasKey("AlleyIndex", "SectorIndex");
+                    b.HasKey("Id");
 
                     b.HasIndex("AlleyIndex1");
 
                     b.HasIndex("ContractId");
+
+                    b.HasIndex("AlleyIndex", "SectorIndex");
 
                     b.HasIndex("EndingCellAlleyIndex", "EndingCellCellIndex");
 
@@ -533,7 +553,7 @@ namespace Infrastructure.Migrations
 
                     b.HasIndex("WmsDocumentId");
 
-                    b.ToTable("WmsDocumentItems");
+                    b.ToTable("WmsDocumentItems", (string)null);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
@@ -735,6 +755,12 @@ namespace Infrastructure.Migrations
 
             modelBuilder.Entity("Domain.Entities.InventoryBalance", b =>
                 {
+                    b.HasOne("Domain.Entities.WmsDocument", "BatchDocument")
+                        .WithMany()
+                        .HasForeignKey("BatchDocumentId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
                     b.HasOne("Domain.Entities.Client", "Client")
                         .WithMany()
                         .HasForeignKey("ClientId")
@@ -747,43 +773,53 @@ namespace Infrastructure.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
+                    b.HasOne("Domain.Entities.WmsDocument", "Document")
+                        .WithMany()
+                        .HasForeignKey("DocumentId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
                     b.HasOne("Domain.Entities.PalletType", "PalletType")
                         .WithMany()
                         .HasForeignKey("PalletTypeId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
+                    b.Navigation("BatchDocument");
+
                     b.Navigation("Client");
 
                     b.Navigation("Contract");
+
+                    b.Navigation("Document");
 
                     b.Navigation("PalletType");
                 });
 
             modelBuilder.Entity("Domain.Entities.Pallet", b =>
                 {
+                    b.HasOne("Domain.Entities.WmsDocument", "ArrivalDocument")
+                        .WithMany("Pallets")
+                        .HasForeignKey("ArrivalDocumentId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
                     b.HasOne("Domain.Entities.PalletType", "PalletType")
                         .WithMany()
                         .HasForeignKey("PalletTypeId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Domain.Entities.WmsDocument", "WmsDocument")
-                        .WithMany("Pallets")
-                        .HasForeignKey("WmsDocumentId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
                     b.HasOne("Domain.Entities.Cell", "Cell")
                         .WithMany("StoredPallets")
-                        .HasForeignKey("AlleyId", "CellId")
+                        .HasForeignKey("AlleyIndex", "CellIndex")
                         .OnDelete(DeleteBehavior.Restrict);
+
+                    b.Navigation("ArrivalDocument");
 
                     b.Navigation("Cell");
 
                     b.Navigation("PalletType");
-
-                    b.Navigation("WmsDocument");
                 });
 
             modelBuilder.Entity("Domain.Entities.Payment", b =>
@@ -853,7 +889,7 @@ namespace Infrastructure.Migrations
                     b.HasOne("Domain.Entities.PalletType", "PalletType")
                         .WithMany()
                         .HasForeignKey("PalletTypeId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.HasOne("Domain.Entities.WmsDocument", "Document")

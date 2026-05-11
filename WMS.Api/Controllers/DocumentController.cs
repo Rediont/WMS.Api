@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Domain.Entities;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Services.Dtos.WmsDocumentDtos;
@@ -26,14 +27,14 @@ namespace WMS.Api.Controllers
         }
 
         [HttpGet("all")]
-        public async Task<ActionResult<List<WmsDocumentInfoDto>>> GetAllDocuments([FromQuery]int? page)
+        public async Task<IActionResult> GetAllDocuments([FromQuery]int? page)
         {
             var documents = await _wmsDocumentService.GetAllDocumentsAsync(page);
             return new OkObjectResult(documents);
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult<WmsDocumentInfoDto>> GetDocumentById([FromRoute]int id)
+        public async Task<IActionResult> GetDocumentById([FromRoute]int id)
         {
             var document = await _wmsDocumentService.GetDocumentByIdAsync(id);
             if (document == null)
@@ -44,16 +45,16 @@ namespace WMS.Api.Controllers
         }
 
         [HttpGet("get-by-ids")]
-        public async Task<ActionResult<List<WmsDocumentInfoDto>>> GetDocumentsByIds([FromBody] List<int> ids)
+        public async Task<IActionResult> GetDocumentsByIds([FromBody] List<int> ids)
         {
             var documents = await _wmsDocumentService.GetDocumentsByIdsAsync(ids);
             return new OkObjectResult(documents);
         }
 
-        [HttpPost("create")]
-        public async Task<ActionResult> CreateDocument(NewDocumentDto newDocument)
+        [HttpPost("create/receipt")]
+        public async Task<IActionResult> CreateReceiptAsync(NewDocumentDto newDocument)
         {
-            var requestedPalletIds = newDocument.items.Items.Keys.ToList();
+            var requestedPalletIds = newDocument.Items.Items.Keys.ToList();
 
             bool allValid = await _palletTypeService.AreAllPalletTypesValidAsync(requestedPalletIds);
 
@@ -62,9 +63,51 @@ namespace WMS.Api.Controllers
                 return BadRequest("One or more pallet types are invalid.");
             }
 
-            var result = await _wmsDocumentService.AddDocument(newDocument.documentTypeId, newDocument.contractId, newDocument.items);
+            var result = await _wmsDocumentService.CreateReceiptAsync(newDocument.ContractId, newDocument.ClientId, newDocument.CreationDate, newDocument.Items);
 
             return Ok(_mapper.Map<WmsDocumentInfoDto>(result));
+        }
+
+        [HttpPost("create/shipment-by-pallets")]
+        public async Task<IActionResult> CreateShipmentByPalletsAsync(NewShipmentDocumentDto newShipment)
+        {
+            try
+            {
+                var palletEntities = _mapper.Map<List<Pallet>>(newShipment.pallets);
+
+                var shipmentResult = await this._wmsDocumentService.CreateShipmentAsync(newShipment.ClientId, newShipment.ContractId, newShipment.Date, palletEntities);
+                return Ok(_mapper.Map<WmsDocumentInfoDto>(shipmentResult));
+
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        [HttpPost("create/shipment")]
+        public async Task<IActionResult> CreateShipmentAsync(NewDocumentDto newShipment)
+        {
+            try
+            {
+                var requestedPalletIds = newShipment.Items.Items.Keys.ToList();
+
+                bool allValid = await _palletTypeService.AreAllPalletTypesValidAsync(requestedPalletIds);
+
+                if (allValid)
+                {
+                    var shipmentResult = await this._wmsDocumentService.CreateShipmentAsync(newShipment.ClientId, newShipment.ContractId, newShipment.CreationDate, newShipment.Items);
+                    return Ok(_mapper.Map<WmsDocumentInfoDto>(shipmentResult));
+                }
+                else
+                {
+                    throw new Exception("Not all types of pallets are valid");
+                }
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
 
         [HttpPut("update/{documentId}")]

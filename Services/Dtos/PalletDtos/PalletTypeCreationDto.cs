@@ -11,5 +11,6 @@ namespace Services.Dtos.PalletDtos
         int Id { get; set; }
         public string Name { get; set; }
         public double Size { get; set; }
+        public double Cost { get; set; }
     }
 }

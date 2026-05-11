@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20260420144357_InitialMigration")]
-    partial class InitialMigration
+    [Migration("20260508142303_DbMigration1")]
+    partial class DbMigration1
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -186,7 +186,7 @@ namespace Infrastructure.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<int?>("ClientId")
+                    b.Property<int>("ClientId")
                         .HasColumnType("integer");
 
                     b.Property<int>("CurrentStatus")
@@ -210,7 +210,7 @@ namespace Infrastructure.Migrations
                     b.ToTable("Contracts", (string)null);
                 });
 
-            modelBuilder.Entity("Domain.Entities.InboundReceipt", b =>
+            modelBuilder.Entity("Domain.Entities.InventoryBalance", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -221,53 +221,37 @@ namespace Infrastructure.Migrations
                     b.Property<int>("Amount")
                         .HasColumnType("integer");
 
+                    b.Property<int>("BatchDocumentId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("ClientId")
+                        .HasColumnType("integer");
+
                     b.Property<int>("ContractId")
                         .HasColumnType("integer");
 
-                    b.Property<int>("ContractId1")
+                    b.Property<int>("DocumentId")
                         .HasColumnType("integer");
 
                     b.Property<int>("PalletTypeId")
                         .HasColumnType("integer");
 
-                    b.Property<DateTime>("ReceiptDate")
+                    b.Property<DateTime>("TransactionDate")
                         .HasColumnType("timestamp with time zone");
 
                     b.HasKey("Id");
 
+                    b.HasIndex("BatchDocumentId");
+
+                    b.HasIndex("ClientId");
+
                     b.HasIndex("ContractId");
 
-                    b.HasIndex("ContractId1");
+                    b.HasIndex("DocumentId");
 
                     b.HasIndex("PalletTypeId");
 
-                    b.ToTable("ContractReceipts", (string)null);
-                });
-
-            modelBuilder.Entity("Domain.Entities.OutboundShipment", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("ContractId")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("ContractId1")
-                        .HasColumnType("integer");
-
-                    b.Property<DateTime>("ShipmentDate")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ContractId");
-
-                    b.HasIndex("ContractId1");
-
-                    b.ToTable("ContractShipments", (string)null);
+                    b.ToTable("InventoryBalances", (string)null);
                 });
 
             modelBuilder.Entity("Domain.Entities.Pallet", b =>
@@ -278,43 +262,30 @@ namespace Infrastructure.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<int?>("AlleyId")
+                    b.Property<int?>("AlleyIndex")
                         .HasColumnType("integer");
 
-                    b.Property<int?>("CellId")
+                    b.Property<int>("ArrivalDocumentId")
                         .HasColumnType("integer");
 
-                    b.Property<int>("InboundReceiptId")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("InboundReceiptId1")
+                    b.Property<int?>("CellIndex")
                         .HasColumnType("integer");
 
                     b.Property<int>("PalletTypeId")
                         .HasColumnType("integer");
 
-                    b.Property<int?>("ShipmentId")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("weight")
-                        .HasColumnType("integer");
-
                     b.HasKey("Id");
 
-                    b.HasIndex("InboundReceiptId");
-
-                    b.HasIndex("InboundReceiptId1");
+                    b.HasIndex("ArrivalDocumentId");
 
                     b.HasIndex("PalletTypeId");
 
-                    b.HasIndex("ShipmentId");
-
-                    b.HasIndex("AlleyId", "CellId");
+                    b.HasIndex("AlleyIndex", "CellIndex");
 
                     b.ToTable("pallets", (string)null);
                 });
 
-            modelBuilder.Entity("Domain.Entities.PalletTypes", b =>
+            modelBuilder.Entity("Domain.Entities.PalletType", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -322,13 +293,16 @@ namespace Infrastructure.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
+                    b.Property<int>("Cost")
+                        .HasColumnType("integer");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)");
 
-                    b.Property<int>("RequiredCapacity")
-                        .HasColumnType("integer");
+                    b.Property<double>("RequiredCapacity")
+                        .HasColumnType("double precision");
 
                     b.HasKey("Id");
 
@@ -369,10 +343,13 @@ namespace Infrastructure.Migrations
 
             modelBuilder.Entity("Domain.Entities.Sector", b =>
                 {
-                    b.Property<int>("AlleyIndex")
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("integer");
 
-                    b.Property<int>("SectorIndex")
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("AlleyIndex")
                         .HasColumnType("integer");
 
                     b.Property<int>("AlleyIndex1")
@@ -393,14 +370,14 @@ namespace Infrastructure.Migrations
                     b.Property<int>("FloorIndex")
                         .HasColumnType("integer");
 
-                    b.Property<int>("Id")
-                        .HasColumnType("integer");
-
                     b.Property<DateTime>("ReserveEndDate")
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<DateTime>("ReserveStartDate")
                         .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("SectorIndex")
+                        .HasColumnType("integer");
 
                     b.Property<int>("StartingCellAlleyIndex")
                         .HasColumnType("integer");
@@ -411,11 +388,13 @@ namespace Infrastructure.Migrations
                     b.Property<int>("StartingCellIndex")
                         .HasColumnType("integer");
 
-                    b.HasKey("AlleyIndex", "SectorIndex");
+                    b.HasKey("Id");
 
                     b.HasIndex("AlleyIndex1");
 
                     b.HasIndex("ContractId");
+
+                    b.HasIndex("AlleyIndex", "SectorIndex");
 
                     b.HasIndex("EndingCellAlleyIndex", "EndingCellCellIndex");
 
@@ -525,6 +504,56 @@ namespace Infrastructure.Migrations
                             NumberOfCellsInAlley = 100,
                             NumberOfCellsInAlleyFloor = 20
                         });
+                });
+
+            modelBuilder.Entity("Domain.Entities.WmsDocument", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("ContractId")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime>("CreationDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("DocumentType")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ContractId");
+
+                    b.ToTable("WmsDocument", (string)null);
+                });
+
+            modelBuilder.Entity("Domain.Entities.WmsDocumentItem", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("ExpectedAmount")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("PalletTypeId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("WmsDocumentId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PalletTypeId");
+
+                    b.HasIndex("WmsDocumentId");
+
+                    b.ToTable("WmsDocumentItems", (string)null);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
@@ -690,7 +719,7 @@ namespace Infrastructure.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Domain.Entities.PalletTypes", "PalletType")
+                    b.HasOne("Domain.Entities.PalletType", "PalletType")
                         .WithMany()
                         .HasForeignKey("PalletTypeId")
                         .OnDelete(DeleteBehavior.Restrict)
@@ -715,85 +744,80 @@ namespace Infrastructure.Migrations
 
             modelBuilder.Entity("Domain.Entities.Contract", b =>
                 {
-                    b.HasOne("Domain.Entities.Client", null)
+                    b.HasOne("Domain.Entities.Client", "Client")
                         .WithMany("ContractList")
                         .HasForeignKey("ClientId")
-                        .OnDelete(DeleteBehavior.Restrict);
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Client");
                 });
 
-            modelBuilder.Entity("Domain.Entities.InboundReceipt", b =>
+            modelBuilder.Entity("Domain.Entities.InventoryBalance", b =>
                 {
-                    b.HasOne("Domain.Entities.Contract", null)
-                        .WithMany("Inbounds")
-                        .HasForeignKey("ContractId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                    b.HasOne("Domain.Entities.WmsDocument", "BatchDocument")
+                        .WithMany()
+                        .HasForeignKey("BatchDocumentId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Domain.Entities.Client", "Client")
+                        .WithMany()
+                        .HasForeignKey("ClientId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
 
                     b.HasOne("Domain.Entities.Contract", "Contract")
                         .WithMany()
-                        .HasForeignKey("ContractId1")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .HasForeignKey("ContractId")
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("Domain.Entities.PalletTypes", "PalletType")
+                    b.HasOne("Domain.Entities.WmsDocument", "Document")
+                        .WithMany()
+                        .HasForeignKey("DocumentId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Domain.Entities.PalletType", "PalletType")
                         .WithMany()
                         .HasForeignKey("PalletTypeId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
+                    b.Navigation("BatchDocument");
+
+                    b.Navigation("Client");
+
                     b.Navigation("Contract");
+
+                    b.Navigation("Document");
 
                     b.Navigation("PalletType");
                 });
 
-            modelBuilder.Entity("Domain.Entities.OutboundShipment", b =>
-                {
-                    b.HasOne("Domain.Entities.Contract", null)
-                        .WithMany("Outbounds")
-                        .HasForeignKey("ContractId")
-                        .OnDelete(DeleteBehavior.Cascade);
-
-                    b.HasOne("Domain.Entities.Contract", "Contract")
-                        .WithMany()
-                        .HasForeignKey("ContractId1")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Contract");
-                });
-
             modelBuilder.Entity("Domain.Entities.Pallet", b =>
                 {
-                    b.HasOne("Domain.Entities.InboundReceipt", null)
+                    b.HasOne("Domain.Entities.WmsDocument", "ArrivalDocument")
                         .WithMany("Pallets")
-                        .HasForeignKey("InboundReceiptId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .HasForeignKey("ArrivalDocumentId")
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("Domain.Entities.InboundReceipt", "InboundReceipt")
-                        .WithMany()
-                        .HasForeignKey("InboundReceiptId1")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Domain.Entities.PalletTypes", "PalletType")
+                    b.HasOne("Domain.Entities.PalletType", "PalletType")
                         .WithMany()
                         .HasForeignKey("PalletTypeId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Domain.Entities.OutboundShipment", null)
-                        .WithMany("ShippedPallets")
-                        .HasForeignKey("ShipmentId")
-                        .OnDelete(DeleteBehavior.Cascade);
-
                     b.HasOne("Domain.Entities.Cell", "Cell")
                         .WithMany("StoredPallets")
-                        .HasForeignKey("AlleyId", "CellId")
+                        .HasForeignKey("AlleyIndex", "CellIndex")
                         .OnDelete(DeleteBehavior.Restrict);
 
-                    b.Navigation("Cell");
+                    b.Navigation("ArrivalDocument");
 
-                    b.Navigation("InboundReceipt");
+                    b.Navigation("Cell");
 
                     b.Navigation("PalletType");
                 });
@@ -848,6 +872,35 @@ namespace Infrastructure.Migrations
                     b.Navigation("EndingCell");
 
                     b.Navigation("StartingCell");
+                });
+
+            modelBuilder.Entity("Domain.Entities.WmsDocument", b =>
+                {
+                    b.HasOne("Domain.Entities.Contract", "Contract")
+                        .WithMany("Documents")
+                        .HasForeignKey("ContractId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.Navigation("Contract");
+                });
+
+            modelBuilder.Entity("Domain.Entities.WmsDocumentItem", b =>
+                {
+                    b.HasOne("Domain.Entities.PalletType", "PalletType")
+                        .WithMany()
+                        .HasForeignKey("PalletTypeId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Domain.Entities.WmsDocument", "Document")
+                        .WithMany("Items")
+                        .HasForeignKey("WmsDocumentId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Document");
+
+                    b.Navigation("PalletType");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -918,19 +971,14 @@ namespace Infrastructure.Migrations
 
             modelBuilder.Entity("Domain.Entities.Contract", b =>
                 {
-                    b.Navigation("Inbounds");
-
-                    b.Navigation("Outbounds");
+                    b.Navigation("Documents");
                 });
 
-            modelBuilder.Entity("Domain.Entities.InboundReceipt", b =>
+            modelBuilder.Entity("Domain.Entities.WmsDocument", b =>
                 {
+                    b.Navigation("Items");
+
                     b.Navigation("Pallets");
-                });
-
-            modelBuilder.Entity("Domain.Entities.OutboundShipment", b =>
-                {
-                    b.Navigation("ShippedPallets");
                 });
 #pragma warning restore 612, 618
         }

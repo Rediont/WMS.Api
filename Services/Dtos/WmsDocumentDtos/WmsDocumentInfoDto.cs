@@ -13,7 +13,10 @@ namespace Services.Dtos.WmsDocumentDtos
         public int DocumentTypeId { get; set; }
         public string DocumentName { get; set; }
         public int ClientId { get; set; }
+        public string ClientName { get; set; }
         public int ContractId { get; set; }
+        public string ContractName { get; set; }
+
         public DateTime CreationDate { get; set; }
         public IEnumerable<WmsDocumentItemDto> Items { get; set; }
     }

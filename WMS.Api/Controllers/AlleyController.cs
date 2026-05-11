@@ -41,10 +41,10 @@ namespace WMS.Api.Controllers
             var alley = await _alleyService.GetAlleyByIdAsync(alleyId);
             if (alley == null)
             {
-                _logger.LogWarning("Alley with ID: {AlleyId} not found", alleyId);
+                _logger.LogWarning("Alley with ID: {AlleyIndex} not found", alleyId);
                 return new NotFoundResult();
             }
-            _logger.LogInformation("Retrieved alley with ID: {AlleyId}", alleyId);
+            _logger.LogInformation("Retrieved alley with ID: {AlleyIndex}", alleyId);
             return new OkObjectResult(alley);
         }
 

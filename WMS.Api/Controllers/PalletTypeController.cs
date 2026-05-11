@@ -27,7 +27,7 @@ namespace WMS.Api.Controllers
         public async Task<IActionResult> GetAllPalletTypes()
         {
             var palletTypes = await _palletTypeService.GetAllPalletTypesAsync();
-            return Ok(palletTypes);
+            return Ok(_mapper.Map<PalletTypeInfoDto>(palletTypes));
         }
         
         [HttpGet("{id}")]
@@ -36,7 +36,7 @@ namespace WMS.Api.Controllers
             try
             {
                 var palletType = await _palletTypeService.GetPalletTypeByIdAsync(id);
-                return Ok(palletType);
+                return Ok(_mapper.Map<PalletTypeInfoDto>(palletType));
             }
             catch (Exception ex)
             {

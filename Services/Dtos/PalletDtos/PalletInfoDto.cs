@@ -11,13 +11,14 @@ namespace Services.Dtos.PalletDtos
     {
         public int Id { get; set; }
 
-        public int InboundReceiptId { get; set; }
+        public int ArrivalDocumentId { get; set; }
+
         public DateTime ArrivalDate { get; set; }
 
         public int PalletTypeId { get; set; }
         public string PalletTypeName { get; set; }
 
-        public int? AlleyId { get; set; }
-        public int? CellId { get; set; }
+        public int? AlleyIndex { get; set; }
+        public int? CellIndex { get; set; }
     }
 }
