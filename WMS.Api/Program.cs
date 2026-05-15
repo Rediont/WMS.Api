@@ -104,6 +104,7 @@ builder.Services.AddScoped<IClientService,ClientService>();
 builder.Services.AddScoped<IWmsDocumentService, WmsDocumentService>();
 builder.Services.AddScoped<IPalletTypeService, PalletTypeService>();
 builder.Services.AddScoped<IPalletService, PalletService>();
+builder.Services.AddScoped<IPaymentService, PaymentService>();
 builder.Services.AddScoped<IInventoryBalanceService, InventoryBalanceService>();
 builder.Services.AddScoped<ISectorService, SectorService>();
 builder.Services.AddScoped<IContractService, ContractService>();

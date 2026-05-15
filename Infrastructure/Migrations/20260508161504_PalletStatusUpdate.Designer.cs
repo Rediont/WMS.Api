@@ -94,7 +94,7 @@ namespace Infrastructure.Migrations
                     b.Property<int>("AlleyId")
                         .HasColumnType("integer");
 
-                    b.Property<int>("Amount")
+                    b.Property<int>("TotalCost")
                         .HasColumnType("integer");
 
                     b.Property<int>("CellAlleyIndex")
@@ -218,7 +218,7 @@ namespace Infrastructure.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("Amount")
+                    b.Property<int>("TotalCost")
                         .HasColumnType("integer");
 
                     b.Property<int>("BatchDocumentId")
@@ -312,7 +312,7 @@ namespace Infrastructure.Migrations
                     b.ToTable("PalletTypes", (string)null);
                 });
 
-            modelBuilder.Entity("Domain.Entities.Payment", b =>
+            modelBuilder.Entity("Domain.Entities.Bill", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -320,7 +320,7 @@ namespace Infrastructure.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<decimal>("Amount")
+                    b.Property<decimal>("TotalCost")
                         .HasColumnType("numeric");
 
                     b.Property<int>("ContractId")
@@ -825,7 +825,7 @@ namespace Infrastructure.Migrations
                     b.Navigation("PalletType");
                 });
 
-            modelBuilder.Entity("Domain.Entities.Payment", b =>
+            modelBuilder.Entity("Domain.Entities.Bill", b =>
                 {
                     b.HasOne("Domain.Entities.Contract", "Contract")
                         .WithMany()

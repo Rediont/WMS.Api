@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20260508142303_DbMigration1")]
-    partial class DbMigration1
+    [Migration("20260515141145_BillItemsUpdate")]
+    partial class BillItemsUpdate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -45,6 +45,77 @@ namespace Infrastructure.Migrations
                     b.HasKey("AlleyIndex");
 
                     b.ToTable("Alleys", (string)null);
+                });
+
+            modelBuilder.Entity("Domain.Entities.Bill", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("ClientId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("ContractId")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime?>("PaymentDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("PaymentMethod")
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<DateTime>("PeriodEndDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime>("PeriodStartDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<decimal>("TotalCost")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ClientId");
+
+                    b.HasIndex("ContractId");
+
+                    b.ToTable("Bills", (string)null);
+                });
+
+            modelBuilder.Entity("Domain.Entities.BillItem", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("AmountOfDays")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("BillId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("PalletTypeId")
+                        .HasColumnType("integer");
+
+                    b.Property<decimal>("TotalPrice")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal>("UnitPrice")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("BillId");
+
+                    b.HasIndex("PalletTypeId");
+
+                    b.ToTable("BillItems", (string)null);
                 });
 
             modelBuilder.Entity("Domain.Entities.Cell", b =>
@@ -94,7 +165,7 @@ namespace Infrastructure.Migrations
                     b.Property<int>("AlleyId")
                         .HasColumnType("integer");
 
-                    b.Property<int>("TotalCost")
+                    b.Property<int>("Amount")
                         .HasColumnType("integer");
 
                     b.Property<int>("CellAlleyIndex")
@@ -218,7 +289,7 @@ namespace Infrastructure.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("TotalCost")
+                    b.Property<int>("Amount")
                         .HasColumnType("integer");
 
                     b.Property<int>("BatchDocumentId")
@@ -271,6 +342,9 @@ namespace Infrastructure.Migrations
                     b.Property<int?>("CellIndex")
                         .HasColumnType("integer");
 
+                    b.Property<int>("PalletStatus")
+                        .HasColumnType("integer");
+
                     b.Property<int>("PalletTypeId")
                         .HasColumnType("integer");
 
@@ -307,38 +381,6 @@ namespace Infrastructure.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("PalletTypes", (string)null);
-                });
-
-            modelBuilder.Entity("Domain.Entities.Bill", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<decimal>("TotalCost")
-                        .HasColumnType("numeric");
-
-                    b.Property<int>("ContractId")
-                        .HasColumnType("integer");
-
-                    b.Property<DateTime>("PaymentDate")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("PaymentMethod")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("clientId")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ContractId");
-
-                    b.ToTable("Payments");
                 });
 
             modelBuilder.Entity("Domain.Entities.Sector", b =>
@@ -688,6 +730,44 @@ namespace Infrastructure.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
+            modelBuilder.Entity("Domain.Entities.Bill", b =>
+                {
+                    b.HasOne("Domain.Entities.Client", "Client")
+                        .WithMany()
+                        .HasForeignKey("ClientId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Domain.Entities.Contract", "Contract")
+                        .WithMany()
+                        .HasForeignKey("ContractId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Client");
+
+                    b.Navigation("Contract");
+                });
+
+            modelBuilder.Entity("Domain.Entities.BillItem", b =>
+                {
+                    b.HasOne("Domain.Entities.Bill", "Bill")
+                        .WithMany("BillItems")
+                        .HasForeignKey("BillId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Domain.Entities.PalletType", "PalletType")
+                        .WithMany()
+                        .HasForeignKey("PalletTypeId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Bill");
+
+                    b.Navigation("PalletType");
+                });
+
             modelBuilder.Entity("Domain.Entities.Cell", b =>
                 {
                     b.HasOne("Domain.Entities.Alley", "Alley")
@@ -822,17 +902,6 @@ namespace Infrastructure.Migrations
                     b.Navigation("PalletType");
                 });
 
-            modelBuilder.Entity("Domain.Entities.Bill", b =>
-                {
-                    b.HasOne("Domain.Entities.Contract", "Contract")
-                        .WithMany()
-                        .HasForeignKey("ContractId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Contract");
-                });
-
             modelBuilder.Entity("Domain.Entities.Sector", b =>
                 {
                     b.HasOne("Domain.Entities.Alley", null)
@@ -957,6 +1026,11 @@ namespace Infrastructure.Migrations
             modelBuilder.Entity("Domain.Entities.Alley", b =>
                 {
                     b.Navigation("Sectors");
+                });
+
+            modelBuilder.Entity("Domain.Entities.Bill", b =>
+                {
+                    b.Navigation("BillItems");
                 });
 
             modelBuilder.Entity("Domain.Entities.Cell", b =>

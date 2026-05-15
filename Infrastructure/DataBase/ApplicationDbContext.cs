@@ -22,8 +22,10 @@ namespace Infrastructure.DataBase
         public DbSet<WmsDocument> Documents { get; set; }
         public DbSet<WmsDocumentItem> WmsDocumentItems { get; set; }
         public DbSet<Pallet> Pallets { get; set; }
-        public DbSet<Payment> Payments { get; set; }
-
+        public DbSet<Bill> Bills { get; set; }
+        public DbSet<PalletType> PalletTypes { get; set; }
+        public DbSet<BillItem> BillItems { get; set; }
+        public DbSet<InventoryBalance> InventoryBalances { get; set; }
         public DbSet<WarehouseSettings> WarehouseOptions { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)

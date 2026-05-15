@@ -10,7 +10,6 @@ namespace Services.Dtos.ContractDtos
     public class ContractShipmentsInfoDto
     {
         public int ContractId { get; set; }
-        public List<OutboundShipmentDto> OutboundShipments { get; set; }
         public List<WmsDocumentInfoDto> InboundReceipts { get; set; }
     }
 }

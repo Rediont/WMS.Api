@@ -7,6 +7,7 @@ using Services.Dtos.ContractDtos;
 using Services.Dtos.LookupDtos;
 using Services.Dtos.LookUpDtos;
 using Services.Dtos.PalletDtos;
+using Services.Dtos.PaymentDto;
 using Services.Dtos.WarehouseRemains;
 using Services.Dtos.WmsDocumentDtos;
 using System;
@@ -83,20 +84,23 @@ namespace Services.Mappers
             CreateMap<WarehouseSettings, WarehouseSettingsLookupDto>();
 
             CreateMap<InventoryBalance, WarehouseRemainsDto>()
-                .ForMember(dest => dest.ClientId, opt => opt.MapFrom(src => src.ClientId))
                 .ForMember(dest => dest.ClientName, opt => opt.MapFrom(src => src.Client.Name))
-                .ForMember(dest => dest.ContractId, opt => opt.MapFrom(src => src.ContractId))
                 .ForMember(dest => dest.ContractName, opt => opt.MapFrom(src => src.Contract.Name))
-                .ForMember(dest => dest.PalletTypeId, opt => opt.MapFrom(src => src.PalletTypeId))
                 .ForMember(dest => dest.PalletTypeName, opt => opt.MapFrom(src => src.PalletType.Name))
-                .ForMember(dest => dest.TransactionDate, opt => opt.MapFrom(src => src.TransactionDate))
-                .ForMember(dest => dest.Amount, opt => opt.MapFrom(src => src.Amount))
-                .ForMember(dest => dest.DocumentId, opt => opt.MapFrom(src => src.DocumentId))
                 .ForMember(dest => dest.DocumentName, opt => opt.MapFrom(src =>
                         $"{(src.Document.DocumentType == DocumentType.InboundReceipt ? "Прихід" : "Відправлення")} №{src.Document.Id}"))
-                .ForMember(dest => dest.BatchDocumentId, opt => opt.MapFrom(src => src.BatchDocumentId))
                 .ForMember(dest => dest.BatchDocumentName, opt => opt.MapFrom(src =>
                         $"{(src.BatchDocument.DocumentType == DocumentType.InboundReceipt ? "Прихід" : "Відправлення")} №{src.BatchDocument.Id}"));
+
+            CreateMap<Bill, BillDto>()
+                .ForMember(dest => dest.Items, opt => opt.MapFrom(src => src.BillItems))
+                .ForMember(dest => dest.TotalCost, opt => opt.MapFrom(src => src.TotalCost))
+                .ForMember(dest => dest.ClientName, opt => opt.MapFrom(src => src.Client.Name))
+                .ForMember(dest => dest.ContractName, opt => opt.MapFrom(src => src.Contract.Name));
+
+            CreateMap<BillItem, BillItemDto>()
+                .ForMember(dest => dest.CostPerDay, opt => opt.MapFrom(src => src.UnitPrice))
+                .ForMember(dest => dest.TotalCost, opt => opt.MapFrom(src => src.TotalPrice));
         }
     }
 }

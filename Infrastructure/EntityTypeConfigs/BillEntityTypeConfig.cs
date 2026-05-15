@@ -9,20 +9,28 @@ using System.Threading.Tasks;
 
 namespace Infrastructure.EntityTypeConfigs
 {
-    internal class PaymentEntityTypeConfig : IEntityTypeConfiguration<Payment>
+    internal class BillEntityTypeConfig : IEntityTypeConfiguration<Bill>
     {
-        public void Configure(EntityTypeBuilder<Payment> builder)
+        public void Configure(EntityTypeBuilder<Bill> builder)
         {
-            builder.ToTable("Payments");
+            builder.ToTable("Bills");
 
             builder.HasKey(p => p.Id);
 
-            builder.Property(p => p.Amount)
+            builder.Property(p => p.TotalCost)
                 .IsRequired()
                 .HasColumnType("decimal(18,2)");
 
-            builder.Property(p => p.CreationDate)
+            builder.Property(p => p.PeriodStartDate)
+                .HasColumnType("timestamp with time zone")
                 .IsRequired();
+
+            builder.Property(p => p.PeriodEndDate)
+                .HasColumnType("timestamp with time zone")
+                .IsRequired();
+
+            builder.Property(p => p.PaymentDate)
+                .HasColumnType("timestamp with time zone");
 
             builder.Property(p => p.PaymentMethod)
                 .HasMaxLength(50); 

@@ -80,7 +80,10 @@ namespace WMS.Api.Controllers
                 return new NotFoundResult();
             }
 
-            ContractStatus status = ContractStatus.Inactive;
+            var startDate = contractDataDto.StartDate.ToUniversalTime();
+            var endDate = contractDataDto.EndDate.ToUniversalTime();
+
+            ContractStatus status = contractDataDto.currentStatus;
 
             if (contractDataDto.StartDate.Date == DateTime.Today)
             {
@@ -89,8 +92,8 @@ namespace WMS.Api.Controllers
 
             var contract = await _contractService.AddContractAsync(
                 contractDataDto.Name,
-                contractDataDto.StartDate,
-                contractDataDto.EndDate,
+                startDate,
+                endDate,
                 status
             );
 
