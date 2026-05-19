@@ -29,19 +29,14 @@ namespace Services.Services
 
             if (alley == null) throw new ArgumentException("Alley not found");
 
-            // Витягуємо всі комірки для цієї алеї
             var cells = await _cellRepository.Query()
                 .Where(c => c.AlleyIndex == alleyIndex)
                 .ToListAsync();
 
-            // Ініціалізуємо матрицю [Поверх, Комірка]
             var matrix = new double[alley.NumberOfFloors, alley.CellsPerFloor];
 
             foreach (var cell in cells)
             {
-                // Записуємо залишок місткості.
-                // УВАГА: Треба переконатися, що FloorIndex та CellIndex починаються з 0,
-                // або віднімай 1, якщо вони починаються з 1
                 matrix[cell.FloorIndex, cell.CellIndex] = cell.TotalCapacity - cell.UsedCapacity;
             }
 

@@ -2,6 +2,7 @@
 using Domain.Entities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Services.Dtos.Alley;
 using Services.Dtos.CellDtos;
 using Services.Interfaces;
 
@@ -46,6 +47,22 @@ namespace WMS.Api.Controllers
             }
             _logger.LogInformation("Retrieved alley with ID: {AlleyIndex}", alleyId);
             return new OkObjectResult(alley);
+        }
+
+        [HttpGet("occupancy")]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<AlleyOccupancyDto>))]
+        public async Task<IActionResult> GetAlleysOccupancyRate()
+        {
+            var occupancyRates = await _alleyService.GetAlleysOccupancyRateAsync();
+            return new OkObjectResult(occupancyRates);
+        }
+
+        [HttpGet("{alleyId}/occupancy-map")]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<AlleyCellOccupancyMapDto>))]
+        public async Task<IActionResult> GetAlleySlottingOccupancy([FromRoute] int alleyId)
+        {
+            var cellMap = await _alleyService.GetCellMapForAlleyAsync(alleyId);
+            return new OkObjectResult(cellMap);
         }
 
         [HttpGet("{alleyId}/slotting/available-cells")]

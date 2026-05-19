@@ -2,7 +2,8 @@
 using Domain.Entities;
 using Infrastructure.Interfaces;
 using Microsoft.EntityFrameworkCore;
-using Services.Dtos;
+using Services.Dtos.Alley;
+using Services.Dtos.CellDtos;
 using Services.Interfaces;
 using System.Threading.Tasks;
 
@@ -14,9 +15,10 @@ namespace Services.Services
         private readonly IRepository<Cell> _cellRepository;
         private readonly ISectorService _sectorService;
         private readonly IMapper _mapper;
-        public AlleyService(IRepository<Alley> alleyRepository, ISectorService sectorService, IMapper mapper)
+        public AlleyService(IRepository<Alley> alleyRepository, IRepository<Cell> cellRepository, ISectorService sectorService, IMapper mapper)
         {
             _alleyRepository = alleyRepository;
+            _cellRepository = cellRepository;
             _sectorService = sectorService;
             _mapper = mapper;
         }
@@ -52,24 +54,48 @@ namespace Services.Services
             await _alleyRepository.SaveChangesAsync();
         }
 
-        public async Task<List<int>> GetAlleysOccupancyRateAsync()
+        public async Task<IEnumerable<AlleyOccupancyDto>> GetAlleysOccupancyRateAsync()
         {
-            var alleyStats = await _cellRepository.Query()
-                .GroupBy(c => c.AlleyIndex)
-                .Select(g => new
+            var result = await _alleyRepository.Query()
+                .Select(alley => new AlleyOccupancyDto
                 {
-                    AlleyIndex = g.Key,
-                    TotalCells = g.Count(),
-                    OccupiedCells = g.Count(c => c.IsOccupied)
+                    AlleyId = alley.AlleyIndex,
+                    // Якщо комірок немає або сума місткості 0, повертаємо 0
+                    OccupancyPercentage = alley.Cells.Sum(c => c.TotalCapacity) > 0
+                        ? Math.Round(alley.Cells.Sum(c => c.UsedCapacity) * 100 / alley.Cells.Sum(c => c.TotalCapacity), 2)
+                        : 0
                 })
-                .OrderBy(x => x.AlleyIndex) 
+                .OrderBy(dto => dto.AlleyId)
                 .ToListAsync();
 
-            var percentages = alleyStats
-                .Select(stat => stat.TotalCells == 0 ? 0 : (stat.OccupiedCells * 100) / stat.TotalCells)
+            return result;
+        }
+
+        public async Task<IEnumerable<AlleyCellOccupancyMapDto>> GetCellMapForAlleyAsync(int alleyIndex)
+        {
+            var cells = await _cellRepository.Query()
+                .Where(c => c.AlleyIndex == alleyIndex)
+                .ToListAsync();
+
+            var map = cells
+                .GroupBy(c => c.FloorIndex)
+                .Select(floorGroup => new AlleyCellOccupancyMapDto
+                {
+                    AlleyIndex = alleyIndex,
+                    FloorIndex = floorGroup.Key,
+                    CellOccupancies = floorGroup
+                        .OrderBy(c => c.CellIndex)
+                        .Select(c => new CellOccupancyDto
+                        {
+                            CellIndex = c.CellIndex,
+                            FreeCapacity = Math.Max(0, c.TotalCapacity - c.UsedCapacity)
+                        })
+                        .ToList()
+                })
+                .OrderByDescending(f => f.FloorIndex)
                 .ToList();
 
-            return percentages;
+            return map;
         }
 
         // потенційно непотрібно

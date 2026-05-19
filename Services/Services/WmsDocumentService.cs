@@ -19,6 +19,7 @@ namespace Services.Services
         private readonly IRepository<WmsDocument> _wmsDocumentRepository;
         private readonly IRepository<InventoryBalance> _balanceRepository;
         private readonly IRepository<Pallet> _palletRepository;
+        private readonly IRepository<Cell> _cellRepository;
         private readonly ILogger<WmsDocumentService> _logger;
         private readonly IMapper _mapper;
 
@@ -26,12 +27,14 @@ namespace Services.Services
             IRepository<WmsDocument> wmsDocumentRepository,
             IRepository<InventoryBalance> balanceRepository,
             IRepository<Pallet> palletRepository,
+            IRepository<Cell> cellRepository,
             ILogger<WmsDocumentService> logger,
             IMapper mapper)
         {
             _wmsDocumentRepository = wmsDocumentRepository;
             _balanceRepository = balanceRepository;
             _palletRepository = palletRepository;
+            _cellRepository = cellRepository;
             _logger = logger;
             _mapper = mapper;
         }
@@ -45,16 +48,18 @@ namespace Services.Services
             return _mapper.Map<IEnumerable<WmsDocumentInfoDto>>(documents);
         }
 
-        public Task<WmsDocumentInfoDto> GetDocumentByIdAsync(int id)
+        public async Task<WmsDocumentInfoDto> GetDocumentByIdAsync(int id)
         {
-            var document = _wmsDocumentRepository.GetByIdAsync(id);
-            return _mapper.Map<Task<WmsDocumentInfoDto>>(document);
+            var document = await _wmsDocumentRepository.GetByIdAsync(id);
+
+            var dto = _mapper.Map<WmsDocumentInfoDto>(document);
+            return dto;
         }
 
-        public Task<List<WmsDocumentInfoDto>> GetDocumentsByIdsAsync(List<int> ids)
+        public async Task<List<WmsDocumentInfoDto>> GetDocumentsByIdsAsync(List<int> ids)
         {
-            var documents = _wmsDocumentRepository.GetByIdsAsync(ids);
-            return _mapper.Map<Task<List<WmsDocumentInfoDto>>>(documents);
+            var documents = await _wmsDocumentRepository.GetByIdsAsync(ids);
+            return _mapper.Map<List<WmsDocumentInfoDto>>(documents);
         }
 
         public async Task<WmsDocument> CreateReceiptAsync(int contractId, int clientId, DateTime date, NewDocumentItemsDto newItems)
@@ -135,14 +140,13 @@ namespace Services.Services
                     .Select(g => new
                     {
                         BatchDocumentId = g.Key,
-                        RemainingAmount = g.Sum(x => x.Amount), // Вираховуємо залишок партії (прихід - попередні відправки)
-                        ReceiptDate = g.Min(x => x.TransactionDate) // Беремо дату створення цієї партії
+                        RemainingAmount = g.Sum(x => x.Amount),
+                        ReceiptDate = g.Min(x => x.TransactionDate) 
                     })
-                    .Where(b => b.RemainingAmount > 0) // Відкидаємо пусті партії
+                    .Where(b => b.RemainingAmount > 0)
                     .OrderBy(b => b.ReceiptDate) // Сортуємо: від найстарішого (FIFO)
                     .ToListAsync();
 
-                // Перевіряємо, чи взагалі вистачає палет на складі
                 int totalAvailable = availableBatches.Sum(b => b.RemainingAmount);
                 if (totalAvailable < amountRequired)
                 {
@@ -153,12 +157,10 @@ namespace Services.Services
 
                 foreach (var batch in availableBatches)
                 {
-                    if (amountToFulfill <= 0) break; // Якщо зібрали потрібну кількість - зупиняємо цикл
+                    if (amountToFulfill <= 0) break;
 
                     // Беремо рівно стільки, скільки нам треба, АБО скільки залишилося в цій партії (що менше)
                     int amountToTake = Math.Min(batch.RemainingAmount, amountToFulfill);
-
-                    // Створюємо запис балансу (але поки без DocumentId, бо він ще не згенерований)
                     plannedBalanceRecords.Add(new InventoryBalance
                     {
                         ClientId = clientId,
@@ -169,7 +171,6 @@ namespace Services.Services
                         BatchDocumentId = batch.BatchDocumentId // Вказуємо, з якої партії ми це забрали
                     });
 
-                    // Зменшуємо кількість, яку ще залишилося знайти
                     amountToFulfill -= amountToTake;
                 }
             }
@@ -230,6 +231,9 @@ namespace Services.Services
 
             var plannedBalanceRecords = new List<InventoryBalance>();
 
+            // Створюємо загальний список усіх палет, які ми реально вирішили відвантажити за всіма батчами
+            var allShippedPallets = new List<Pallet>();
+
             foreach (var item in newItems.Items)
             {
                 int palletTypeId = item.Key;
@@ -241,19 +245,18 @@ namespace Services.Services
                     ExpectedAmount = amountRequired
                 });
 
-                // Шукаємо партії (приходи), де є залишки, і сортуємо від найстарішої (FIFO)
                 var availableBatches = await _balanceRepository.Query()
                     .Where(b => b.ClientId == clientId
                              && b.ContractId == contractId
                              && b.PalletTypeId == palletTypeId)
-                    .GroupBy(b => b.BatchDocumentId) // Групуємо по ID приходу (партії)
+                    .GroupBy(b => b.BatchDocumentId)
                     .Select(g => new
                     {
                         BatchDocumentId = g.Key,
-                        RemainingAmount = g.Sum(x => x.Amount), // Залишок партії
-                        ReceiptDate = g.Min(x => x.TransactionDate) // Дата партії
+                        RemainingAmount = g.Sum(x => x.Amount),
+                        ReceiptDate = g.Min(x => x.TransactionDate)
                     })
-                    .Where(b => b.RemainingAmount > 0) // Відкидаємо пусті
+                    .Where(b => b.RemainingAmount > 0)
                     .OrderBy(b => b.ReceiptDate)
                     .ToListAsync();
 
@@ -277,15 +280,17 @@ namespace Services.Services
                         ContractId = contractId,
                         PalletTypeId = palletTypeId,
                         TransactionDate = shipmentDocument.CreationDate,
-                        Amount = -amountToTake, // Списуємо баланс
+                        Amount = -amountToTake,
                         BatchDocumentId = batch.BatchDocumentId
                     });
 
+                    // Витягуємо фізичні палети
                     var physicalPallets = await _palletRepository.Query()
-                        .Where(p => p.ArrivalDocumentId == batch.BatchDocumentId // Палети саме з цього приходу
+                        .Include(p => p.PalletType)
+                        .Where(p => p.ArrivalDocumentId == batch.BatchDocumentId
                                  && p.PalletTypeId == palletTypeId
                                  && p.PalletStatus != PalletStatus.Shipped)
-                        .Take(amountToTake) // Беремо рівно стільки, скільки списуємо зараз
+                        .Take(amountToTake)
                         .ToListAsync();
 
                     foreach (var pallet in physicalPallets)
@@ -293,10 +298,44 @@ namespace Services.Services
                         pallet.PalletStatus = PalletStatus.Shipped;
                         shipmentDocument.Pallets.Add(pallet);
                         this._palletRepository.Update(pallet);
+
+                        allShippedPallets.Add(pallet);
                     }
 
                     amountToFulfill -= amountToTake;
                 }
+            }
+
+            var allCellIndexes = allShippedPallets
+                .Where(p => p.CellIndex.HasValue)
+                .Select(p => p.CellIndex.Value)
+                .Distinct()
+                .ToList();
+
+            if (allCellIndexes.Any())
+            {
+                var cellsToUpdate = await _cellRepository.Query()
+                    .Where(c => allCellIndexes.Contains(c.CellIndex))
+                    .ToListAsync();
+
+                foreach (var cell in cellsToUpdate)
+                {
+                    var spaceToRemove = allShippedPallets
+                        .Where(p => p.CellIndex == cell.CellIndex)
+                        .Sum(p => p.PalletType?.RequiredCapacity ?? 1);
+
+                    cell.UsedCapacity = Math.Max(0, cell.UsedCapacity - spaceToRemove);
+                    cell.IsOccupied = cell.UsedCapacity >= cell.TotalCapacity;
+
+                    this._cellRepository.Update(cell);
+                }
+            }
+
+            foreach (var pallet in allShippedPallets)
+            {
+                pallet.CellIndex = null;
+                pallet.AlleyIndex = null;
+                this._palletRepository.Update(pallet);
             }
 
             await _wmsDocumentRepository.AddAsync(shipmentDocument);
@@ -310,6 +349,7 @@ namespace Services.Services
 
             await _balanceRepository.SaveChangesAsync();
             await _palletRepository.SaveChangesAsync();
+            await _cellRepository.SaveChangesAsync(); 
 
             return shipmentDocument;
         }

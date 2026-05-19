@@ -1,6 +1,7 @@
 ﻿using Domain.Entities;
 using Infrastructure.Interfaces;
-using Services.Dtos;
+using Services.Dtos.Alley;
+using Services.Dtos.CellDtos;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,7 +16,9 @@ namespace Services.Interfaces
 
         public Task<AlleyDto> GetAlleyByIdAsync(int id);
 
-        public Task<List<int>> GetAlleysOccupancyRateAsync();
+        public Task<IEnumerable<AlleyOccupancyDto>> GetAlleysOccupancyRateAsync();
+
+        public Task<IEnumerable<AlleyCellOccupancyMapDto>> GetCellMapForAlleyAsync(int alleyIndex);
 
         public void AddAlley(WarehouseSettings options);
 

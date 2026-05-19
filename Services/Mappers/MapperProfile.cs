@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Domain.Entities;
 using global::Services.Dtos;
+using Services.Dtos.Alley;
 using Services.Dtos.CellDtos;
 using Services.Dtos.ClientDtos;
 using Services.Dtos.ContractDtos;

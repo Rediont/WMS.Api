@@ -16,6 +16,8 @@ namespace Domain.Entities
         public int CellsPerFloor { get; set; }
 
         public ICollection<Sector> Sectors { get; set; } = new List<Sector>();
+
+        public ICollection<Cell> Cells { get; set; } = new List<Cell>();
     }
 
 }

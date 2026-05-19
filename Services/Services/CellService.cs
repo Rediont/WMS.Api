@@ -77,10 +77,10 @@ namespace Services.Services
             return true;
         }
 
-        public async Task<bool> AddMultiplePalletsAsync()
-        {
+        //public async Task<bool> AddMultiplePalletsAsync()
+        //{
             
-        }
+        //}
 
         public async Task<bool> RemovePalletFromCell(int cellId, int palletId)
         {

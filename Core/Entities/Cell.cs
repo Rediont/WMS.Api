@@ -18,7 +18,7 @@ namespace Domain.Entities
 
         public double TotalCapacity { get; private set; } = 3;
 
-        [Column("usedCapacity")]
+        [Column("UsedCapacity")]
         public double UsedCapacity { get; set; } = 0;
 
         [Column("isOccupied")]

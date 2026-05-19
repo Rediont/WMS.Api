@@ -20,6 +20,11 @@ namespace Infrastructure.EntityTypeConfigs
                    .WithOne()
                    .HasForeignKey("AlleyIndex")
                    .OnDelete(DeleteBehavior.Restrict);
+
+            builder.HasMany(a => a.Cells)
+                    .WithOne()
+                    .HasForeignKey("AlleyIndex")
+                    .OnDelete(DeleteBehavior.Restrict);
         }
     }
 }

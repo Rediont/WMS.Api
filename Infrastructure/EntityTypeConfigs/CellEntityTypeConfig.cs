@@ -36,10 +36,11 @@ namespace Infrastructure.EntityTypeConfigs
                 .HasForeignKey(p => new { p.AlleyIndex, p.CellIndex })
                 .OnDelete(DeleteBehavior.Restrict);
 
-            //builder.HasOne(c => c.item)
-            //       .WithOne()
-            //       .HasForeignKey<Item>("CellAlleyIndex", "CellIndex")
-            //       .OnDelete(DeleteBehavior.SetNull);
+            builder.HasOne(c => c.Alley)
+                .WithMany(a => a.Cells)
+                .HasForeignKey(c => c.AlleyIndex)
+                .HasPrincipalKey(a => a.AlleyIndex)
+                .OnDelete(DeleteBehavior.Cascade);
         }
     }
 }

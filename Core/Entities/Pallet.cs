@@ -10,7 +10,7 @@ namespace Domain.Entities
 
     public enum PalletStatus
     {
-        Arrivided,
+        Arrived,
         Arranged,
         Stored,
         Shipped
