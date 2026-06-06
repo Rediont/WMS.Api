@@ -22,8 +22,15 @@ namespace WMS.Api.Controllers
             _logger = logger;
         }
 
-        [HttpGet("pallets")]
-        public async Task<IActionResult> GetAllPallets([FromQuery] PalletFilterDto palletFilter, [FromQuery] int? page)
+        [HttpGet("total-pages")]
+        public async Task<IActionResult> GetTotalPagesAsync()
+        {
+            var result = await this._inventoryService.GetTotalPagesAsync();
+            return new OkObjectResult(result);
+        }
+
+        [HttpGet("pallets/all")]
+        public async Task<IActionResult> GetAllPallets([FromBody] PalletFilterDto? palletFilter, [FromQuery] int? page)
         {
             try
             {

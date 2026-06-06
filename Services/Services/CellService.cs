@@ -100,5 +100,17 @@ namespace Services.Services
             cell.StoredPallets.Remove(pallet);
             return true;
         }
+
+        public async Task<CellStatsDto> GetCellStatsAsync()
+        {
+            var stats = new CellStatsDto
+            {
+                FreeCells = await _cellRepository.CountAsync(c => c.UsedCapacity == 0 && !c.IsOccupied),
+                OccupiedCells = await _cellRepository.CountAsync(c => c.UsedCapacity > 0 && !c.IsOccupied),
+                BlockedCells = await _cellRepository.CountAsync(c => c.IsOccupied)
+
+            };
+            return stats;
+        }
     }
 }

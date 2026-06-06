@@ -21,6 +21,13 @@ namespace WMS.Api.Controllers
             _logger = logger;
         }
 
+        [HttpGet("all")]
+        public IActionResult GetAllPaymentsAsync([FromQuery]int? page)
+        {
+            var payments = _paymentService.GetAllPaymentRecords(page ?? 0).Result;
+            return Ok(payments);
+        }
+
         [HttpPost("calculate")]
         public async Task<IActionResult> Calculate([FromBody] BillRequestDto request)
         {

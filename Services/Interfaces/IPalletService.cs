@@ -11,9 +11,11 @@ namespace Services.Interfaces
 {
     public interface IPalletService
     {
+        public Task<int> GetTotalPagesAsync();
+
         public Task<IEnumerable<PalletInfoDto>> GetAllPalletsAsync(int? page);
 
-        public Task<IEnumerable<PalletInfoDto>> GetAllPalletsAsync(PalletFilterDto palletFilter, int? page);
+        public Task<IEnumerable<PalletInfoDto>> GetAllPalletsAsync(PalletFilterDto? palletFilter, int? page);
 
         public Task<PalletInfoDto?> GetPalletByIdAsync(int id);
 

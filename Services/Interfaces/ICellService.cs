@@ -21,5 +21,7 @@ namespace Services.Interfaces
         public Task<bool> AddPalletToCell(int cellId, int palletId);
 
         public Task<bool> RemovePalletFromCell(int cellId, int palletId);
+
+        public Task<CellStatsDto> GetCellStatsAsync();
     }
 }

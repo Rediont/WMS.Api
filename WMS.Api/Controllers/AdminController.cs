@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Services.Dtos;
 using Services.Interfaces;
 
@@ -56,6 +57,30 @@ namespace WMS.Api.Controllers
             }
 
             return BadRequest(result.Errors);
+        }
+
+
+        [Authorize(Roles = "Admin")]
+        [HttpGet("all")]
+        public async Task<IActionResult> GetUsers()
+        {
+            var users = await _userManager.Users.ToListAsync();
+
+            var userList = new List<object>();
+
+            foreach (var user in users)
+            {
+                var roles = await _userManager.GetRolesAsync(user);
+                userList.Add(new
+                {
+                    Id = user.Id,
+                    Email = user.Email,
+                   
+                    Role = roles.FirstOrDefault() ?? ""
+                });
+            }
+
+            return Ok(userList);
         }
 
         [HttpPost("update-warehouse-settings")]

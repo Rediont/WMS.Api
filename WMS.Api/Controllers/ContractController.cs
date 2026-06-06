@@ -12,7 +12,7 @@ namespace WMS.Api.Controllers
 {
     [ApiController]
     [Route("[controller]")]
-    [Authorize(Roles = "Admin, Manager")]
+    [Authorize(Roles = "Admin, Worker")]
     public class ContractController
     {
         private readonly IContractService _contractService;
@@ -45,7 +45,7 @@ namespace WMS.Api.Controllers
                 }
                 else
                 {
-                    var contracts = await _contractService.GetAllContractsAsync(filter, page);
+                    var contracts = await _contractService.GetAllContractsAsync(filter: filter, page: page ?? 0);
                     _logger.LogInformation("Retrieved {ContractCount} contracts", contracts.Count());
                     return new OkObjectResult(contracts);
                 }
@@ -149,10 +149,14 @@ namespace WMS.Api.Controllers
             return new OkObjectResult(await _contractService.LookupTotalPageCount());
         }
 
-        //[HttpGet("info")]
-        //public async Task<IActionResult> GetContractDetails([FromQuery] int id)
-        //{
-            
-        //}
+        [HttpGet("{contractId}/details")]
+        public async Task<IActionResult> GetContractDetails([FromRoute] int contractId)
+        {
+            var contractDetails = await _contractService.GetContractDetailsAsync(contractId);
+
+            return contractDetails == null
+                ? new NotFoundResult()
+                : new OkObjectResult(contractDetails);
+        }
     }
 }

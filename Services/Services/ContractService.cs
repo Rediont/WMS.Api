@@ -12,49 +12,56 @@ namespace Services.Services
     public class ContractService : IContractService
     {
         private readonly IRepository<Contract> _contractRepository;
+        private readonly IRepository<WmsDocument> _wmsDocumentRepository;
         private readonly IMapper _mapper;
 
-        public ContractService(IRepository<Contract> contractRepository, IMapper mapper)
+        public ContractService(IRepository<Contract> contractRepository, IRepository<WmsDocument> wmsDocumentRepository, IMapper mapper)
         {
             _contractRepository = contractRepository;
+            _wmsDocumentRepository = wmsDocumentRepository;
             _mapper = mapper;
         }
 
         public async Task<IEnumerable<ContractDto>> GetAllContractsAsync(int? page)
         {
-            var contracts = await _contractRepository.GetAllAsync(page);
+            int pageSize = 20;
+            int pageIndex = page ?? 0;
+
+            var contracts = await _contractRepository.Query()
+                .OrderBy(c => c.Id)
+                .Skip(pageIndex * pageSize)
+                .Take(pageSize)
+                .ToListAsync(); 
+
             return _mapper.Map<IEnumerable<ContractDto>>(contracts);
         }
 
-        public async Task<IEnumerable<ContractDto>> GetAllContractsAsync(ContractFilterDto filter, int? page = 1)
+        public async Task<IEnumerable<ContractDto>> GetAllContractsAsync(ContractFilterDto filter, int? page)
         {
             var query = _contractRepository.Query();
 
-            // 1. Фільтрація за списком клієнтів (Виправлено)
             if (filter.ClientIds != null && filter.ClientIds.Any())
             {
-                query = query.Where(c => filter.ClientIds.Contains(c.Id));
+                query = query.Where(c => filter.ClientIds.Contains(c.ClientId));
             }
 
-            // 2. Фільтрація за статусом
-            if (!string.IsNullOrEmpty(filter.Status.ToString()))
+            if (filter.Status != null)
             {
                 query = query.Where(c => c.CurrentStatus == filter.Status);
             }
 
-            // 3. Фільтрація за датами
             if (filter.DateFrom.HasValue)
                 query = query.Where(c => c.StartDate >= filter.DateFrom.Value);
 
             if (filter.DateTo.HasValue)
                 query = query.Where(c => c.StartDate <= filter.DateTo.Value);
 
-            // --- ПАГІНАЦІЯ ---
             int pageIndex = page ?? 0;
             const int pageSize = 20;
 
             var contracts = await query
-                .OrderByDescending(c => c.StartDate) // Сортування обов'язкове для стабільної пагінації
+                .Include(c => c.Client)
+                .OrderBy(c => c.Id)
                 .Skip(pageIndex * pageSize)
                 .Take(pageSize)
                 .ToListAsync();
@@ -74,7 +81,7 @@ namespace Services.Services
 
         public async Task<IEnumerable<ContractInfoLookupDto>> LookupContractsInfo()
         {
-            var contracts = await _contractRepository.Query().Include(c => c.Client).Take(20).ToListAsync();
+            var contracts = await _contractRepository.Query().OrderBy(c => c.Id).Include(c => c.Client).Take(20).ToListAsync();
             return _mapper.Map<IEnumerable<ContractInfoLookupDto>>(contracts);
         }
 
@@ -124,6 +131,46 @@ namespace Services.Services
             _contractRepository.Update(contract);
             await _contractRepository.SaveChangesAsync();
         }
+
+        public async Task<ContractDetailsDto> GetContractDetailsAsync(int contractId)
+        {
+            var contractDetails = await _contractRepository.Query()
+                .Include(c => c.Documents)
+                .Where(c => c.Id == contractId)
+                .Select(c => new ContractDetailsDto
+                {
+                    Id = c.Id,
+                    ContractName = c.Name,
+                    StartDate = c.StartDate,
+                    ExpirationDate = c.ExpirationDate,
+                    CurrentStatus = c.CurrentStatus,
+
+                    ClientId = c.Client.Id,
+                    ClientName = c.Client.Name,
+                    ClientEmail = c.Client.Email,
+
+                    Documents = _wmsDocumentRepository.Query()
+                        .Where(d => d.ContractId == c.Id)
+                        .Select(d => new RelatedDocumentDto
+                        {
+                            Id = d.Id,
+                            DocumentType = d.DocumentType == DocumentType.InboundReceipt ? "Прибуття" : "Відвантаження",
+                            CreationDate = d.CreationDate,
+                            ExpectedTotalPallets = d.Items.Sum(i => i.ExpectedAmount)
+                        })
+                        .OrderByDescending(d => d.CreationDate) 
+                        .ToList()
+                })
+                .FirstOrDefaultAsync();
+
+            if (contractDetails == null)
+            {
+                throw new KeyNotFoundException($"Контракт з ID {contractId} не знайдено.");
+            }
+
+            return contractDetails;
+        }
+
 
     }
 }

@@ -26,7 +26,7 @@ namespace WMS.Api.Controllers
 
         [HttpGet("all")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<CellDto>))]
-        public async Task<ActionResult<List<CellDto>>> GetAllCellsAsync([FromQuery]int? page)
+        public async Task<ActionResult<List<CellDto>>> GetAllCellsAsync([FromQuery] int? page)
         {
             var cells = await _cellService.GetAllCellsAsync(page);
             _logger.LogInformation("Retrieved {Count} cells", cells.Count());
@@ -36,7 +36,7 @@ namespace WMS.Api.Controllers
         [HttpGet("{id}")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(CellDto))]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<ActionResult<CellDto>> GetCellByIdAsync([FromRoute]int id)
+        public async Task<ActionResult<CellDto>> GetCellByIdAsync([FromRoute] int id)
         {
             var cell = await _cellService.GetCellByIdAsync(id);
             if (cell == null)
@@ -51,9 +51,9 @@ namespace WMS.Api.Controllers
         [HttpGet("{cellId}/pallets")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<PalletInfoDto>))]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<ActionResult<List<PalletInfoDto>>> GetPalletsInCell([FromRoute]int cellId)
+        public async Task<ActionResult<List<PalletInfoDto>>> GetPalletsInCell([FromRoute] int cellId)
         {
-            if(await _cellService.GetCellByIdAsync(cellId) == null)
+            if (await _cellService.GetCellByIdAsync(cellId) == null)
             {
                 _logger.LogWarning("Cell with ID {CellIndex} not found", cellId);
                 return new NotFoundResult();
@@ -66,7 +66,7 @@ namespace WMS.Api.Controllers
         [HttpGet("{cellId}/occupancy")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(int))]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<ActionResult<int>> CalculateCellOccupancy([FromRoute]int cellId)
+        public async Task<ActionResult<int>> CalculateCellOccupancy([FromRoute] int cellId)
         {
             try
             {
@@ -84,7 +84,7 @@ namespace WMS.Api.Controllers
         [HttpPost("{cellId}/addPallet")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> AddPalletToCell([FromRoute] int cellId, [FromQuery]int palletId)
+        public async Task<IActionResult> AddPalletToCell([FromRoute] int cellId, [FromQuery] int palletId)
         {
             var success = await _cellService.AddPalletToCell(cellId, palletId);
             if (!success)
@@ -94,6 +94,15 @@ namespace WMS.Api.Controllers
             }
             _logger.LogInformation("Added pallet ID {PalletId} to cell ID {CellIndex}", palletId, cellId);
             return new OkResult();
+        }
+
+        [HttpGet("stats")]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(CellStatsDto))]
+        public async Task<ActionResult<CellStatsDto>> GetCellStatsAsync()
+        {
+            var stats = await _cellService.GetCellStatsAsync();
+            _logger.LogInformation("Retrieved cell statistics: {Stats}", stats);
+            return new OkObjectResult(stats);
         }
     }
 }

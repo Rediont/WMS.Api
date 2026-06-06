@@ -19,24 +19,32 @@ namespace Services.Services
             _mapper = mapper;
         }   
 
+        public async Task<int> GetTotalPagesAsync()
+        {
+            var total = await this._palletRepository.Query().CountAsync();
+            return (int)Math.Ceiling(total / 20.0); ;
+        }
+
         public async Task<IEnumerable<PalletInfoDto>> GetAllPalletsAsync(int? page)
         {
             var pallets = await _palletRepository.GetAllAsync(page);
             return _mapper.Map<IEnumerable<PalletInfoDto>>(pallets);
         }
 
-        public async Task<IEnumerable<PalletInfoDto>> GetAllPalletsAsync(PalletFilterDto filter, int? page)
+        public async Task<IEnumerable<PalletInfoDto>> GetAllPalletsAsync(PalletFilterDto? filter, int? page)
         {
             var query = _palletRepository.Query();
-
-            if (filter.ContractId.HasValue)
+            if (filter != null)
             {
-                query = query.Where(p => p.ArrivalDocument.ContractId == filter.ContractId.Value);
-            }
+                if (filter.ContractId.HasValue)
+                {
+                    query = query.Where(p => p.ArrivalDocument.ContractId == filter.ContractId.Value);
+                }
 
-            if (filter.PalletType.HasValue)
-            {
-                query = query.Where(p => p.PalletTypeId == filter.PalletType.Value);
+                if (filter.PalletType.HasValue)
+                {
+                    query = query.Where(p => p.PalletTypeId == filter.PalletType.Value);
+                }
             }
 
             int pageIndex = page ?? 0;

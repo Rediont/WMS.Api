@@ -6,11 +6,6 @@ using Microsoft.Extensions.Logging;
 using Services.Dtos.LookupDtos;
 using Services.Dtos.WmsDocumentDtos;
 using Services.Interfaces;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Services.Services
 {
@@ -41,10 +36,20 @@ namespace Services.Services
 
         public async Task<IEnumerable<WmsDocumentInfoDto>> GetAllDocumentsAsync(int? page)
         {
-            var documents = await _wmsDocumentRepository.GetAllAsync(page,
-                d => d.Contract,
-                d => d.Contract.Client
-            );
+            int pageSize = 20;
+            int pageIndex = page ?? 0;
+            var documents = await _wmsDocumentRepository.Query()
+                .Include(d => d.Contract)
+                .Include(d => d.Contract.Client)
+                .OrderBy(c => c.Id)
+                .Skip(pageIndex * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+
+            //var documents = await _wmsDocumentRepository.GetAllAsync(page,
+            //    d => d.Contract,
+            //    d => d.Contract.Client
+            //);
             return _mapper.Map<IEnumerable<WmsDocumentInfoDto>>(documents);
         }
 
@@ -53,6 +58,31 @@ namespace Services.Services
             var document = await _wmsDocumentRepository.GetByIdAsync(id);
 
             var dto = _mapper.Map<WmsDocumentInfoDto>(document);
+            return dto;
+        }
+
+        public async Task<DocumentDetailsDto> GetDocumentDetailsByIdAsync(int id)
+        {
+            var document = await _wmsDocumentRepository.GetByIdAsync(
+                id,
+                d => d.Contract,
+                d => d.Contract.Client,
+                d => d.Items,
+                d => d.Pallets
+            );
+            var dto = new DocumentDetailsDto
+            {
+                DocumentId = document.Id,
+                DocumentName = $"{document.DocumentType} #{document.Id}",
+                CreationDate = document.CreationDate,
+                DocumentType = (int)document.DocumentType,
+                TotalItems = document.Items.Sum(i => i.ExpectedAmount),
+                ClientId = document.Contract.Client.Id,
+                ClientName = document.Contract.Client.Name,
+                ContractId = document.Contract.Id,
+                ContractName = document.Contract.Name,
+                Items = _mapper.Map<List<DocumentDetailsItemDto>>(document.Items)
+            };
             return dto;
         }
 
@@ -459,5 +489,44 @@ namespace Services.Services
 
             return await Task.FromResult(documentTypes);
         }
+
+
+        public async Task<WeeklyDocumentStatsDto> GetWeeklyStatsAsync()
+        {
+            var today = DateTime.UtcNow.Date;
+            var startDate = today.AddDays(-6);
+
+            var transactions = await _wmsDocumentRepository.Query()
+                    .Where(t => t.CreationDate >= startDate && t.CreationDate < today.AddDays(1))
+                    .Select(t => new
+                    {
+                        Date = t.CreationDate.AddHours(3).Date,
+                        DocType = t.DocumentType,
+                        TotalPallets = t.Items.Sum(item => item.ExpectedAmount)
+                    })
+                    .ToListAsync();
+
+            var result = new WeeklyDocumentStatsDto();
+
+            for (int i = 0; i <= 6; i++)
+            {
+                var currentDate = startDate.AddDays(i);
+
+                result.Dates.Add(currentDate.ToString("dd.MM"));
+                var arrivals = transactions
+                    .Where(t => t.Date == currentDate && t.DocType == DocumentType.InboundReceipt)
+                    .Sum(t => t.TotalPallets);
+
+                var departures = transactions
+                    .Where(t => t.Date == currentDate && t.DocType == DocumentType.OutboundShipment)
+                    .Sum(t => t.TotalPallets);
+
+                result.Arrivals.Add(arrivals);
+                result.Departures.Add(departures);
+            }
+
+            return result;
+        }
+
     }
 }

@@ -79,5 +79,10 @@ namespace Infrastructure.Repositories
         {
             await _context.SaveChangesAsync(); 
         }
+
+        public async Task<int> CountAsync(Expression<Func<T, bool>> predicate)
+        {
+            return await _context.Set<T>().CountAsync(predicate);
+        }
     }
 }

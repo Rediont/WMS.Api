@@ -82,7 +82,7 @@ namespace Services.Services
                 .Select(floorGroup => new AlleyCellOccupancyMapDto
                 {
                     AlleyIndex = alleyIndex,
-                    FloorIndex = floorGroup.Key,
+                    FloorIndex = floorGroup.Key + 1,
                     CellOccupancies = floorGroup
                         .OrderBy(c => c.CellIndex)
                         .Select(c => new CellOccupancyDto
@@ -92,7 +92,7 @@ namespace Services.Services
                         })
                         .ToList()
                 })
-                .OrderByDescending(f => f.FloorIndex)
+                .OrderBy(f => f.FloorIndex)
                 .ToList();
 
             return map;

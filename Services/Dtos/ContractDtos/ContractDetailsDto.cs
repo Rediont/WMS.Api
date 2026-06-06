@@ -14,7 +14,20 @@ namespace Services.Dtos.ContractDtos
         public DateTime StartDate { get; set; }
         public DateTime ExpirationDate { get; set; }
         public ContractStatus CurrentStatus { get; set; }
-        public IEnumerable<WmsDocument>? Documents { get; set; }
 
+        public int ClientId { get; set; }
+        public string ClientName { get; set; }
+        public string ClientEmail { get; set; }
+
+        public IEnumerable<RelatedDocumentDto>? Documents { get; set; }
+
+    }
+
+    public class RelatedDocumentDto
+    {
+        public int Id { get; set; }
+        public string DocumentType { get; set; }
+        public DateTime CreationDate { get; set; }
+        public int ExpectedTotalPallets { get; set; }
     }
 }

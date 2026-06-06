@@ -35,7 +35,8 @@ namespace Services.Mappers
                 .ForMember(dest => dest.ArrivalDocumentId, opt => opt.MapFrom(src => src.ArrivalDocumentId))
                 .ForMember(dest => dest.ArrivalDate, opt => opt.MapFrom(src => src.ArrivalDocument.CreationDate))
                 .ForMember(dest => dest.CellIndex, opt => opt.MapFrom(src => src.CellIndex))
-                .ForMember(dest => dest.AlleyIndex, opt => opt.MapFrom(src => src.AlleyIndex));
+                .ForMember(dest => dest.AlleyIndex, opt => opt.MapFrom(src => src.AlleyIndex))
+                .ForMember(dest => dest.PalletStatus, opt => opt.MapFrom(src => src.PalletStatus));
 
             CreateMap<PalletInfoDto, Pallet>();
 
@@ -60,8 +61,11 @@ namespace Services.Mappers
 
             CreateMap<Contract, ContractDto>()
                 .ForMember(dest => dest.ContractId, opt => opt.MapFrom(src => src.Id))
-                .ForMember(dest => dest.ContractName, opt => opt.MapFrom(src => src.Name));
-            
+                .ForMember(dest => dest.ContractName, opt => opt.MapFrom(src => src.Name))
+                .ForMember(dest => dest.ClientId, opt => opt.MapFrom(src => src.Client.Id))
+                .ForMember(dest => dest.ClientName, opt => opt.MapFrom(src => src.Client.Name))            
+                .ForMember(dest => dest.CurrentStatus, opt => opt.MapFrom(src => (int)src.CurrentStatus));
+
             CreateMap<Contract, ContractInfoLookupDto>()
             .ForMember(dest => dest.ContractName, opt => opt.MapFrom(src => src.Name))
             .ForMember(dest => dest.ClientName, opt => opt.MapFrom(src => src.Client != null ? src.Client.Name : "Невідомий клієнт"))
@@ -102,6 +106,11 @@ namespace Services.Mappers
             CreateMap<BillItem, BillItemDto>()
                 .ForMember(dest => dest.CostPerDay, opt => opt.MapFrom(src => src.UnitPrice))
                 .ForMember(dest => dest.TotalCost, opt => opt.MapFrom(src => src.TotalPrice));
+
+            CreateMap<WmsDocumentItem, DocumentDetailsItemDto>()
+                .ForMember(dest => dest.PalletTypeId, opt => opt.MapFrom(src => src.PalletTypeId))
+                .ForMember(dest => dest.ExpectedAmount, opt => opt.MapFrom(src => src.ExpectedAmount))
+                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id));
         }
     }
 }

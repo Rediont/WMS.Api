@@ -124,5 +124,12 @@ namespace WMS.Api.Controllers
             return Ok(result);
         }
 
+
+        [HttpGet("weekly-stats")]
+        public async Task<IActionResult> GetWeeklyStatsAsync()
+        {
+            var stats = await _wmsDocumentService.GetWeeklyStatsAsync();
+            return Ok(stats);
+        }
     }
 }

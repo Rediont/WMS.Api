@@ -10,7 +10,7 @@ namespace Services.Interfaces
 {
     public interface IPaymentService
     {
-        public Task<IEnumerable<Bill>> GetAllPaymentRecords(int page);
+        public Task<IEnumerable<BillRecordDto>> GetAllPaymentRecords(int page);
 
         public Task<BillDto> CalculateContractBillForClient(int clientId, int contractId, DateTime periodStart, DateTime periodEnd);
 

@@ -35,10 +35,24 @@ namespace Services.Services
             _contractService = contractService;
         }
 
-        public async Task<IEnumerable<Bill>> GetAllPaymentRecords(int page)
+        public async Task<IEnumerable<BillRecordDto>> GetAllPaymentRecords(int page)
         {
-            var result = await this._billRepository.GetAllAsync(page);
-            return result;
+
+            var bills = await this._billRepository.GetAllAsync(page,
+                b => b.Client,
+                b => b.Contract);
+
+            return bills.Select(b => new BillRecordDto
+            {
+                Id = b.Id,
+                ClientId = b.ClientId,
+                ClientName = b.Client?.Name ?? "N/A", // Переконайся, що навігаційна властивість підвантажена
+                ContractId = b.ContractId,
+                ContractName = b.Contract?.Name ?? "Невідомий контракт",
+                CreationDate = b.PeriodStartDate,
+                Total = (double)b.TotalCost,
+                IsPaid = b.PaymentDate.HasValue
+            });
         }
 
         public async Task<BillDto> CalculateContractBillForClient(int clientId, int contractId, DateTime periodStart, DateTime periodEnd)

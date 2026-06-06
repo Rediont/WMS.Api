@@ -15,6 +15,8 @@ namespace Services.Interfaces
 
         public Task<WmsDocumentInfoDto> GetDocumentByIdAsync(int id);
 
+        public Task<DocumentDetailsDto> GetDocumentDetailsByIdAsync(int id);
+
         public Task<List<WmsDocumentInfoDto>> GetDocumentsByIdsAsync(List<int> ids);
 
         public Task<WmsDocument> CreateReceiptAsync(int contractId, int clientId, DateTime date, NewDocumentItemsDto newItems);
@@ -27,6 +29,6 @@ namespace Services.Interfaces
 
         public Task<IEnumerable<DocumentTypeLookupDto>> GetDocumentTypesAsync();
 
-
+        public Task<WeeklyDocumentStatsDto> GetWeeklyStatsAsync();
     }
 }

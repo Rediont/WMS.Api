@@ -27,5 +27,6 @@ namespace Services.Interfaces
 
         public Task AddDocumentToContract(int id, WmsDocument document);
 
+        public Task<ContractDetailsDto> GetContractDetailsAsync(int contractId);
     }
 }

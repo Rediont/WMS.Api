@@ -20,5 +20,7 @@ namespace Services.Dtos.PalletDtos
 
         public int? AlleyIndex { get; set; }
         public int? CellIndex { get; set; }
+
+        public int PalletStatus { get; set; }
     }
 }
