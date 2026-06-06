@@ -25,22 +25,15 @@ namespace Infrastructure.EntityTypeConfigs
             builder.Property(c => c.CurrentStatus)
                 .IsRequired();
             
-            builder.HasMany(c => c.Inbounds)
-                   .WithOne()
-                   .HasForeignKey("ContractId")
-                   .OnDelete(DeleteBehavior.Cascade)
+            builder.Property(c=> c.ClientId)
+                .IsRequired();
+
+            builder.HasMany(c => c.Documents)
+                   .WithOne(document => document.Contract)
+                   .HasForeignKey(document => document.ContractId)
+                   .OnDelete(DeleteBehavior.Restrict)
                    .IsRequired(false);
             
-            builder.HasMany(c => c.Outbounds)
-                   .WithOne()
-                   .HasForeignKey("ContractId")
-                   .OnDelete(DeleteBehavior.Cascade)
-                   .IsRequired(false);
-
-            //builder.HasMany(c => c.itemList)
-            //       .WithOne()
-            //       .HasForeignKey("ContractId")
-            //       .OnDelete(DeleteBehavior.Cascade);
         }
     }
 }

@@ -20,26 +20,27 @@ namespace Infrastructure.EntityTypeConfigs
             builder.Property(c => c.FloorIndex)
                 .IsRequired();
 
-            builder.Property(c => c.isOccupied)
+            builder.Property(c => c.IsOccupied)
                 .HasDefaultValue(false);
 
-            builder.Property(c => c.totalCapacity)
+            builder.Property(c => c.TotalCapacity)
                 .IsRequired()
                 .HasDefaultValue(3);
 
-            builder.Property(c => c.usedCapacity)
+            builder.Property(c => c.UsedCapacity)
                 .IsRequired()
                 .HasDefaultValue(0);
 
             builder.HasMany(c => c.StoredPallets) 
                 .WithOne(p => p.Cell)         
-                .HasForeignKey(p => new { p.AlleyId, p.CellId })
+                .HasForeignKey(p => new { p.AlleyIndex, p.CellIndex })
                 .OnDelete(DeleteBehavior.Restrict);
 
-            //builder.HasOne(c => c.item)
-            //       .WithOne()
-            //       .HasForeignKey<Item>("CellAlleyIndex", "CellIndex")
-            //       .OnDelete(DeleteBehavior.SetNull);
+            builder.HasOne(c => c.Alley)
+                .WithMany(a => a.Cells)
+                .HasForeignKey(c => c.AlleyIndex)
+                .HasPrincipalKey(a => a.AlleyIndex)
+                .OnDelete(DeleteBehavior.Cascade);
         }
     }
 }

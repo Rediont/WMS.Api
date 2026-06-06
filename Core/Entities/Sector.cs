@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Domain.Interface;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -6,8 +7,9 @@ using System.Threading.Tasks;
 
 namespace Domain.Entities
 {
-    public class Sector
+    public class Sector : IEntity
     {
+        public int Id { get; set; }
         public int AlleyIndex { get; set; } // індекс алеї в якій знаходиться сектор
         public virtual Alley Alley { get; set; }
         

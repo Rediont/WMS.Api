@@ -9,12 +9,12 @@ using System.Threading.Tasks;
 
 namespace Infrastructure.EntityTypeConfigs
 {
-    internal class PalletTypeEntityTypeConfig : IEntityTypeConfiguration<PalletTypes>
+    internal class PalletTypeEntityTypeConfig : IEntityTypeConfiguration<PalletType>
     {
-        public void Configure(EntityTypeBuilder<PalletTypes> builder) 
+        public void Configure(EntityTypeBuilder<PalletType> builder) 
         {
             builder.ToTable("PalletTypes");
-            builder.HasKey(pt => pt.TypeId);
+            builder.HasKey(pt => pt.Id);
 
             builder.Property(pt => pt.Name)
                    .IsRequired()
@@ -23,6 +23,8 @@ namespace Infrastructure.EntityTypeConfigs
             builder.Property(pt => pt.RequiredCapacity)
                    .IsRequired();
 
+            builder.Property(pt => pt.Cost)
+                .IsRequired();
         }
     }
 }

@@ -1,0 +1,15 @@
+﻿using Services.Dtos.WmsDocumentDtos;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace Services.Dtos.ContractDtos
+{
+    public class ContractShipmentsInfoDto
+    {
+        public int ContractId { get; set; }
+        public List<WmsDocumentInfoDto> InboundReceipts { get; set; }
+    }
+}

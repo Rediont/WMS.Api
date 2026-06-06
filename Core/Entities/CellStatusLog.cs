@@ -28,6 +28,6 @@ namespace Domain.Entities
         public int Amount { get; set; }
         
         public int PalletTypeId { get; set; }
-        public virtual PalletTypes PalletType { get; set; }
+        public virtual PalletType PalletType { get; set; }
     }
 }

@@ -1,7 +1,10 @@
 ﻿using AutoMapper;
 using Domain.Entities;
 using Infrastructure.Interfaces;
-using Services.Dtos;
+using Microsoft.EntityFrameworkCore;
+using Services.Dtos.ClientDtos;
+using Services.Dtos.ContractDtos;
+using Services.Dtos.LookUpDtos;
 using Services.Interfaces;
 
 namespace Services.Services
@@ -19,9 +22,9 @@ namespace Services.Services
             _mapper = mapper;
         }
 
-        public async Task<IEnumerable<ClientInfoDto>> GetAllClients()
+        public async Task<IEnumerable<ClientInfoDto>> GetAllClients(int? page)
         {
-            var clients = await _clientRepository.GetAllAsync();
+            var clients = await _clientRepository.GetAllAsync(page);
             return _mapper.Map<IEnumerable<ClientInfoDto>>(clients);
         }
 
@@ -35,7 +38,20 @@ namespace Services.Services
             return _mapper.Map<ClientInfoDto>(client);
         }
 
-        public async Task AddClient(string name, string clientEDRPO, string contactPersonName, string phoneNumber, string email)
+        public async Task<IEnumerable<ClientLookupDto>> LookupClientsInfoAsync()
+        {
+            var lookups = await _clientRepository.Query()
+                .Select(c => new ClientLookupDto
+                {
+                    Id = c.Id,
+                    Name = c.Name
+                })
+                .ToListAsync();
+
+            return lookups;
+        }
+
+        public async Task<ClientInfoDto> AddClient(string name, string clientEDRPO, string contactPersonName, string phoneNumber, string email)
         {
             Client newClient = new Client
             {
@@ -47,6 +63,8 @@ namespace Services.Services
                 ContractList = null
             };
             await _clientRepository.AddAsync(newClient);
+            await _clientRepository.SaveChangesAsync();
+            return _mapper.Map<ClientInfoDto>(newClient);
         }
 
         public async Task UpdateClientAsync(
@@ -85,6 +103,7 @@ namespace Services.Services
                 throw new Exception("Client not found");
             }
             _clientRepository.Delete(client);
+            await _clientRepository.SaveChangesAsync();
         }
 
         public async Task AddContractToClient(int clientId, Contract contract)
@@ -100,6 +119,7 @@ namespace Services.Services
             }
             client.ContractList.Add(contract);
             _clientRepository.Update(client);
+            await _clientRepository.SaveChangesAsync();
         }
 
         public async Task SetClientContractStatus(int clientId, int contractId, ContractStatus status)
@@ -122,6 +142,7 @@ namespace Services.Services
 
             _contractService.UpdateContractAsync(contract.Id, status: status).Wait();
             _clientRepository.Update(client);
+            await _clientRepository.SaveChangesAsync();
         }
 
         public async Task<List<ContractDto>> GetClientContracts(int clientId)

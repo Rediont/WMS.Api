@@ -1,15 +1,18 @@
 ﻿
-using Microsoft.AspNetCore.Mvc;
 using Domain.Entities;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Services.Dtos.ClientDtos;
+using Services.Dtos.LookUpDtos;
 using Services.Interfaces;
 using System.Threading.Tasks;
-using Services.Dtos;
 
 namespace WMS.Api.Controllers
 {
     [ApiController]
     [Route("[controller]")]
-    public class ClientManagerController
+    [Authorize(Roles = "Admin, Manager")]
+    public class ClientManagerController : ControllerBase
     {
         private readonly IClientService _clientService;
         private readonly ILogger<ClientManagerController> _logger;
@@ -23,11 +26,11 @@ namespace WMS.Api.Controllers
         }
 
         [HttpGet("all")]
-        public async Task<IActionResult> GetAllClients()
+        public async Task<IActionResult> GetAllClients([FromQuery]int? page)
         {
             try
             {
-                var clients = await _clientService.GetAllClients();
+                var clients = await _clientService.GetAllClients(page);
                 _logger.LogInformation("Retrieved {ClientCount} clients", clients.Count());
                 return new OkObjectResult(clients);
             }
@@ -38,12 +41,12 @@ namespace WMS.Api.Controllers
             }
         }
 
-        [HttpGet("get/{clientId}")]
-        public IActionResult GetClientById([FromRoute] int clientId)
+        [HttpGet("{clientId}")]
+        public async Task<IActionResult> GetClientById([FromRoute] int clientId)
         {
             try
             {
-                var client = _clientService.GetClientByIdAsync(clientId);
+                var client = await _clientService.GetClientByIdAsync(clientId);
                 if (client == null)
                 {
                     _logger.LogWarning("Client with ID: {ClientId} not found", clientId);
@@ -60,32 +63,27 @@ namespace WMS.Api.Controllers
         }
 
         [HttpPost("add")]
-        public IActionResult AddClient(
-            [FromForm] string clientName,
-            [FromForm] string emailAddress,
-            [FromForm] string EDRPO,
-            [FromForm] string contactPersonName,
-            [FromForm] string contactPersonPhone)
+        public async Task<IActionResult> AddClient([FromBody] ClientCreationDto newClient)
         {
             try
             {
-                _clientService.AddClient(clientName, EDRPO, contactPersonName, contactPersonPhone, emailAddress);
-                _logger.LogInformation("Added new client: {ClientName}", clientName);
-                return new OkResult();
+                ClientInfoDto client = await _clientService.AddClient(newClient.Name, newClient.EDRPO, newClient.ContactPersonName, newClient.ContactPersonPhone, newClient.Email);
+                _logger.LogInformation("Added new client: {ClientName}", newClient.Name);
+                return new OkObjectResult(client);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error adding client: {ClientName}", clientName);
+                _logger.LogError(ex, "Error adding client: {ClientName}", newClient.Name);
                 return new StatusCodeResult(500);
             }
         }
 
         [HttpDelete("delete")]
-        public IActionResult RemoveClient(int clientId)
+        public async Task<IActionResult> RemoveClient([FromQuery]int clientId)
         {
             try
             {
-                _clientService.DeleteClient(clientId);
+                await _clientService.DeleteClient(clientId);
                 _logger.LogInformation("Removed client with ID: {ClientId}", clientId);
                 return new OkResult();
             }
@@ -98,17 +96,17 @@ namespace WMS.Api.Controllers
         }
 
         [HttpPut("update")]
-        public Task<IActionResult> UpdateClient(
-            int clientId,
-            string? clientName = null,
-            string? emailAddress = null,
-            string? EDRPO = null,
-            string? contactPersonName = null,
-            string? contactPersonPhone = null)
+        public async Task<IActionResult> UpdateClient(
+            [FromForm]int clientId,
+            [FromForm] string? clientName = null,
+            [FromForm] string? emailAddress = null,
+            [FromForm] string? EDRPO = null,
+            [FromForm] string? contactPersonName = null,
+            [FromForm] string? contactPersonPhone = null)
         {
             try
             {
-                _clientService.UpdateClientAsync(
+                await _clientService.UpdateClientAsync(
                     clientId,
                     clientName,
                     EDRPO,
@@ -116,12 +114,12 @@ namespace WMS.Api.Controllers
                     contactPersonPhone,
                     emailAddress);
                 _logger.LogInformation("Updated client with ID: {ClientId}", clientId);
-                return Task.FromResult<IActionResult>(new OkResult());
+                return new OkResult();
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error updating client with ID: {ClientId}", clientId);
-                return Task.FromResult<IActionResult>(new StatusCodeResult(500));
+                return new StatusCodeResult(500);
             }
 
         }
@@ -132,10 +130,10 @@ namespace WMS.Api.Controllers
         //====================================================================================
 
 
-        public Task<IActionResult> CalculateCostForClient()
-        {
-            throw new NotImplementedException();
-        }
+        //public Task<IActionResult> CalculateCostForClient()
+        //{
+        //    throw new NotImplementedException();
+        //}
 
 
 

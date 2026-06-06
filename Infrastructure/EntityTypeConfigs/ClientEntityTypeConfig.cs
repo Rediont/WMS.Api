@@ -38,7 +38,7 @@ namespace Infrastructure.EntityTypeConfigs
                 .HasMaxLength(15);
 
             builder.HasMany(c => c.ContractList)
-                .WithOne()
+                .WithOne(contract => contract.Client)
                 .HasForeignKey("ClientId")
                 .OnDelete(DeleteBehavior.Restrict);
         }

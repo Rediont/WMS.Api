@@ -15,7 +15,7 @@ namespace Domain.Entities
         public virtual Contract Contract { get; set; }
         
         public int PalletTypeId { get; set; }
-        public virtual PalletTypes PalletType { get; set; }
+        public virtual PalletType PalletType { get; set; }
 
         public int Cost { get; set; }
     }

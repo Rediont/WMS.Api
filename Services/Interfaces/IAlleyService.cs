@@ -1,6 +1,7 @@
 ﻿using Domain.Entities;
 using Infrastructure.Interfaces;
-using Services.Dtos;
+using Services.Dtos.Alley;
+using Services.Dtos.CellDtos;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,16 +10,20 @@ using System.Threading.Tasks;
 
 namespace Services.Interfaces
 {
-    internal interface IAlleyService
+    public interface IAlleyService
     {
-        public Task<IEnumerable<AlleyDto>> GetAllAlleys();
+        public Task<IEnumerable<AlleyDto>> GetAllAlleysAsync();
 
-        public Task<AlleyDto> GetAlleyByIdAAsync(int id);
+        public Task<AlleyDto> GetAlleyByIdAsync(int id);
 
-        public void AddAlley(int height, int length, int width);
+        public Task<IEnumerable<AlleyOccupancyDto>> GetAlleysOccupancyRateAsync();
 
-        public void AddSectorToAlley(int alley_index, Sector sector);
+        public Task<IEnumerable<AlleyCellOccupancyMapDto>> GetCellMapForAlleyAsync(int alleyIndex);
 
-        public void RemoveSectorFromAlley(int alley_index, int sector_index);
+        public void AddAlley(WarehouseSettings options);
+
+        public void AddSectorToAlley(int alleyIndex, Sector sector);
+
+        public Task RemoveSectorFromAlley(int alleyIndex, int sectorIndex);
     }
 }

@@ -1,22 +1,39 @@
-﻿using Infrastructure.DataBase;
+﻿using Domain.Interface;
+using Infrastructure.DataBase;
 using Infrastructure.Interfaces;
 using Microsoft.EntityFrameworkCore;
-using DbContext = Infrastructure.DataBase.DbContext;
-using Domain.Interface;
+using System.Linq.Expressions;
+using ApplicationDbContext = Infrastructure.DataBase.ApplicationDbContext;
 
 namespace Infrastructure.Repositories
 {
     public class Repository<T> : IRepository<T> where T : class, IEntity
     {
-        protected readonly DbContext _context;
-        public Repository(DbContext context) 
+        protected readonly ApplicationDbContext _context;
+        public Repository(ApplicationDbContext context) 
         {
             _context = context; 
         }
 
-        public async Task<IEnumerable<T>> GetAllAsync()
+        public async Task<IEnumerable<T>> GetAllAsync(int? page = 0, params Expression<Func<T, object>>[] includes)
         {
-            return await _context.Set<T>().ToListAsync();
+            const int pageSize = 20;
+            int pageIndex = page ?? 0;
+
+            IQueryable<T> query = _context.Set<T>();
+            foreach (var include in includes) query = query.Include(include);
+
+            return await query
+             .Skip(pageIndex * pageSize)
+             .Take(pageSize)
+             .ToListAsync();
+        }
+
+        public async Task<int> CountTotalPagesAsync()
+        {
+            const int pageSize = 20;
+            int totalCount = await _context.Set<T>().CountAsync();
+            return (int)Math.Ceiling((double)totalCount / pageSize);
         }
 
         public IQueryable<T> Query() 
@@ -24,9 +41,11 @@ namespace Infrastructure.Repositories
            return _context.Set<T>().AsQueryable(); 
         }
 
-        public async Task<T?> GetByIdAsync(int id) 
+        public async Task<T?> GetByIdAsync(int id, params Expression<Func<T, object>>[] includes)
         {
-            return await _context.Set<T>().FindAsync(id); 
+            IQueryable<T> query = _context.Set<T>();
+            foreach (var include in includes) query = query.Include(include);
+            return await query.FirstOrDefaultAsync(e => e.Id == id);
         }
 
         public async Task<IEnumerable<T>> GetByIdsAsync(IEnumerable<int> ids)
@@ -39,6 +58,11 @@ namespace Infrastructure.Repositories
         public async Task AddAsync(T entity) 
         {
             await _context.Set<T>().AddAsync(entity);
+        }
+
+        public async Task AddRangeAsync(IEnumerable<T> entities) 
+        {
+            await _context.Set<T>().AddRangeAsync(entities);
         }
 
         public void Update(T entity)
@@ -54,6 +78,11 @@ namespace Infrastructure.Repositories
         public async Task SaveChangesAsync() 
         {
             await _context.SaveChangesAsync(); 
+        }
+
+        public async Task<int> CountAsync(Expression<Func<T, bool>> predicate)
+        {
+            return await _context.Set<T>().CountAsync(predicate);
         }
     }
 }

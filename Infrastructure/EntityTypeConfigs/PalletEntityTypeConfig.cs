@@ -16,15 +16,17 @@ namespace Infrastructure.EntityTypeConfigs
             builder.ToTable("pallets");
             builder.HasKey(p => p.Id);
 
-            // Зв'язок з типом (обов'язково, щоб знати розмір 1.0/1.5)
+            builder.Property(p => p.ArrivalDocumentId).IsRequired();
+
+            builder.Property(p => p.PalletStatus).IsRequired();
+
             builder.HasOne(p => p.PalletType)
                    .WithMany()
                    .HasForeignKey(p => p.PalletTypeId);
 
-            // Зв'язок з коміркою (використовуємо складений ключ)
             builder.HasOne(p => p.Cell)
                    .WithMany(c => c.StoredPallets) // У комірки є список палет
-                   .HasForeignKey(p => new { p.AlleyId, p.CellId })
+                   .HasForeignKey(p => new { p.AlleyIndex, p.CellIndex })
                    .IsRequired(false); // Палета може бути "в дорозі" (без комірки)
         }
     }
